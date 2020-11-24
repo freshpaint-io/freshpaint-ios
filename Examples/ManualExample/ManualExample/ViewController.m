@@ -6,7 +6,7 @@
 //  Copyright © 2016 Segment. All rights reserved.
 //
 
-#import <Analytics/Analytics.h>
+#import <Pods/Analytics/Analytics.h>
 #import "ViewController.h"
 
 

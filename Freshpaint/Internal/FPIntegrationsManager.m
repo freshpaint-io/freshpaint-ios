@@ -32,7 +32,7 @@
 NSString *FPAnalyticsIntegrationDidStart = @"io.freshpaint.analytics.integration.did.start";
 NSString *const FPAnonymousIdKey = @"FPAnonymousId";
 NSString *const kFPAnonymousIdFilename = @"freshpaint.anonymousId";
-NSString *const kFPCachedSettingsFilename = @"analytics.settings.v2.plist";
+NSString *const kFPCachedSettingsFilename = @"freshpaint.settings.v2.plist";
 
 
 @interface FPIdentifyPayload (AnonymousId)
@@ -446,42 +446,21 @@ NSString *const kFPCachedSettingsFilename = @"analytics.settings.v2.plist";
 - (void)refreshSettings
 {
     seg_dispatch_specific_async(_serialQueue, ^{
-        if (self.settingsRequest) {
-            return;
+        NSDictionary *previouslyCachedSettings = [self cachedSettings];
+        if (previouslyCachedSettings && [previouslyCachedSettings count] > 0) {
+            [self setCachedSettings:previouslyCachedSettings];
+        } else if (self.configuration.defaultSettings != nil) {
+            NSMutableDictionary *newSettings = [self.configuration.defaultSettings serializableMutableDeepCopy];
+            newSettings[@"integrations"][@"Freshpaint.io"][@"apiKey"] = self.configuration.writeKey;
+            [self setCachedSettings:newSettings];
+        } else {
+            [self setCachedSettings:@{
+                @"integrations" : @{
+                    @"Freshpaint.io" : @{@"apiKey" : self.configuration.writeKey},
+                },
+                @"plan" : @{@"track" : @{}}
+            }];
         }
-
-        self.settingsRequest = [self.httpClient settingsForWriteKey:self.configuration.writeKey completionHandler:^(BOOL success, NSDictionary *settings) {
-            seg_dispatch_specific_async(self -> _serialQueue, ^{
-                if (success) {
-                    [self setCachedSettings:settings];
-                    [self configureEdgeFunctions:settings];
-                } else {
-                    NSDictionary *previouslyCachedSettings = [self cachedSettings];
-                    if (previouslyCachedSettings && [previouslyCachedSettings count] > 0) {
-                        [self setCachedSettings:previouslyCachedSettings];
-                        [self configureEdgeFunctions:settings];
-                    } else if (self.configuration.defaultSettings != nil) {
-                        // If settings request fail, load a user-supplied version if present.
-                        // but make sure freshpaint.io is in the integrations
-                        NSMutableDictionary *newSettings = [self.configuration.defaultSettings serializableMutableDeepCopy];
-                        newSettings[@"integrations"][@"Freshpaint.io"][@"apiKey"] = self.configuration.writeKey;
-                        [self setCachedSettings:newSettings];
-                        // don't configure edge functions here.  it'll do the right thing on it's own.
-                    } else {
-                        // If settings request fail, fall back to using just Freshpaint integration.
-                        // Doesn't address situations where this callback never gets called (though we don't expect that to ever happen).
-                        [self setCachedSettings:@{
-                            @"integrations" : @{
-                                @"Freshpaint.io" : @{@"apiKey" : self.configuration.writeKey},
-                            },
-                            @"plan" : @{@"track" : @{}}
-                        }];
-                        // don't configure edge functions here.  it'll do the right thing on it's own.
-                    }
-                }
-                self.settingsRequest = nil;
-            });
-        }];
     });
 }
 

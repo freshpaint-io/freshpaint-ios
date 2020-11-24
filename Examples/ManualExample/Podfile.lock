@@ -1,0 +1,16 @@
+PODS:
+  - Analytics (3.9.0)
+
+DEPENDENCIES:
+  - Analytics (~> 3.0)
+
+SPEC REPOS:
+  trunk:
+    - Analytics
+
+SPEC CHECKSUMS:
+  Analytics: 67cce2129e4b0df5b532bf0c043043f292b32f5f
+
+PODFILE CHECKSUM: 3ea620c30737e8c269c6582ca9ba3d9d359d29e7
+
+COCOAPODS: 1.9.3

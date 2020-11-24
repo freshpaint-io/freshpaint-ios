@@ -6,7 +6,7 @@
 //  Copyright © 2016 Segment. All rights reserved.
 //
 
-#import <Analytics/Analytics.h>
+#import <Pods/Analytics/Analytics.h>
 #import "AppDelegate.h"
 
 
@@ -21,9 +21,9 @@
 {
     // https://segment.com/segment-mobile/sources/ios_manual_example/overview
     // Use your own writekey people :)
-    [SEGAnalytics setupWithConfiguration:[SEGAnalyticsConfiguration configurationWithWriteKey:@"St5WbSrxW5bzxn2NGwPDVzS9PBPYctOl"]];
-    [[SEGAnalytics sharedAnalytics] track:@"Manual Example Launched"];
-    [[SEGAnalytics sharedAnalytics] flush];
+    [FPAnalytics setupWithConfiguration:[FPAnalyticsConfiguration configurationWithWriteKey:@"St5WbSrxW5bzxn2NGwPDVzS9PBPYctOl"]];
+    [[FPAnalytics sharedAnalytics] track:@"Manual Example Launched"];
+    [[FPAnalytics sharedAnalytics] flush];
     return YES;
 }
 

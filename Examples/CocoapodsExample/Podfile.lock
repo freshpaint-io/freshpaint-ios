@@ -1,16 +1,16 @@
 PODS:
-  - Analytics (4.0.5)
+  - Freshpaint (4.0.5)
 
 DEPENDENCIES:
-  - Analytics (from `../../`)
+  - Freshpaint (from `../../`)
 
 EXTERNAL SOURCES:
-  Analytics:
+  Freshpaint:
     :path: "../../"
 
 SPEC CHECKSUMS:
-  Analytics: ecaad22be45600b95b16849092e0548cf5a40968
+  Freshpaint: 2f1bd11567debc910f1e46f101d73a04a6c445b1
 
-PODFILE CHECKSUM: 20b258e875ed60a69591787e49bdc3ca9f7c4ad3
+PODFILE CHECKSUM: ae9f8432a20c5956836d66d7633ac1826053538e
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.3

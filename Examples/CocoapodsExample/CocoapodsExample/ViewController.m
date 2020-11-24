@@ -6,7 +6,7 @@
 //  Copyright © 2016 Segment. All rights reserved.
 //
 
-#import <Segment/SEGAnalytics.h>
+#import <Freshpaint/FPAnalytics.h>
 #import "ViewController.h"
 
 
@@ -23,15 +23,15 @@
     // Do any additional setup after loading the view, typically from a nib.
     NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
     userActivity.webpageURL = [NSURL URLWithString:@"http://www.segment.com"];
-    [[SEGAnalytics sharedAnalytics] continueUserActivity:userActivity];
-    [[SEGAnalytics sharedAnalytics] track:@"test"];
-    [[SEGAnalytics sharedAnalytics] flush];
+    [[FPAnalytics sharedAnalytics] continueUserActivity:userActivity];
+    [[FPAnalytics sharedAnalytics] track:@"test"];
+    [[FPAnalytics sharedAnalytics] flush];
 }
 
 - (IBAction)fireEvent:(id)sender
 {
-    [[SEGAnalytics sharedAnalytics] track:@"Cocoapods Example Button"];
-    [[SEGAnalytics sharedAnalytics] flush];
+    [[FPAnalytics sharedAnalytics] track:@"Cocoapods Example Button"];
+    [[FPAnalytics sharedAnalytics] flush];
 }
 
 

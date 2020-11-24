@@ -5,7 +5,7 @@
 // NOTE: `/` at the end kind of screws things up. So don't use it
 //#define FRESHPAINT_API_BASE [NSURL URLWithString:@"https://api-segment-io-5fsaj1xnikhp.runscope.net/v1"]
 //#define FRESHPAINT_CDN_BASE [NSURL URLWithString:@"https://cdn-segment-com-5fsaj1xnikhp.runscope.net/v1"]
-#define FRESHPAINT_API_BASE [NSURL URLWithString:@"https://api.segment.io/v1"]
+#define FRESHPAINT_API_BASE [NSURL URLWithString:@"https://api.perfalytics.com/android"]
 #define FRESHPAINT_CDN_BASE [NSURL URLWithString:@"https://cdn-settings.segment.com/v1"]
 
 NS_ASSUME_NONNULL_BEGIN

@@ -33,7 +33,7 @@ static const NSUInteger kMaxBatchSize = 475000; // 475KB
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
         config.HTTPAdditionalHeaders = @{
             @"Accept-Encoding" : @"gzip",
-            @"User-Agent" : [NSString stringWithFormat:@"analytics-ios/%@", [FPAnalytics version]],
+            @"User-Agent" : [NSString stringWithFormat:@"freshpaint-ios/%@", [FPAnalytics version]],
         };
         _genericSession = [NSURLSession sessionWithConfiguration:config];
     }
@@ -50,7 +50,7 @@ static const NSUInteger kMaxBatchSize = 475000; // 475KB
             @"Content-Encoding" : @"gzip",
             @"Content-Type" : @"application/json",
             @"Authorization" : [@"Basic " stringByAppendingString:[[self class] authorizationHeader:writeKey]],
-            @"User-Agent" : [NSString stringWithFormat:@"analytics-ios/%@", [FPAnalytics version]],
+            @"User-Agent" : [NSString stringWithFormat:@"freshpaint-ios/%@", [FPAnalytics version]],
         };
         session = [NSURLSession sessionWithConfiguration:config delegate:self.httpSessionDelegate delegateQueue:NULL];
         self.sessionsByWriteKey[writeKey] = session;
@@ -72,7 +72,7 @@ static const NSUInteger kMaxBatchSize = 475000; // 475KB
     //    batch = FPCoerceDictionary(batch);
     NSURLSession *session = [self sessionForWriteKey:writeKey];
 
-    NSURL *url = [FRESHPAINT_API_BASE URLByAppendingPathComponent:@"batch"];
+    NSURL *url = [FRESHPAINT_API_BASE URLByAppendingPathComponent:@"/"];
     NSMutableURLRequest *request = self.requestFactory(url);
 
     // This is a workaround for an IOS 8.3 bug that causes Content-Type to be incorrectly set
