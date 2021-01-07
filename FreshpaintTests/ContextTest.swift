@@ -3,10 +3,10 @@
 //  Analytics
 //
 //  Created by Tony Xiao on 9/20/16.
-//  Copyright © 2016 Segment. All rights reserved.
+//  Copyright © 2016 Freshpaint. All rights reserved.
 //
 
-import Segment
+import Freshpaint
 import XCTest
 
 class ContextTests: XCTestCase {

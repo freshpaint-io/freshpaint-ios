@@ -1,0 +1,6 @@
+framework module Freshpaint {
+  umbrella header "Freshpaint.h"
+
+  export *
+  module * { export * }
+}

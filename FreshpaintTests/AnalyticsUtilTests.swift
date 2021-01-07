@@ -3,11 +3,11 @@
 //  Analytics
 //
 //  Created by David Fink on 10/18/17.
-//  Copyright © 2017 Segment. All rights reserved.
+//  Copyright © 2017 Freshpaint. All rights reserved.
 //
 
 
-import Segment
+import Freshpaint
 import XCTest
 
 class AnalyticsUtilTests: XCTestCase {

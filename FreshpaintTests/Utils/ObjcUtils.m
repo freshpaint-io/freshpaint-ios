@@ -3,7 +3,7 @@
 //  AnalyticsTests
 //
 //  Created by Brandon Sneed on 7/13/20.
-//  Copyright © 2020 Segment. All rights reserved.
+//  Copyright © 2020 Freshpaint. All rights reserved.
 //
 
 #import "ObjcUtils.h"

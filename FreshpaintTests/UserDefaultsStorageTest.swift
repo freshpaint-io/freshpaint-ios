@@ -2,10 +2,10 @@
 //  UserDefaultsStorageTest.swift
 //  Analytics
 //
-//  Copyright © 2016 Segment. All rights reserved.
+//  Copyright © 2016 Freshpaint. All rights reserved.
 //
 
-@testable import Segment
+@testable import Freshpaint
 import XCTest
 
 class UserDefaultsStorageTest : XCTestCase {
@@ -23,14 +23,14 @@ class UserDefaultsStorageTest : XCTestCase {
     }
     
     func testPersistsAndLoadsData() {
-        let dataIn = "segment".data(using: String.Encoding.utf8)!
+        let dataIn = "freshpaint".data(using: String.Encoding.utf8)!
         storage.setData(dataIn, forKey: "mydata")
         
         let dataOut = storage.data(forKey: "mydata")
         XCTAssertEqual(dataOut, dataIn)
         
         let strOut = String(data: dataOut!, encoding: .utf8)
-        XCTAssertEqual(strOut, "segment")
+        XCTAssertEqual(strOut, "freshpaint")
     }
     
     func testPersistsAndLoadsString() {
@@ -85,7 +85,7 @@ class UserDefaultsStorageTest : XCTestCase {
     
     func testShouldWorkWithNamespace() {
         let crypto = AES256Crypto(password: "thetrees")
-        let s = UserDefaultsStorage(defaults: UserDefaults.standard, namespacePrefix: "segment", crypto: crypto)
+        let s = UserDefaultsStorage(defaults: UserDefaults.standard, namespacePrefix: "freshpaint", crypto: crypto)
         let dict = [
             "san francisco": "tech",
             "new york": "finance",

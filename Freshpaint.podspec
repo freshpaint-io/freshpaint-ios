@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = "Freshpaint"
   s.module_name      = "Freshpaint"
-  s.version          = "4.0.5"
+  s.version          = "1.0.0"
   s.summary          = "The hassle-free way to add analytics to your iOS app."
 
   s.description      = <<-DESC
@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
                        app into Freshpaint.
                        DESC
 
-  s.homepage         = "https//freshpaint.io/"
+  s.homepage         = "https://freshpaint.io/"
   s.author           = { "Freshpaint" => "michael@freshpaint.io" }
   s.license          = "No License"
   s.source           = { "git" => "" }
@@ -20,8 +20,11 @@ Pod::Spec.new do |s|
   s.ios.frameworks = 'CoreTelephony'
   s.frameworks = 'Security', 'StoreKit', 'SystemConfiguration', 'UIKit'
 
+  s.preserve_paths = 'freshpaint.a'
+
   s.source_files = [
-    'Freshpaint/Classes/**/*',
-    'Freshpaint/Internal/**/*'
+    'Freshpaint/Classes/**/*.h',
+    'Freshpaint/Internal/**/*.h'
   ]
+  s.vendored_libraries = 'freshpaint.a'
 end

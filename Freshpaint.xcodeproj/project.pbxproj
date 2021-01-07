@@ -7,33 +7,293 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		64FDB074256DB879001884FD /* Freshpaint in Resources */ = {isa = PBXBuildFile; fileRef = 64FDB073256DB879001884FD /* Freshpaint */; };
-		64FDB080256DBADF001884FD /* FreshpaintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB07F256DBADF001884FD /* FreshpaintTests.swift */; };
-		64FDB082256DBADF001884FD /* Freshpaint.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EADEB85B1DECD080005322DA /* Freshpaint.framework */; };
+		64FDB3BD256EE283001884FD /* FPAliasPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB37F256EE283001884FD /* FPAliasPayload.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3BE256EE283001884FD /* FPFreshpaintIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB380256EE283001884FD /* FPFreshpaintIntegration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3BF256EE283001884FD /* FPSerializableValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB381256EE283001884FD /* FPSerializableValue.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3C0256EE283001884FD /* FPReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB382256EE283001884FD /* FPReachability.m */; };
+		64FDB3C1256EE283001884FD /* FPFreshpaintIntegrationFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB383256EE283001884FD /* FPFreshpaintIntegrationFactory.m */; };
+		64FDB3C2256EE283001884FD /* FPAnalytics.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB384256EE283001884FD /* FPAnalytics.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3C3256EE283001884FD /* FPAnalyticsUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB385256EE283001884FD /* FPAnalyticsUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3C4256EE283001884FD /* FPContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB386256EE283001884FD /* FPContext.m */; };
+		64FDB3C5256EE283001884FD /* FPGroupPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB387256EE283001884FD /* FPGroupPayload.m */; };
+		64FDB3C6256EE283001884FD /* FPTrackPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB388256EE283001884FD /* FPTrackPayload.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3C7256EE283001884FD /* FPPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB389256EE283001884FD /* FPPayload.m */; };
+		64FDB3C8256EE283001884FD /* Freshpaint.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB38A256EE283001884FD /* Freshpaint.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3C9256EE283001884FD /* FPAnalyticsConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB38B256EE283001884FD /* FPAnalyticsConfiguration.m */; };
+		64FDB3CA256EE283001884FD /* FPIdentifyPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB38C256EE283001884FD /* FPIdentifyPayload.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3CB256EE283001884FD /* FPHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB38D256EE283001884FD /* FPHTTPClient.m */; };
+		64FDB3CC256EE283001884FD /* FPScreenPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB38E256EE283001884FD /* FPScreenPayload.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3CD256EE283001884FD /* FPStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB38F256EE283001884FD /* FPStorage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3CE256EE283001884FD /* FPWebhookIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB390256EE283001884FD /* FPWebhookIntegration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3CF256EE283001884FD /* FPMiddleware.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB391256EE283001884FD /* FPMiddleware.m */; };
+		64FDB3D0256EE283001884FD /* FPScreenReporting.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB392256EE283001884FD /* FPScreenReporting.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3D1256EE283001884FD /* FPAnalyticsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB393256EE283001884FD /* FPAnalyticsUtils.m */; };
+		64FDB3D2256EE283001884FD /* FPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB394256EE283001884FD /* FPAnalytics.m */; };
+		64FDB3D3256EE283001884FD /* FPFreshpaintIntegrationFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB395256EE283001884FD /* FPFreshpaintIntegrationFactory.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3D4256EE283001884FD /* FPReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB396256EE283001884FD /* FPReachability.h */; };
+		64FDB3D5256EE283001884FD /* FPIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB397256EE283001884FD /* FPIntegration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3D6256EE283001884FD /* FPFreshpaintIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB398256EE283001884FD /* FPFreshpaintIntegration.m */; };
+		64FDB3D7256EE283001884FD /* FPAliasPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB399256EE283001884FD /* FPAliasPayload.m */; };
+		64FDB3D8256EE283001884FD /* FPIdentifyPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB39A256EE283001884FD /* FPIdentifyPayload.m */; };
+		64FDB3D9256EE283001884FD /* FPAnalyticsConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB39B256EE283001884FD /* FPAnalyticsConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3DA256EE283001884FD /* FPPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB39C256EE283001884FD /* FPPayload.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3DB256EE283001884FD /* FPTrackPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB39D256EE283001884FD /* FPTrackPayload.m */; };
+		64FDB3DC256EE283001884FD /* FPCrypto.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB39E256EE283001884FD /* FPCrypto.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3DD256EE283001884FD /* FPIntegrationFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB39F256EE283001884FD /* FPIntegrationFactory.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3DE256EE283001884FD /* FPGroupPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3A0256EE283001884FD /* FPGroupPayload.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3DF256EE283001884FD /* FPContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3A1256EE283001884FD /* FPContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3E0256EE283001884FD /* FPMiddleware.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3A2256EE283001884FD /* FPMiddleware.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3E1256EE283001884FD /* FPWebhookIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3A3256EE283001884FD /* FPWebhookIntegration.m */; };
+		64FDB3E2256EE283001884FD /* FPScreenPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3A4256EE283001884FD /* FPScreenPayload.m */; };
+		64FDB3E3256EE283001884FD /* FPHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3A5256EE283001884FD /* FPHTTPClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		64FDB3E4256EE283001884FD /* FPAES256Crypto.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3A7256EE283001884FD /* FPAES256Crypto.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		64FDB3E5256EE283001884FD /* FPState.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3A8256EE283001884FD /* FPState.m */; };
+		64FDB3E6256EE283001884FD /* UIViewController+FPScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3A9256EE283001884FD /* UIViewController+FPScreen.m */; };
+		64FDB3E7256EE283001884FD /* NSData+FPGZIP.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3AA256EE283001884FD /* NSData+FPGZIP.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		64FDB3E8256EE283001884FD /* FPUserDefaultsStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3AB256EE283001884FD /* FPUserDefaultsStorage.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		64FDB3E9256EE283001884FD /* FPUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3AC256EE283001884FD /* FPUtils.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		64FDB3EA256EE283001884FD /* FPStoreKitTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3AD256EE283001884FD /* FPStoreKitTracker.m */; };
+		64FDB3EB256EE283001884FD /* FPIntegrationsManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3AE256EE283001884FD /* FPIntegrationsManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		64FDB3EC256EE283001884FD /* FPMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3AF256EE283001884FD /* FPMacros.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		64FDB3ED256EE283001884FD /* NSViewController+FPScreen.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3B0256EE283001884FD /* NSViewController+FPScreen.h */; };
+		64FDB3EE256EE283001884FD /* FPFileStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B1256EE283001884FD /* FPFileStorage.m */; };
+		64FDB3EF256EE283001884FD /* UIViewController+FPScreen.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3B2256EE283001884FD /* UIViewController+FPScreen.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		64FDB3F0256EE283001884FD /* FPState.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3B3256EE283001884FD /* FPState.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		64FDB3F1256EE283001884FD /* FPAES256Crypto.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B4256EE283001884FD /* FPAES256Crypto.m */; };
+		64FDB3F2256EE283001884FD /* NSData+FPGZIP.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B5256EE283001884FD /* NSData+FPGZIP.m */; };
+		64FDB3F3256EE283001884FD /* FPIntegrationsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B6256EE283001884FD /* FPIntegrationsManager.m */; };
+		64FDB3F4256EE283001884FD /* FPStoreKitTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3B7256EE283001884FD /* FPStoreKitTracker.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		64FDB3F5256EE283001884FD /* FPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B8256EE283001884FD /* FPUtils.m */; };
+		64FDB3F6256EE283001884FD /* FPUserDefaultsStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B9256EE283001884FD /* FPUserDefaultsStorage.m */; };
+		64FDB3F7256EE283001884FD /* NSViewController+FPScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3BA256EE283001884FD /* NSViewController+FPScreen.m */; };
+		64FDB3F8256EE283001884FD /* FPFileStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB3BB256EE283001884FD /* FPFileStorage.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		64FDB45B256F05A3001884FD /* TrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB443256F05A3001884FD /* TrackingTests.swift */; };
+		64FDB45C256F05A3001884FD /* FreshpaintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB445256F05A3001884FD /* FreshpaintTests.swift */; };
+		64FDB45D256F05A3001884FD /* StoreKitTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB446256F05A3001884FD /* StoreKitTrackerTests.swift */; };
+		64FDB45E256F05A3001884FD /* IntegrationsManagerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB447256F05A3001884FD /* IntegrationsManagerTest.swift */; };
+		64FDB45F256F05A3001884FD /* AutoScreenReportingTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB449256F05A3001884FD /* AutoScreenReportingTest.swift */; };
+		64FDB460256F05A3001884FD /* CryptoTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB44A256F05A3001884FD /* CryptoTest.swift */; };
+		64FDB462256F05A3001884FD /* SerializationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB44C256F05A3001884FD /* SerializationTests.m */; };
+		64FDB463256F05A3001884FD /* NSData+FPGUNZIPP.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB44E256F05A3001884FD /* NSData+FPGUNZIPP.m */; };
+		64FDB464256F05A3001884FD /* ObjcUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB451256F05A3001884FD /* ObjcUtils.m */; };
+		64FDB465256F05A3001884FD /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB452256F05A3001884FD /* TestUtils.swift */; };
+		64FDB466256F05A3001884FD /* MiddlewareTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB453256F05A3001884FD /* MiddlewareTests.swift */; };
+		64FDB467256F05A3001884FD /* HTTPClientTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB454256F05A3001884FD /* HTTPClientTest.swift */; };
+		64FDB468256F05A3001884FD /* EndToEndTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB455256F05A3001884FD /* EndToEndTests.swift */; };
+		64FDB469256F05A4001884FD /* UserDefaultsStorageTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB456256F05A3001884FD /* UserDefaultsStorageTest.swift */; };
+		64FDB46A256F05A4001884FD /* AnalyticsUtilTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB457256F05A3001884FD /* AnalyticsUtilTests.swift */; };
+		64FDB46B256F05A4001884FD /* ContextTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB458256F05A3001884FD /* ContextTest.swift */; };
+		64FDB46C256F05A4001884FD /* FileStorageTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB459256F05A3001884FD /* FileStorageTest.swift */; };
+		64FDB49625783260001884FD /* FPReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB382256EE283001884FD /* FPReachability.m */; };
+		64FDB49725783260001884FD /* FPFreshpaintIntegrationFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB383256EE283001884FD /* FPFreshpaintIntegrationFactory.m */; };
+		64FDB49825783260001884FD /* FPContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB386256EE283001884FD /* FPContext.m */; };
+		64FDB49925783260001884FD /* FPGroupPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB387256EE283001884FD /* FPGroupPayload.m */; };
+		64FDB49A25783260001884FD /* FPPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB389256EE283001884FD /* FPPayload.m */; };
+		64FDB49B25783260001884FD /* FPAnalyticsConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB38B256EE283001884FD /* FPAnalyticsConfiguration.m */; };
+		64FDB49C25783260001884FD /* FPHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB38D256EE283001884FD /* FPHTTPClient.m */; };
+		64FDB49D25783260001884FD /* FPMiddleware.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB391256EE283001884FD /* FPMiddleware.m */; };
+		64FDB49E25783260001884FD /* FPAnalyticsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB393256EE283001884FD /* FPAnalyticsUtils.m */; };
+		64FDB49F25783260001884FD /* FPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB394256EE283001884FD /* FPAnalytics.m */; };
+		64FDB4A025783260001884FD /* FPFreshpaintIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB398256EE283001884FD /* FPFreshpaintIntegration.m */; };
+		64FDB4A125783260001884FD /* FPAliasPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB399256EE283001884FD /* FPAliasPayload.m */; };
+		64FDB4A225783260001884FD /* FPIdentifyPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB39A256EE283001884FD /* FPIdentifyPayload.m */; };
+		64FDB4A325783260001884FD /* FPTrackPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB39D256EE283001884FD /* FPTrackPayload.m */; };
+		64FDB4A425783260001884FD /* FPWebhookIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3A3256EE283001884FD /* FPWebhookIntegration.m */; };
+		64FDB4A525783260001884FD /* FPScreenPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3A4256EE283001884FD /* FPScreenPayload.m */; };
+		64FDB4A625783260001884FD /* FPState.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3A8256EE283001884FD /* FPState.m */; };
+		64FDB4A725783260001884FD /* UIViewController+FPScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3A9256EE283001884FD /* UIViewController+FPScreen.m */; };
+		64FDB4A825783260001884FD /* FPStoreKitTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3AD256EE283001884FD /* FPStoreKitTracker.m */; };
+		64FDB4A925783260001884FD /* FPFileStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B1256EE283001884FD /* FPFileStorage.m */; };
+		64FDB4AA25783260001884FD /* FPAES256Crypto.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B4256EE283001884FD /* FPAES256Crypto.m */; };
+		64FDB4AB25783260001884FD /* NSData+FPGZIP.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B5256EE283001884FD /* NSData+FPGZIP.m */; };
+		64FDB4AC25783260001884FD /* FPIntegrationsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B6256EE283001884FD /* FPIntegrationsManager.m */; };
+		64FDB4AD25783260001884FD /* FPUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B8256EE283001884FD /* FPUtils.m */; };
+		64FDB4AE25783260001884FD /* FPUserDefaultsStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3B9256EE283001884FD /* FPUserDefaultsStorage.m */; };
+		64FDB4AF25783260001884FD /* NSViewController+FPScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB3BA256EE283001884FD /* NSViewController+FPScreen.m */; };
+		64FDB4B625783287001884FD /* FPAliasPayload.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB37F256EE283001884FD /* FPAliasPayload.h */; };
+		64FDB4B725783287001884FD /* FPFreshpaintIntegration.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB380256EE283001884FD /* FPFreshpaintIntegration.h */; };
+		64FDB4B825783287001884FD /* FPSerializableValue.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB381256EE283001884FD /* FPSerializableValue.h */; };
+		64FDB4B925783287001884FD /* FPAnalytics.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB384256EE283001884FD /* FPAnalytics.h */; };
+		64FDB4BA25783287001884FD /* FPAnalyticsUtils.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB385256EE283001884FD /* FPAnalyticsUtils.h */; };
+		64FDB4BB25783287001884FD /* FPTrackPayload.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB388256EE283001884FD /* FPTrackPayload.h */; };
+		64FDB4BC25783287001884FD /* Freshpaint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB38A256EE283001884FD /* Freshpaint.h */; };
+		64FDB4BD25783287001884FD /* FPIdentifyPayload.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB38C256EE283001884FD /* FPIdentifyPayload.h */; };
+		64FDB4BE25783287001884FD /* FPScreenPayload.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB38E256EE283001884FD /* FPScreenPayload.h */; };
+		64FDB4BF25783287001884FD /* FPStorage.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB38F256EE283001884FD /* FPStorage.h */; };
+		64FDB4C025783287001884FD /* FPWebhookIntegration.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB390256EE283001884FD /* FPWebhookIntegration.h */; };
+		64FDB4C125783287001884FD /* FPScreenReporting.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB392256EE283001884FD /* FPScreenReporting.h */; };
+		64FDB4C225783287001884FD /* FPFreshpaintIntegrationFactory.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB395256EE283001884FD /* FPFreshpaintIntegrationFactory.h */; };
+		64FDB4C325783287001884FD /* FPReachability.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB396256EE283001884FD /* FPReachability.h */; };
+		64FDB4C425783287001884FD /* FPIntegration.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB397256EE283001884FD /* FPIntegration.h */; };
+		64FDB4C525783287001884FD /* FPAnalyticsConfiguration.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB39B256EE283001884FD /* FPAnalyticsConfiguration.h */; };
+		64FDB4C625783287001884FD /* FPPayload.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB39C256EE283001884FD /* FPPayload.h */; };
+		64FDB4C725783287001884FD /* FPCrypto.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB39E256EE283001884FD /* FPCrypto.h */; };
+		64FDB4C825783288001884FD /* FPIntegrationFactory.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB39F256EE283001884FD /* FPIntegrationFactory.h */; };
+		64FDB4C925783288001884FD /* FPGroupPayload.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3A0256EE283001884FD /* FPGroupPayload.h */; };
+		64FDB4CA25783288001884FD /* FPContext.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3A1256EE283001884FD /* FPContext.h */; };
+		64FDB4CB25783288001884FD /* FPMiddleware.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3A2256EE283001884FD /* FPMiddleware.h */; };
+		64FDB4CC25783288001884FD /* FPHTTPClient.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3A5256EE283001884FD /* FPHTTPClient.h */; };
+		64FDB4D0257832BA001884FD /* FPAES256Crypto.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3A7256EE283001884FD /* FPAES256Crypto.h */; };
+		64FDB4D1257832BA001884FD /* NSData+FPGZIP.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3AA256EE283001884FD /* NSData+FPGZIP.h */; };
+		64FDB4D2257832BA001884FD /* FPUserDefaultsStorage.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3AB256EE283001884FD /* FPUserDefaultsStorage.h */; };
+		64FDB4D3257832BB001884FD /* FPUtils.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3AC256EE283001884FD /* FPUtils.h */; };
+		64FDB4D4257832BB001884FD /* FPIntegrationsManager.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3AE256EE283001884FD /* FPIntegrationsManager.h */; };
+		64FDB4D5257832BB001884FD /* FPMacros.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3AF256EE283001884FD /* FPMacros.h */; };
+		64FDB4D6257832BB001884FD /* NSViewController+FPScreen.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3B0256EE283001884FD /* NSViewController+FPScreen.h */; };
+		64FDB4D7257832BB001884FD /* UIViewController+FPScreen.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3B2256EE283001884FD /* UIViewController+FPScreen.h */; };
+		64FDB4D8257832BB001884FD /* FPState.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3B3256EE283001884FD /* FPState.h */; };
+		64FDB4D9257832BB001884FD /* FPStoreKitTracker.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3B7256EE283001884FD /* FPStoreKitTracker.h */; };
+		64FDB4DA257832BB001884FD /* FPFileStorage.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3BB256EE283001884FD /* FPFileStorage.h */; };
+		A3B6E29925116B3A00609A13 /* Freshpaint.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EADEB85B1DECD080005322DA /* Freshpaint.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		64FDB083256DBADF001884FD /* PBXContainerItemProxy */ = {
+		A3B6E29A25116B4100609A13 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EADEB8521DECD080005322DA /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = EADEB85A1DECD080005322DA;
-			remoteInfo = Freshpaint;
+			remoteInfo = Segment;
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		64FDB482257831A7001884FD /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "/Users/michaelmalis/Downloads/freshpaint-ios/include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 0;
+			files = (
+				64FDB4D0257832BA001884FD /* FPAES256Crypto.h in Copy Files */,
+				64FDB4D1257832BA001884FD /* NSData+FPGZIP.h in Copy Files */,
+				64FDB4D2257832BA001884FD /* FPUserDefaultsStorage.h in Copy Files */,
+				64FDB4D3257832BB001884FD /* FPUtils.h in Copy Files */,
+				64FDB4D4257832BB001884FD /* FPIntegrationsManager.h in Copy Files */,
+				64FDB4D5257832BB001884FD /* FPMacros.h in Copy Files */,
+				64FDB4D6257832BB001884FD /* NSViewController+FPScreen.h in Copy Files */,
+				64FDB4D7257832BB001884FD /* UIViewController+FPScreen.h in Copy Files */,
+				64FDB4D8257832BB001884FD /* FPState.h in Copy Files */,
+				64FDB4D9257832BB001884FD /* FPStoreKitTracker.h in Copy Files */,
+				64FDB4DA257832BB001884FD /* FPFileStorage.h in Copy Files */,
+				64FDB4B625783287001884FD /* FPAliasPayload.h in Copy Files */,
+				64FDB4B725783287001884FD /* FPFreshpaintIntegration.h in Copy Files */,
+				64FDB4B825783287001884FD /* FPSerializableValue.h in Copy Files */,
+				64FDB4B925783287001884FD /* FPAnalytics.h in Copy Files */,
+				64FDB4BA25783287001884FD /* FPAnalyticsUtils.h in Copy Files */,
+				64FDB4BB25783287001884FD /* FPTrackPayload.h in Copy Files */,
+				64FDB4BC25783287001884FD /* Freshpaint.h in Copy Files */,
+				64FDB4BD25783287001884FD /* FPIdentifyPayload.h in Copy Files */,
+				64FDB4BE25783287001884FD /* FPScreenPayload.h in Copy Files */,
+				64FDB4BF25783287001884FD /* FPStorage.h in Copy Files */,
+				64FDB4C025783287001884FD /* FPWebhookIntegration.h in Copy Files */,
+				64FDB4C125783287001884FD /* FPScreenReporting.h in Copy Files */,
+				64FDB4C225783287001884FD /* FPFreshpaintIntegrationFactory.h in Copy Files */,
+				64FDB4C325783287001884FD /* FPReachability.h in Copy Files */,
+				64FDB4C425783287001884FD /* FPIntegration.h in Copy Files */,
+				64FDB4C525783287001884FD /* FPAnalyticsConfiguration.h in Copy Files */,
+				64FDB4C625783287001884FD /* FPPayload.h in Copy Files */,
+				64FDB4C725783287001884FD /* FPCrypto.h in Copy Files */,
+				64FDB4C825783288001884FD /* FPIntegrationFactory.h in Copy Files */,
+				64FDB4C925783288001884FD /* FPGroupPayload.h in Copy Files */,
+				64FDB4CA25783288001884FD /* FPContext.h in Copy Files */,
+				64FDB4CB25783288001884FD /* FPMiddleware.h in Copy Files */,
+				64FDB4CC25783288001884FD /* FPHTTPClient.h in Copy Files */,
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		641FB233256DA07E008F75C9 /* FreshpaintTests */ = {isa = PBXFileReference; lastKnownFileType = folder; path = FreshpaintTests; sourceTree = "<group>"; };
-		64FDB050256DB6C1001884FD /* FreshpaintTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FreshpaintTests.m; sourceTree = "<group>"; };
-		64FDB052256DB6C1001884FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		64FDB068256DB742001884FD /* FreshpaintTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreshpaintTests.swift; sourceTree = "<group>"; };
-		64FDB06A256DB742001884FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		64FDB073256DB879001884FD /* Freshpaint */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Freshpaint; sourceTree = "<group>"; };
-		64FDB07D256DBADF001884FD /* FreshpaintTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshpaintTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		64FDB07F256DBADF001884FD /* FreshpaintTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreshpaintTests.swift; sourceTree = "<group>"; };
-		64FDB081256DBADF001884FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		64FDB37F256EE283001884FD /* FPAliasPayload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPAliasPayload.h; sourceTree = "<group>"; };
+		64FDB380256EE283001884FD /* FPFreshpaintIntegration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPFreshpaintIntegration.h; sourceTree = "<group>"; };
+		64FDB381256EE283001884FD /* FPSerializableValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPSerializableValue.h; sourceTree = "<group>"; };
+		64FDB382256EE283001884FD /* FPReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPReachability.m; sourceTree = "<group>"; };
+		64FDB383256EE283001884FD /* FPFreshpaintIntegrationFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPFreshpaintIntegrationFactory.m; sourceTree = "<group>"; };
+		64FDB384256EE283001884FD /* FPAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPAnalytics.h; sourceTree = "<group>"; };
+		64FDB385256EE283001884FD /* FPAnalyticsUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPAnalyticsUtils.h; sourceTree = "<group>"; };
+		64FDB386256EE283001884FD /* FPContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPContext.m; sourceTree = "<group>"; };
+		64FDB387256EE283001884FD /* FPGroupPayload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPGroupPayload.m; sourceTree = "<group>"; };
+		64FDB388256EE283001884FD /* FPTrackPayload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPTrackPayload.h; sourceTree = "<group>"; };
+		64FDB389256EE283001884FD /* FPPayload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPPayload.m; sourceTree = "<group>"; };
+		64FDB38A256EE283001884FD /* Freshpaint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Freshpaint.h; sourceTree = "<group>"; };
+		64FDB38B256EE283001884FD /* FPAnalyticsConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPAnalyticsConfiguration.m; sourceTree = "<group>"; };
+		64FDB38C256EE283001884FD /* FPIdentifyPayload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIdentifyPayload.h; sourceTree = "<group>"; };
+		64FDB38D256EE283001884FD /* FPHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPHTTPClient.m; sourceTree = "<group>"; };
+		64FDB38E256EE283001884FD /* FPScreenPayload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPScreenPayload.h; sourceTree = "<group>"; };
+		64FDB38F256EE283001884FD /* FPStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPStorage.h; sourceTree = "<group>"; };
+		64FDB390256EE283001884FD /* FPWebhookIntegration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPWebhookIntegration.h; sourceTree = "<group>"; };
+		64FDB391256EE283001884FD /* FPMiddleware.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPMiddleware.m; sourceTree = "<group>"; };
+		64FDB392256EE283001884FD /* FPScreenReporting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPScreenReporting.h; sourceTree = "<group>"; };
+		64FDB393256EE283001884FD /* FPAnalyticsUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPAnalyticsUtils.m; sourceTree = "<group>"; };
+		64FDB394256EE283001884FD /* FPAnalytics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPAnalytics.m; sourceTree = "<group>"; };
+		64FDB395256EE283001884FD /* FPFreshpaintIntegrationFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPFreshpaintIntegrationFactory.h; sourceTree = "<group>"; };
+		64FDB396256EE283001884FD /* FPReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPReachability.h; sourceTree = "<group>"; };
+		64FDB397256EE283001884FD /* FPIntegration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIntegration.h; sourceTree = "<group>"; };
+		64FDB398256EE283001884FD /* FPFreshpaintIntegration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPFreshpaintIntegration.m; sourceTree = "<group>"; };
+		64FDB399256EE283001884FD /* FPAliasPayload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPAliasPayload.m; sourceTree = "<group>"; };
+		64FDB39A256EE283001884FD /* FPIdentifyPayload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIdentifyPayload.m; sourceTree = "<group>"; };
+		64FDB39B256EE283001884FD /* FPAnalyticsConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPAnalyticsConfiguration.h; sourceTree = "<group>"; };
+		64FDB39C256EE283001884FD /* FPPayload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPPayload.h; sourceTree = "<group>"; };
+		64FDB39D256EE283001884FD /* FPTrackPayload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPTrackPayload.m; sourceTree = "<group>"; };
+		64FDB39E256EE283001884FD /* FPCrypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPCrypto.h; sourceTree = "<group>"; };
+		64FDB39F256EE283001884FD /* FPIntegrationFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIntegrationFactory.h; sourceTree = "<group>"; };
+		64FDB3A0256EE283001884FD /* FPGroupPayload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPGroupPayload.h; sourceTree = "<group>"; };
+		64FDB3A1256EE283001884FD /* FPContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPContext.h; sourceTree = "<group>"; };
+		64FDB3A2256EE283001884FD /* FPMiddleware.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPMiddleware.h; sourceTree = "<group>"; };
+		64FDB3A3256EE283001884FD /* FPWebhookIntegration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPWebhookIntegration.m; sourceTree = "<group>"; };
+		64FDB3A4256EE283001884FD /* FPScreenPayload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPScreenPayload.m; sourceTree = "<group>"; };
+		64FDB3A5256EE283001884FD /* FPHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPHTTPClient.h; sourceTree = "<group>"; };
+		64FDB3A7256EE283001884FD /* FPAES256Crypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPAES256Crypto.h; sourceTree = "<group>"; };
+		64FDB3A8256EE283001884FD /* FPState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPState.m; sourceTree = "<group>"; };
+		64FDB3A9256EE283001884FD /* UIViewController+FPScreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+FPScreen.m"; sourceTree = "<group>"; };
+		64FDB3AA256EE283001884FD /* NSData+FPGZIP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+FPGZIP.h"; sourceTree = "<group>"; };
+		64FDB3AB256EE283001884FD /* FPUserDefaultsStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUserDefaultsStorage.h; sourceTree = "<group>"; };
+		64FDB3AC256EE283001884FD /* FPUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUtils.h; sourceTree = "<group>"; };
+		64FDB3AD256EE283001884FD /* FPStoreKitTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPStoreKitTracker.m; sourceTree = "<group>"; };
+		64FDB3AE256EE283001884FD /* FPIntegrationsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPIntegrationsManager.h; sourceTree = "<group>"; };
+		64FDB3AF256EE283001884FD /* FPMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPMacros.h; sourceTree = "<group>"; };
+		64FDB3B0256EE283001884FD /* NSViewController+FPScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSViewController+FPScreen.h"; sourceTree = "<group>"; };
+		64FDB3B1256EE283001884FD /* FPFileStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPFileStorage.m; sourceTree = "<group>"; };
+		64FDB3B2256EE283001884FD /* UIViewController+FPScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+FPScreen.h"; sourceTree = "<group>"; };
+		64FDB3B3256EE283001884FD /* FPState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPState.h; sourceTree = "<group>"; };
+		64FDB3B4256EE283001884FD /* FPAES256Crypto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPAES256Crypto.m; sourceTree = "<group>"; };
+		64FDB3B5256EE283001884FD /* NSData+FPGZIP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+FPGZIP.m"; sourceTree = "<group>"; };
+		64FDB3B6256EE283001884FD /* FPIntegrationsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPIntegrationsManager.m; sourceTree = "<group>"; };
+		64FDB3B7256EE283001884FD /* FPStoreKitTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPStoreKitTracker.h; sourceTree = "<group>"; };
+		64FDB3B8256EE283001884FD /* FPUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPUtils.m; sourceTree = "<group>"; };
+		64FDB3B9256EE283001884FD /* FPUserDefaultsStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPUserDefaultsStorage.m; sourceTree = "<group>"; };
+		64FDB3BA256EE283001884FD /* NSViewController+FPScreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSViewController+FPScreen.m"; sourceTree = "<group>"; };
+		64FDB3BB256EE283001884FD /* FPFileStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPFileStorage.h; sourceTree = "<group>"; };
+		64FDB3BC256EE283001884FD /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		64FDB443256F05A3001884FD /* TrackingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackingTests.swift; sourceTree = "<group>"; };
+		64FDB444256F05A3001884FD /* FreshpaintTests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FreshpaintTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		64FDB445256F05A3001884FD /* FreshpaintTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FreshpaintTests.swift; sourceTree = "<group>"; };
+		64FDB446256F05A3001884FD /* StoreKitTrackerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreKitTrackerTests.swift; sourceTree = "<group>"; };
+		64FDB447256F05A3001884FD /* IntegrationsManagerTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntegrationsManagerTest.swift; sourceTree = "<group>"; };
+		64FDB448256F05A3001884FD /* UIViewController+FPScreenTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+FPScreenTest.h"; sourceTree = "<group>"; };
+		64FDB449256F05A3001884FD /* AutoScreenReportingTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoScreenReportingTest.swift; sourceTree = "<group>"; };
+		64FDB44A256F05A3001884FD /* CryptoTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptoTest.swift; sourceTree = "<group>"; };
+		64FDB44C256F05A3001884FD /* SerializationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SerializationTests.m; sourceTree = "<group>"; };
+		64FDB44E256F05A3001884FD /* NSData+FPGUNZIPP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+FPGUNZIPP.m"; sourceTree = "<group>"; };
+		64FDB44F256F05A3001884FD /* ObjcUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcUtils.h; sourceTree = "<group>"; };
+		64FDB450256F05A3001884FD /* NSData+FPGUNZIPP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+FPGUNZIPP.h"; sourceTree = "<group>"; };
+		64FDB451256F05A3001884FD /* ObjcUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjcUtils.m; sourceTree = "<group>"; };
+		64FDB452256F05A3001884FD /* TestUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
+		64FDB453256F05A3001884FD /* MiddlewareTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MiddlewareTests.swift; sourceTree = "<group>"; };
+		64FDB454256F05A3001884FD /* HTTPClientTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPClientTest.swift; sourceTree = "<group>"; };
+		64FDB455256F05A3001884FD /* EndToEndTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EndToEndTests.swift; sourceTree = "<group>"; };
+		64FDB456256F05A3001884FD /* UserDefaultsStorageTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsStorageTest.swift; sourceTree = "<group>"; };
+		64FDB457256F05A3001884FD /* AnalyticsUtilTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsUtilTests.swift; sourceTree = "<group>"; };
+		64FDB458256F05A3001884FD /* ContextTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextTest.swift; sourceTree = "<group>"; };
+		64FDB459256F05A3001884FD /* FileStorageTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileStorageTest.swift; sourceTree = "<group>"; };
+		64FDB45A256F05A3001884FD /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		64FDB484257831A7001884FD /* libfreshpaint.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libfreshpaint.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		64FDB486257831A7001884FD /* freshpaint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = freshpaint.h; sourceTree = "<group>"; };
+		64FDB487257831A7001884FD /* freshpaint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = freshpaint.m; sourceTree = "<group>"; };
 		C31674B18CD818C64F8F3935 /* Pods_SegmentTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SegmentTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EADEB85B1DECD080005322DA /* Freshpaint.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Freshpaint.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EADEB86A1DECD0EF005322DA /* FreshpaintTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshpaintTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EADEB8FF1DED3711005322DA /* circle.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = circle.yml; sourceTree = "<group>"; };
 		EADEB9001DED3711005322DA /* Analytics.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = Analytics.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		EADEB9011DED3711005322DA /* Podfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Podfile.lock; sourceTree = "<group>"; };
@@ -41,11 +301,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		64FDB07A256DBADF001884FD /* Frameworks */ = {
+		64FDB481257831A7001884FD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64FDB082256DBADF001884FD /* Freshpaint.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,6 +312,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EADEB8671DECD0EF005322DA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3B6E29925116B3A00609A13 /* Freshpaint.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,41 +335,142 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		64FDB04F256DB6C1001884FD /* FreshpaintTests */ = {
+		64FDB37D256EE283001884FD /* Freshpaint */ = {
 			isa = PBXGroup;
 			children = (
-				64FDB050256DB6C1001884FD /* FreshpaintTests.m */,
-				64FDB052256DB6C1001884FD /* Info.plist */,
+				64FDB37E256EE283001884FD /* Classes */,
+				64FDB3A6256EE283001884FD /* Internal */,
+				64FDB3BC256EE283001884FD /* Info.plist */,
+			);
+			path = Freshpaint;
+			sourceTree = "<group>";
+		};
+		64FDB37E256EE283001884FD /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				64FDB37F256EE283001884FD /* FPAliasPayload.h */,
+				64FDB380256EE283001884FD /* FPFreshpaintIntegration.h */,
+				64FDB381256EE283001884FD /* FPSerializableValue.h */,
+				64FDB382256EE283001884FD /* FPReachability.m */,
+				64FDB383256EE283001884FD /* FPFreshpaintIntegrationFactory.m */,
+				64FDB384256EE283001884FD /* FPAnalytics.h */,
+				64FDB385256EE283001884FD /* FPAnalyticsUtils.h */,
+				64FDB386256EE283001884FD /* FPContext.m */,
+				64FDB387256EE283001884FD /* FPGroupPayload.m */,
+				64FDB388256EE283001884FD /* FPTrackPayload.h */,
+				64FDB389256EE283001884FD /* FPPayload.m */,
+				64FDB38A256EE283001884FD /* Freshpaint.h */,
+				64FDB38B256EE283001884FD /* FPAnalyticsConfiguration.m */,
+				64FDB38C256EE283001884FD /* FPIdentifyPayload.h */,
+				64FDB38D256EE283001884FD /* FPHTTPClient.m */,
+				64FDB38E256EE283001884FD /* FPScreenPayload.h */,
+				64FDB38F256EE283001884FD /* FPStorage.h */,
+				64FDB390256EE283001884FD /* FPWebhookIntegration.h */,
+				64FDB391256EE283001884FD /* FPMiddleware.m */,
+				64FDB392256EE283001884FD /* FPScreenReporting.h */,
+				64FDB393256EE283001884FD /* FPAnalyticsUtils.m */,
+				64FDB394256EE283001884FD /* FPAnalytics.m */,
+				64FDB395256EE283001884FD /* FPFreshpaintIntegrationFactory.h */,
+				64FDB396256EE283001884FD /* FPReachability.h */,
+				64FDB397256EE283001884FD /* FPIntegration.h */,
+				64FDB398256EE283001884FD /* FPFreshpaintIntegration.m */,
+				64FDB399256EE283001884FD /* FPAliasPayload.m */,
+				64FDB39A256EE283001884FD /* FPIdentifyPayload.m */,
+				64FDB39B256EE283001884FD /* FPAnalyticsConfiguration.h */,
+				64FDB39C256EE283001884FD /* FPPayload.h */,
+				64FDB39D256EE283001884FD /* FPTrackPayload.m */,
+				64FDB39E256EE283001884FD /* FPCrypto.h */,
+				64FDB39F256EE283001884FD /* FPIntegrationFactory.h */,
+				64FDB3A0256EE283001884FD /* FPGroupPayload.h */,
+				64FDB3A1256EE283001884FD /* FPContext.h */,
+				64FDB3A2256EE283001884FD /* FPMiddleware.h */,
+				64FDB3A3256EE283001884FD /* FPWebhookIntegration.m */,
+				64FDB3A4256EE283001884FD /* FPScreenPayload.m */,
+				64FDB3A5256EE283001884FD /* FPHTTPClient.h */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		64FDB3A6256EE283001884FD /* Internal */ = {
+			isa = PBXGroup;
+			children = (
+				64FDB3A7256EE283001884FD /* FPAES256Crypto.h */,
+				64FDB3A8256EE283001884FD /* FPState.m */,
+				64FDB3A9256EE283001884FD /* UIViewController+FPScreen.m */,
+				64FDB3AA256EE283001884FD /* NSData+FPGZIP.h */,
+				64FDB3AB256EE283001884FD /* FPUserDefaultsStorage.h */,
+				64FDB3AC256EE283001884FD /* FPUtils.h */,
+				64FDB3AD256EE283001884FD /* FPStoreKitTracker.m */,
+				64FDB3AE256EE283001884FD /* FPIntegrationsManager.h */,
+				64FDB3AF256EE283001884FD /* FPMacros.h */,
+				64FDB3B0256EE283001884FD /* NSViewController+FPScreen.h */,
+				64FDB3B1256EE283001884FD /* FPFileStorage.m */,
+				64FDB3B2256EE283001884FD /* UIViewController+FPScreen.h */,
+				64FDB3B3256EE283001884FD /* FPState.h */,
+				64FDB3B4256EE283001884FD /* FPAES256Crypto.m */,
+				64FDB3B5256EE283001884FD /* NSData+FPGZIP.m */,
+				64FDB3B6256EE283001884FD /* FPIntegrationsManager.m */,
+				64FDB3B7256EE283001884FD /* FPStoreKitTracker.h */,
+				64FDB3B8256EE283001884FD /* FPUtils.m */,
+				64FDB3B9256EE283001884FD /* FPUserDefaultsStorage.m */,
+				64FDB3BA256EE283001884FD /* NSViewController+FPScreen.m */,
+				64FDB3BB256EE283001884FD /* FPFileStorage.h */,
+			);
+			path = Internal;
+			sourceTree = "<group>";
+		};
+		64FDB442256F05A3001884FD /* FreshpaintTests */ = {
+			isa = PBXGroup;
+			children = (
+				64FDB443256F05A3001884FD /* TrackingTests.swift */,
+				64FDB444256F05A3001884FD /* FreshpaintTests-Bridging-Header.h */,
+				64FDB445256F05A3001884FD /* FreshpaintTests.swift */,
+				64FDB446256F05A3001884FD /* StoreKitTrackerTests.swift */,
+				64FDB447256F05A3001884FD /* IntegrationsManagerTest.swift */,
+				64FDB448256F05A3001884FD /* UIViewController+FPScreenTest.h */,
+				64FDB449256F05A3001884FD /* AutoScreenReportingTest.swift */,
+				64FDB44A256F05A3001884FD /* CryptoTest.swift */,
+				64FDB44C256F05A3001884FD /* SerializationTests.m */,
+				64FDB44D256F05A3001884FD /* Utils */,
+				64FDB453256F05A3001884FD /* MiddlewareTests.swift */,
+				64FDB454256F05A3001884FD /* HTTPClientTest.swift */,
+				64FDB455256F05A3001884FD /* EndToEndTests.swift */,
+				64FDB456256F05A3001884FD /* UserDefaultsStorageTest.swift */,
+				64FDB457256F05A3001884FD /* AnalyticsUtilTests.swift */,
+				64FDB458256F05A3001884FD /* ContextTest.swift */,
+				64FDB459256F05A3001884FD /* FileStorageTest.swift */,
+				64FDB45A256F05A3001884FD /* Info.plist */,
 			);
 			path = FreshpaintTests;
 			sourceTree = "<group>";
 		};
-		64FDB067256DB742001884FD /* FreshpaintTests */ = {
+		64FDB44D256F05A3001884FD /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				64FDB068256DB742001884FD /* FreshpaintTests.swift */,
-				64FDB06A256DB742001884FD /* Info.plist */,
+				64FDB44E256F05A3001884FD /* NSData+FPGUNZIPP.m */,
+				64FDB44F256F05A3001884FD /* ObjcUtils.h */,
+				64FDB450256F05A3001884FD /* NSData+FPGUNZIPP.h */,
+				64FDB451256F05A3001884FD /* ObjcUtils.m */,
+				64FDB452256F05A3001884FD /* TestUtils.swift */,
 			);
-			path = FreshpaintTests;
+			path = Utils;
 			sourceTree = "<group>";
 		};
-		64FDB07E256DBADF001884FD /* FreshpaintTests */ = {
+		64FDB485257831A7001884FD /* freshpaint */ = {
 			isa = PBXGroup;
 			children = (
-				64FDB07F256DBADF001884FD /* FreshpaintTests.swift */,
-				64FDB081256DBADF001884FD /* Info.plist */,
+				64FDB486257831A7001884FD /* freshpaint.h */,
+				64FDB487257831A7001884FD /* freshpaint.m */,
 			);
-			path = FreshpaintTests;
+			path = freshpaint;
 			sourceTree = "<group>";
 		};
 		EADEB8511DECD080005322DA = {
 			isa = PBXGroup;
 			children = (
-				64FDB073256DB879001884FD /* Freshpaint */,
-				641FB233256DA07E008F75C9 /* FreshpaintTests */,
-				64FDB04F256DB6C1001884FD /* FreshpaintTests */,
-				64FDB067256DB742001884FD /* FreshpaintTests */,
-				64FDB07E256DBADF001884FD /* FreshpaintTests */,
+				64FDB442256F05A3001884FD /* FreshpaintTests */,
+				64FDB37D256EE283001884FD /* Freshpaint */,
+				64FDB485257831A7001884FD /* freshpaint */,
 				EADEB85C1DECD080005322DA /* Products */,
 				EADEB8FE1DED36ED005322DA /* Supporting Files */,
 				245A982558D113AD25B2912E /* Frameworks */,
@@ -113,7 +481,8 @@
 			isa = PBXGroup;
 			children = (
 				EADEB85B1DECD080005322DA /* Freshpaint.framework */,
-				64FDB07D256DBADF001884FD /* FreshpaintTests.xctest */,
+				EADEB86A1DECD0EF005322DA /* FreshpaintTests.xctest */,
+				64FDB484257831A7001884FD /* libfreshpaint.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -135,29 +504,62 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				64FDB3D5256EE283001884FD /* FPIntegration.h in Headers */,
+				64FDB3C6256EE283001884FD /* FPTrackPayload.h in Headers */,
+				64FDB3C2256EE283001884FD /* FPAnalytics.h in Headers */,
+				64FDB3D0256EE283001884FD /* FPScreenReporting.h in Headers */,
+				64FDB3CD256EE283001884FD /* FPStorage.h in Headers */,
+				64FDB3DE256EE283001884FD /* FPGroupPayload.h in Headers */,
+				64FDB3D3256EE283001884FD /* FPFreshpaintIntegrationFactory.h in Headers */,
+				64FDB3CC256EE283001884FD /* FPScreenPayload.h in Headers */,
+				64FDB3E0256EE283001884FD /* FPMiddleware.h in Headers */,
+				64FDB3CA256EE283001884FD /* FPIdentifyPayload.h in Headers */,
+				64FDB3DA256EE283001884FD /* FPPayload.h in Headers */,
+				64FDB3DF256EE283001884FD /* FPContext.h in Headers */,
+				64FDB3CE256EE283001884FD /* FPWebhookIntegration.h in Headers */,
+				64FDB3C8256EE283001884FD /* Freshpaint.h in Headers */,
+				64FDB3C3256EE283001884FD /* FPAnalyticsUtils.h in Headers */,
+				64FDB3BD256EE283001884FD /* FPAliasPayload.h in Headers */,
+				64FDB3D9256EE283001884FD /* FPAnalyticsConfiguration.h in Headers */,
+				64FDB3BF256EE283001884FD /* FPSerializableValue.h in Headers */,
+				64FDB3BE256EE283001884FD /* FPFreshpaintIntegration.h in Headers */,
+				64FDB3DC256EE283001884FD /* FPCrypto.h in Headers */,
+				64FDB3DD256EE283001884FD /* FPIntegrationFactory.h in Headers */,
+				64FDB3E3256EE283001884FD /* FPHTTPClient.h in Headers */,
+				64FDB3EC256EE283001884FD /* FPMacros.h in Headers */,
+				64FDB3F0256EE283001884FD /* FPState.h in Headers */,
+				64FDB3E7256EE283001884FD /* NSData+FPGZIP.h in Headers */,
+				64FDB3F8256EE283001884FD /* FPFileStorage.h in Headers */,
+				64FDB3EB256EE283001884FD /* FPIntegrationsManager.h in Headers */,
+				64FDB3EF256EE283001884FD /* UIViewController+FPScreen.h in Headers */,
+				64FDB3E9256EE283001884FD /* FPUtils.h in Headers */,
+				64FDB3E4256EE283001884FD /* FPAES256Crypto.h in Headers */,
+				64FDB3F4256EE283001884FD /* FPStoreKitTracker.h in Headers */,
+				64FDB3E8256EE283001884FD /* FPUserDefaultsStorage.h in Headers */,
+				64FDB3D4256EE283001884FD /* FPReachability.h in Headers */,
+				64FDB3ED256EE283001884FD /* NSViewController+FPScreen.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		64FDB07C256DBADF001884FD /* FreshpaintTests */ = {
+		64FDB483257831A7001884FD /* freshpaint */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 64FDB085256DBADF001884FD /* Build configuration list for PBXNativeTarget "FreshpaintTests" */;
+			buildConfigurationList = 64FDB48A257831A7001884FD /* Build configuration list for PBXNativeTarget "freshpaint" */;
 			buildPhases = (
-				64FDB079256DBADF001884FD /* Sources */,
-				64FDB07A256DBADF001884FD /* Frameworks */,
-				64FDB07B256DBADF001884FD /* Resources */,
+				64FDB480257831A7001884FD /* Sources */,
+				64FDB481257831A7001884FD /* Frameworks */,
+				64FDB482257831A7001884FD /* Copy Files */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				64FDB084256DBADF001884FD /* PBXTargetDependency */,
 			);
-			name = FreshpaintTests;
-			productName = FreshpaintTests;
-			productReference = 64FDB07D256DBADF001884FD /* FreshpaintTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
+			name = freshpaint;
+			productName = freshpaint;
+			productReference = 64FDB484257831A7001884FD /* libfreshpaint.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 		EADEB85A1DECD080005322DA /* Freshpaint */ = {
 			isa = PBXNativeTarget;
@@ -177,23 +579,46 @@
 			productReference = EADEB85B1DECD080005322DA /* Freshpaint.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		EADEB8691DECD0EF005322DA /* FreshpaintTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EADEB8741DECD0EF005322DA /* Build configuration list for PBXNativeTarget "FreshpaintTests" */;
+			buildPhases = (
+				EADEB8661DECD0EF005322DA /* Sources */,
+				EADEB8671DECD0EF005322DA /* Frameworks */,
+				EADEB8681DECD0EF005322DA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A3B6E29B25116B4100609A13 /* PBXTargetDependency */,
+			);
+			name = FreshpaintTests;
+			productName = AnalyticsTests;
+			productReference = EADEB86A1DECD0EF005322DA /* FreshpaintTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		EADEB8521DECD080005322DA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1220;
-				LastUpgradeCheck = 1130;
+				LastSwiftUpdateCheck = 0810;
+				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = Freshpaint;
 				TargetAttributes = {
-					64FDB07C256DBADF001884FD = {
+					64FDB483257831A7001884FD = {
 						CreatedOnToolsVersion = 12.2;
 						ProvisioningStyle = Automatic;
 					};
 					EADEB85A1DECD080005322DA = {
 						CreatedOnToolsVersion = 8.1;
 						ProvisioningStyle = Manual;
+					};
+					EADEB8691DECD0EF005322DA = {
+						CreatedOnToolsVersion = 8.1;
+						LastSwiftMigration = 1150;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -211,35 +636,60 @@
 			projectRoot = "";
 			targets = (
 				EADEB85A1DECD080005322DA /* Freshpaint */,
-				64FDB07C256DBADF001884FD /* FreshpaintTests */,
+				EADEB8691DECD0EF005322DA /* FreshpaintTests */,
+				64FDB483257831A7001884FD /* freshpaint */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		64FDB07B256DBADF001884FD /* Resources */ = {
+		EADEB8591DECD080005322DA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EADEB8591DECD080005322DA /* Resources */ = {
+		EADEB8681DECD0EF005322DA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64FDB074256DB879001884FD /* Freshpaint in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		64FDB079256DBADF001884FD /* Sources */ = {
+		64FDB480257831A7001884FD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64FDB080256DBADF001884FD /* FreshpaintTests.swift in Sources */,
+				64FDB49625783260001884FD /* FPReachability.m in Sources */,
+				64FDB49725783260001884FD /* FPFreshpaintIntegrationFactory.m in Sources */,
+				64FDB49825783260001884FD /* FPContext.m in Sources */,
+				64FDB49925783260001884FD /* FPGroupPayload.m in Sources */,
+				64FDB49A25783260001884FD /* FPPayload.m in Sources */,
+				64FDB49B25783260001884FD /* FPAnalyticsConfiguration.m in Sources */,
+				64FDB49C25783260001884FD /* FPHTTPClient.m in Sources */,
+				64FDB49D25783260001884FD /* FPMiddleware.m in Sources */,
+				64FDB49E25783260001884FD /* FPAnalyticsUtils.m in Sources */,
+				64FDB49F25783260001884FD /* FPAnalytics.m in Sources */,
+				64FDB4A025783260001884FD /* FPFreshpaintIntegration.m in Sources */,
+				64FDB4A125783260001884FD /* FPAliasPayload.m in Sources */,
+				64FDB4A225783260001884FD /* FPIdentifyPayload.m in Sources */,
+				64FDB4A325783260001884FD /* FPTrackPayload.m in Sources */,
+				64FDB4A425783260001884FD /* FPWebhookIntegration.m in Sources */,
+				64FDB4A525783260001884FD /* FPScreenPayload.m in Sources */,
+				64FDB4A625783260001884FD /* FPState.m in Sources */,
+				64FDB4A725783260001884FD /* UIViewController+FPScreen.m in Sources */,
+				64FDB4A825783260001884FD /* FPStoreKitTracker.m in Sources */,
+				64FDB4A925783260001884FD /* FPFileStorage.m in Sources */,
+				64FDB4AA25783260001884FD /* FPAES256Crypto.m in Sources */,
+				64FDB4AB25783260001884FD /* NSData+FPGZIP.m in Sources */,
+				64FDB4AC25783260001884FD /* FPIntegrationsManager.m in Sources */,
+				64FDB4AD25783260001884FD /* FPUtils.m in Sources */,
+				64FDB4AE25783260001884FD /* FPUserDefaultsStorage.m in Sources */,
+				64FDB4AF25783260001884FD /* NSViewController+FPScreen.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,61 +697,103 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				64FDB3F2256EE283001884FD /* NSData+FPGZIP.m in Sources */,
+				64FDB3EE256EE283001884FD /* FPFileStorage.m in Sources */,
+				64FDB3D7256EE283001884FD /* FPAliasPayload.m in Sources */,
+				64FDB3C4256EE283001884FD /* FPContext.m in Sources */,
+				64FDB3D8256EE283001884FD /* FPIdentifyPayload.m in Sources */,
+				64FDB3F7256EE283001884FD /* NSViewController+FPScreen.m in Sources */,
+				64FDB3EA256EE283001884FD /* FPStoreKitTracker.m in Sources */,
+				64FDB3DB256EE283001884FD /* FPTrackPayload.m in Sources */,
+				64FDB3F3256EE283001884FD /* FPIntegrationsManager.m in Sources */,
+				64FDB3D1256EE283001884FD /* FPAnalyticsUtils.m in Sources */,
+				64FDB3E2256EE283001884FD /* FPScreenPayload.m in Sources */,
+				64FDB3C5256EE283001884FD /* FPGroupPayload.m in Sources */,
+				64FDB3C9256EE283001884FD /* FPAnalyticsConfiguration.m in Sources */,
+				64FDB3E1256EE283001884FD /* FPWebhookIntegration.m in Sources */,
+				64FDB3C0256EE283001884FD /* FPReachability.m in Sources */,
+				64FDB3CF256EE283001884FD /* FPMiddleware.m in Sources */,
+				64FDB3C1256EE283001884FD /* FPFreshpaintIntegrationFactory.m in Sources */,
+				64FDB3E5256EE283001884FD /* FPState.m in Sources */,
+				64FDB3E6256EE283001884FD /* UIViewController+FPScreen.m in Sources */,
+				64FDB3CB256EE283001884FD /* FPHTTPClient.m in Sources */,
+				64FDB3F5256EE283001884FD /* FPUtils.m in Sources */,
+				64FDB3D2256EE283001884FD /* FPAnalytics.m in Sources */,
+				64FDB3D6256EE283001884FD /* FPFreshpaintIntegration.m in Sources */,
+				64FDB3F6256EE283001884FD /* FPUserDefaultsStorage.m in Sources */,
+				64FDB3C7256EE283001884FD /* FPPayload.m in Sources */,
+				64FDB3F1256EE283001884FD /* FPAES256Crypto.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EADEB8661DECD0EF005322DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64FDB463256F05A3001884FD /* NSData+FPGUNZIPP.m in Sources */,
+				64FDB469256F05A4001884FD /* UserDefaultsStorageTest.swift in Sources */,
+				64FDB46A256F05A4001884FD /* AnalyticsUtilTests.swift in Sources */,
+				64FDB468256F05A3001884FD /* EndToEndTests.swift in Sources */,
+				64FDB45B256F05A3001884FD /* TrackingTests.swift in Sources */,
+				64FDB45C256F05A3001884FD /* FreshpaintTests.swift in Sources */,
+				64FDB465256F05A3001884FD /* TestUtils.swift in Sources */,
+				64FDB467256F05A3001884FD /* HTTPClientTest.swift in Sources */,
+				64FDB46C256F05A4001884FD /* FileStorageTest.swift in Sources */,
+				64FDB45D256F05A3001884FD /* StoreKitTrackerTests.swift in Sources */,
+				64FDB45E256F05A3001884FD /* IntegrationsManagerTest.swift in Sources */,
+				64FDB460256F05A3001884FD /* CryptoTest.swift in Sources */,
+				64FDB462256F05A3001884FD /* SerializationTests.m in Sources */,
+				64FDB464256F05A3001884FD /* ObjcUtils.m in Sources */,
+				64FDB466256F05A3001884FD /* MiddlewareTests.swift in Sources */,
+				64FDB46B256F05A4001884FD /* ContextTest.swift in Sources */,
+				64FDB45F256F05A3001884FD /* AutoScreenReportingTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		64FDB084256DBADF001884FD /* PBXTargetDependency */ = {
+		A3B6E29B25116B4100609A13 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = EADEB85A1DECD080005322DA /* Freshpaint */;
-			targetProxy = 64FDB083256DBADF001884FD /* PBXContainerItemProxy */;
+			targetProxy = A3B6E29A25116B4100609A13 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		64FDB086256DBADF001884FD /* Debug */ = {
+		64FDB48B257831A7001884FD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = FreshpaintTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.freshpaint.FreshpaintTests;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		64FDB087256DBADF001884FD /* Release */ = {
+		64FDB48C257831A7001884FD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = FreshpaintTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.freshpaint.FreshpaintTests;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -331,6 +823,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -358,13 +851,17 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvos appletvsimulator macosx";
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 7.0;
 			};
 			name = Debug;
 		};
@@ -393,6 +890,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -414,14 +912,18 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvos appletvsimulator macosx";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 7.0;
 			};
 			name = Release;
 		};
@@ -437,18 +939,15 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "$(SRCROOT)/FreshpaintTests/Info.plist";
+				INFOPLIST_FILE = Freshpaint/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.freshpaint.Freshpaint;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Freshpaint;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvos appletvsimulator macosx";
-				TARGETED_DEVICE_FAMILY = "1,2,3";
-				TVOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Debug;
 		};
@@ -464,29 +963,57 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "$(SRCROOT)/FreshpaintTests/Info.plist";
+				INFOPLIST_FILE = Freshpaint/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.freshpaint.Freshpaint;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Freshpaint;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvos appletvsimulator macosx";
+			};
+			name = Release;
+		};
+		EADEB8721DECD0EF005322DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = FreshpaintTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.freshpaint.FreshpaintTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx appletvos appletvsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "FreshpaintTests/FreshpaintTests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
-				TVOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		EADEB8731DECD0EF005322DA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = FreshpaintTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.freshpaint.FreshpaintTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx appletvos appletvsimulator";
+				SWIFT_OBJC_BRIDGING_HEADER = "FreshpaintTests/FreshpaintTests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		64FDB085256DBADF001884FD /* Build configuration list for PBXNativeTarget "FreshpaintTests" */ = {
+		64FDB48A257831A7001884FD /* Build configuration list for PBXNativeTarget "freshpaint" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				64FDB086256DBADF001884FD /* Debug */,
-				64FDB087256DBADF001884FD /* Release */,
+				64FDB48B257831A7001884FD /* Debug */,
+				64FDB48C257831A7001884FD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -505,6 +1032,15 @@
 			buildConfigurations = (
 				EADEB8641DECD080005322DA /* Debug */,
 				EADEB8651DECD080005322DA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EADEB8741DECD0EF005322DA /* Build configuration list for PBXNativeTarget "FreshpaintTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EADEB8721DECD0EF005322DA /* Debug */,
+				EADEB8731DECD0EF005322DA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -3,7 +3,7 @@
 //  Analytics
 //
 //  Created by Tony Xiao on 9/19/16.
-//  Copyright © 2016 Segment. All rights reserved.
+//  Copyright © 2016 Freshpaint. All rights reserved.
 //
 
 // TODO: Uncomment these tests using Nocilla and get rid of Nocilla.
@@ -11,7 +11,7 @@
 /*
 import Nocilla
  */
-import Segment
+import Freshpaint
 import XCTest
 
 #if os(macOS)
@@ -23,7 +23,7 @@ import UIKit
 class PassthroughMiddleware: Middleware {
     var lastContext: Context?
 
-    func context(_ context: Context, next: @escaping SEGMiddlewareNext) {
+    func context(_ context: Context, next: @escaping FPMiddlewareNext) {
         lastContext = context;
         next(context)
     }
@@ -32,7 +32,7 @@ class PassthroughMiddleware: Middleware {
 class TestMiddleware: Middleware {
     var lastContext: Context?
     var swallowEvent = false
-    func context(_ context: Context, next: @escaping SEGMiddlewareNext) {
+    func context(_ context: Context, next: @escaping FPMiddlewareNext) {
         lastContext = context
         if !swallowEvent {
             next(context)
@@ -50,15 +50,15 @@ extension IntegrationsManager {
     func test_integrations() -> [String: Integration]? {
         return self.value(forKey: "integrations") as? [String: Integration]
     }
-    func test_segmentIntegration() -> SegmentIntegration? {
-        return self.test_integrations()?["Segment.io"] as? SegmentIntegration
+    func test_freshpaintIntegration() -> FreshpaintIntegration? {
+        return self.test_integrations()?["Freshpaint.io"] as? FreshpaintIntegration
     }
     func test_setCachedSettings(settings: NSDictionary) {
         self.perform(Selector(("setCachedSettings:")), with: settings)
     }
 }
 
-extension SegmentIntegration {
+extension FreshpaintIntegration {
     func test_fileStorage() -> FileStorage? {
         return self.value(forKey: "fileStorage") as? FileStorage
     }
@@ -151,12 +151,12 @@ extension LSStubRequestDSL {
     }
 }
 
-// MARK: Custom segment extension for dealing with gzipped headers and writeKeys
+// MARK: Custom freshpaint extension for dealing with gzipped headers and writeKeys
 
-typealias AndSegmentWriteKeyMethod = (String) -> LSStubRequestDSL
+typealias AndFreshpaintWriteKeyMethod = (String) -> LSStubRequestDSL
 
 extension LSStubRequestDSL {
-    var withWriteKey: AndSegmentWriteKeyMethod {
+    var withWriteKey: AndFreshpaintWriteKeyMethod {
         return { writeKey in
             let base64Token = HTTPClient.authorizationHeader(writeKey)
             return self.withHeaders([

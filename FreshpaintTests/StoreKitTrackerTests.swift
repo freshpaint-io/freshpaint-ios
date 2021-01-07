@@ -3,7 +3,7 @@
 //  Analytics
 //
 //  Created by Tony Xiao on 9/20/16.
-//  Copyright © 2016 Segment. All rights reserved.
+//  Copyright © 2016 Freshpaint. All rights reserved.
 //
 
 import Freshpaint

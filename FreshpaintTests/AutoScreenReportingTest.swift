@@ -1,10 +1,10 @@
 //
 // Created by David Whetstone on 2018-11-04.
-// Copyright (c) 2018 Segment. All rights reserved.
+// Copyright (c) 2018 Freshpaint. All rights reserved.
 //
 
 import Foundation
-@testable import Segment
+@testable import Freshpaint
 import XCTest
 
 #if os(iOS)
@@ -61,7 +61,7 @@ class AutoScreenReportingTests: XCTestCase {
     }
     
     func testTopViewControllerReturnsCurrentSelectedViewController() {
-        class CustomContainerViewController: UIViewController, SEGScreenReporting {
+        class CustomContainerViewController: UIViewController, FPScreenReporting {
             var selectedIndex: Int = 0
             var seg_mainViewController: UIViewController? {
                 return children[selectedIndex]

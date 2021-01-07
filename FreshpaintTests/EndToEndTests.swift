@@ -1,4 +1,4 @@
-@testable import Segment
+@testable import Freshpaint
 import XCTest
 
 class EndToEndTests: XCTestCase {
@@ -9,7 +9,7 @@ class EndToEndTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
-        // Write Key for https://app.segment.com/segment-libraries/sources/analytics_ios_e2e_test/overview
+        // Write Key for https://app.freshpaint.com/freshpaint-libraries/sources/analytics_ios_e2e_test/overview
         configuration = AnalyticsConfiguration(writeKey: "3VxTfPsVOoEOSbbzzbFqVNcYMNu2vjnr")
         configuration.flushAt = 1
 
@@ -26,9 +26,9 @@ class EndToEndTests: XCTestCase {
     
     func testTrack() {
         let uuid = UUID().uuidString
-        let expectation = XCTestExpectation(description: "SegmentRequestDidSucceed")
+        let expectation = XCTestExpectation(description: "FreshpaintRequestDidSucceed")
         
-        configuration.experimental.rawSegmentModificationBlock = { data in
+        configuration.experimental.rawFreshpaintModificationBlock = { data in
             if let properties = data["properties"] as? Dictionary<String, Any?>,
                 let tempUUID = properties["id"] as? String, tempUUID == uuid {
                 expectation.fulfill()

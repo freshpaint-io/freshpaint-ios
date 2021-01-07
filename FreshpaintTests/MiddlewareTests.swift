@@ -3,11 +3,11 @@
 //  Analytics
 //
 //  Created by Tony Xiao on 1/9/17.
-//  Copyright © 2017 Segment. All rights reserved.
+//  Copyright © 2017 Freshpaint. All rights reserved.
 //
 
 
-import Segment
+import Freshpaint
 import XCTest
 
 // Changing event names and adding custom attributes
@@ -87,7 +87,7 @@ class IntegrationMiddlewareTests: XCTestCase {
     func testReceivesEvents() {
         let config = AnalyticsConfiguration(writeKey: "TESTKEY")
         let passthrough = PassthroughMiddleware()
-        config.destinationMiddleware = [DestinationMiddleware(key: SegmentIntegrationFactory().key(), middleware: [passthrough])]
+        config.destinationMiddleware = [DestinationMiddleware(key: FreshpaintIntegrationFactory().key(), middleware: [passthrough])]
         let analytics = Analytics(configuration: config)
         analytics.identify("testUserId1")
         
@@ -106,7 +106,7 @@ class IntegrationMiddlewareTests: XCTestCase {
     func testModifiesAndPassesEventToNext() {
         let config = AnalyticsConfiguration(writeKey: "TESTKEY")
         let passthrough = PassthroughMiddleware()
-        config.destinationMiddleware = [DestinationMiddleware(key: SegmentIntegrationFactory().key(), middleware: [customizeAllTrackCalls, passthrough])]
+        config.destinationMiddleware = [DestinationMiddleware(key: FreshpaintIntegrationFactory().key(), middleware: [customizeAllTrackCalls, passthrough])]
         let analytics = Analytics(configuration: config)
         analytics.track("Purchase Success")
         
@@ -128,13 +128,13 @@ class IntegrationMiddlewareTests: XCTestCase {
     func testExpectsEventToBeSwallowedIfOtherIsNotCalled() {
         // Since we're testing that an event is dropped, the previously used run loop pump won't work here.
         var initialized = false
-        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: SEGAnalyticsIntegrationDidStart), object: nil, queue: nil) { (notification) in
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: FPAnalyticsIntegrationDidStart), object: nil, queue: nil) { (notification) in
             initialized = true
         }
         
         let config = AnalyticsConfiguration(writeKey: "TESTKEY")
         let passthrough = PassthroughMiddleware()
-        config.destinationMiddleware = [DestinationMiddleware(key: SegmentIntegrationFactory().key(), middleware: [eatAllCalls, passthrough])]
+        config.destinationMiddleware = [DestinationMiddleware(key: FreshpaintIntegrationFactory().key(), middleware: [eatAllCalls, passthrough])]
         let analytics = Analytics(configuration: config)
         analytics.track("Purchase Success")
         

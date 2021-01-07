@@ -1,4 +1,4 @@
-import Segment
+import Freshpaint
 import XCTest
 class IntegrationsManagerTest: XCTestCase {
     
@@ -60,8 +60,8 @@ class IntegrationsManagerTest: XCTestCase {
         XCTAssertFalse(enabled)
     }
     
-    func testReturnsTrueForSegmentIntegrationWhenDisablesEvent() {
-        let enabled = IntegrationsManager.isTrackEvent("hello world", enabledForIntegration: "Segment.io", inPlan:["track":["hello world":["enabled":false]]])
+    func testReturnsTrueForFreshpaintIntegrationWhenDisablesEvent() {
+        let enabled = IntegrationsManager.isTrackEvent("hello world", enabledForIntegration: "Freshpaint.io", inPlan:["track":["hello world":["enabled":false]]])
         XCTAssert(enabled)
     }
     

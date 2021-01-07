@@ -3,7 +3,7 @@
 //  Analytics
 //
 //  Created by Tony Xiao on 9/16/16.
-//  Copyright © 2016 Segment. All rights reserved.
+//  Copyright © 2016 Freshpaint. All rights reserved.
 //
 
 // TODO: Uncomment these tests and get rid of Nocilla.
@@ -39,18 +39,18 @@ class HTTPClientTest: XCTestCase {
     
     func testDefaultRequestFactor() {
         let factory = HTTPClient.defaultRequestFactory()
-        let url = URL(string: "https://api.segment.io/v1/batch")
+        let url = URL(string: "https://api.freshpaint.io/v1/batch")
         let request = factory(url!)
         XCTAssertEqual(request.url, url, "URLs should be the same")
     }
     
     func testSettingsForWriteKeySucceeds2xx() {
-        _ = stubRequest("GET", "https://cdn-settings.segment.com/v1/projects/foo/settings" as NSString)
+        _ = stubRequest("GET", "https://cdn-settings.freshpaint.com/v1/projects/foo/settings" as NSString)
             .withHeader("User-Agent", "analytics-ios/" + Analytics.version())!
             .withHeaders(["Accept-Encoding" : "gzip" ])!
             .andReturn(200)!
             .withHeaders(["Content-Type" : "application/json"])!
-            .withBody("{\"integrations\":{\"Segment.io\":{\"apiKey\":\"foo\"}},\"plan\":{\"track\":{}}}" as NSString)
+            .withBody("{\"integrations\":{\"Freshpaint.io\":{\"apiKey\":\"foo\"}},\"plan\":{\"track\":{}}}" as NSString)
         
         let doneExpectation = expectation(description: "Done with url session task")
         
@@ -59,7 +59,7 @@ class HTTPClientTest: XCTestCase {
             XCTAssert(success, "Should be successful")
             XCTAssertEqual(settings as NSDictionary?, [
                 "integrations": [
-                    "Segment.io": [
+                    "Freshpaint.io": [
                         "apiKey":"foo"
                     ]
                 ],
@@ -74,12 +74,12 @@ class HTTPClientTest: XCTestCase {
     }
     
     func testSettingsWriteKey2xxResponse() {
-        _ = stubRequest("GET", "https://cdn-settings.segment.com/v1/projects/foo/settings" as NSString)
+        _ = stubRequest("GET", "https://cdn-settings.freshpaint.com/v1/projects/foo/settings" as NSString)
             .withHeader("User-Agent", "analytics-ios/" + Analytics.version())!
             .withHeaders(["Accept-Encoding" : "gzip" ])!
             .andReturn(400)!
             .withHeaders(["Content-Type" : "application/json" ])!
-            .withBody("{\"integrations\":{\"Segment.io\":{\"apiKey\":\"foo\"}},\"plan\":{\"track\":{}}}" as NSString)
+            .withBody("{\"integrations\":{\"Freshpaint.io\":{\"apiKey\":\"foo\"}},\"plan\":{\"track\":{}}}" as NSString)
         
         let doneExpectation = expectation(description: "Done with url session task")
         
@@ -95,7 +95,7 @@ class HTTPClientTest: XCTestCase {
     }
     
     func testSettingsWriteKey2xxJSONErrorResponse() {
-        _ = stubRequest("GET", "https://cdn-settings.segment.com/v1/projects/foo/settings" as NSString)
+        _ = stubRequest("GET", "https://cdn-settings.freshpaint.com/v1/projects/foo/settings" as NSString)
             .withHeader("User-Agent", "analytics-ios/" + Analytics.version())!
             .withHeaders(["Accept-Encoding":"gzip"])!
             .andReturn(200)!
@@ -128,7 +128,7 @@ class HTTPClientTest: XCTestCase {
     }
     
     func testUploadNoRetry2xx() {
-        _ = stubRequest("POST", "https://api.segment.io/v1/batch" as NSString)
+        _ = stubRequest("POST", "https://api.freshpaint.io/v1/batch" as NSString)
             .withHeader("User-Agent", "analytics-ios/" + Analytics.version())!
             .withJsonGzippedBody(batch as AnyObject)
             .withWriteKey("bar")
@@ -142,7 +142,7 @@ class HTTPClientTest: XCTestCase {
     }
     
     func testUploadRetry3xx() {
-        _ = stubRequest("POST", "https://api.segment.io/v1/batch" as NSString)
+        _ = stubRequest("POST", "https://api.freshpaint.io/v1/batch" as NSString)
             .withHeader("User-Agent", "analytics-ios/" + Analytics.version())!
             .withJsonGzippedBody(batch as AnyObject)
             .withWriteKey("bar")
@@ -156,7 +156,7 @@ class HTTPClientTest: XCTestCase {
     }
     
     func testUploadNoRetry4xx() {
-        _ = stubRequest("POST", "https://api.segment.io/v1/batch" as NSString)
+        _ = stubRequest("POST", "https://api.freshpaint.io/v1/batch" as NSString)
             .withHeader("User-Agent", "analytics-ios/" + Analytics.version())!
             .withJsonGzippedBody(batch as AnyObject)
             .withWriteKey("bar")
@@ -170,7 +170,7 @@ class HTTPClientTest: XCTestCase {
     }
     
     func testRetryFor429() {
-        _ = stubRequest("POST", "https://api.segment.io/v1/batch" as NSString)
+        _ = stubRequest("POST", "https://api.freshpaint.io/v1/batch" as NSString)
             .withHeader("User-Agent", "analytics-ios/" + Analytics.version())!
             .withJsonGzippedBody(batch as AnyObject)
             .withWriteKey("bar")
@@ -184,7 +184,7 @@ class HTTPClientTest: XCTestCase {
     }
     
     func testRetryFor5xx() {
-        _ = stubRequest("POST", "https://api.segment.io/v1/batch" as NSString)
+        _ = stubRequest("POST", "https://api.freshpaint.io/v1/batch" as NSString)
             .withHeader("User-Agent", "analytics-ios/" + Analytics.version())!
             .withJsonGzippedBody(batch as AnyObject)
             .withWriteKey("bar")

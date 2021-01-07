@@ -2,10 +2,10 @@
 //  CryptoTest.swift
 //  Analytics
 //
-//  Copyright © 2016 Segment. All rights reserved.
+//  Copyright © 2016 Freshpaint. All rights reserved.
 //
 
-import Segment
+import Freshpaint
 import XCTest
 
 class CryptoTest : XCTestCase {
@@ -17,7 +17,7 @@ class CryptoTest : XCTestCase {
     }
     
     func testEncryptDecryptSuccess() {
-        let strIn = "segment"
+        let strIn = "freshpaint"
         let dataIn = strIn.data(using: String.Encoding.utf8)!
         let encryptedData = crypto.encrypt(dataIn)
         XCTAssert(encryptedData != nil, "Encrypted data should not be nil")
@@ -26,11 +26,11 @@ class CryptoTest : XCTestCase {
         XCTAssert(dataOut == dataIn, "Data should be the same")
         
         let strOut = String(data: dataOut!, encoding: String.Encoding.utf8)
-        XCTAssertEqual(strOut, "segment", "Strings should be the same")
+        XCTAssertEqual(strOut, "freshpaint", "Strings should be the same")
     }
     
     func testIncorrectPassword() {
-        let strIn = "segment"
+        let strIn = "freshpaint"
         let dataIn = strIn.data(using: String.Encoding.utf8)!
         let encryptedData = crypto.encrypt(dataIn)
         XCTAssert(encryptedData != nil, "Encrypted data should not be nil")
@@ -46,7 +46,7 @@ class CryptoTest : XCTestCase {
     }
     
     func testFailureForIVAndSault() {
-        let strIn = "segment"
+        let strIn = "freshpaint"
         let dataIn = strIn.data(using: String.Encoding.utf8)!
         let encryptedData = crypto.encrypt(dataIn)
         XCTAssertNotNil(encryptedData, "Encrypted data should not be nil")

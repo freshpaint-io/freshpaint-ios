@@ -1,19 +1,19 @@
 //
-//  NSData+SEGGUNZIPP.m
+//  NSData+FPGUNZIPP.m
 //  Analytics
 //
 //  Created by Tony Xiao on 9/19/16.
-//  Copyright © 2016 Segment. All rights reserved.
+//  Copyright © 2016 Freshpaint. All rights reserved.
 //
 // https://github.com/nicklockwood/GZIP/blob/master/GZIP/NSData%2BGZIP.m
 
 #import <zlib.h>
 #import <dlfcn.h>
-#import <Segment/NSData+SEGGZIP.h>
-#import "NSData+SEGGUNZIPP.h"
+#import <Freshpaint/NSData+FPGZIP.h>
+#import "NSData+FPGUNZIPP.h"
 
 
-@implementation NSData (SEGGUNZIPP)
+@implementation NSData (FPGUNZIPP)
 
 - (NSData *)seg_gunzippedData
 {
