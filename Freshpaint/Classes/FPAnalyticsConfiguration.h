@@ -49,7 +49,7 @@ typedef NSString *_Nonnull (^FPAdSupportBlock)(void);
 /**
  * This object provides a set of properties to control various policies of the analytics client. Other than `writeKey`, these properties can be changed at any time.
  */
-NS_SWIFT_NAME(AnalyticsConfiguration)
+NS_SWIFT_NAME(FreshpaintConfiguration)
 @interface FPAnalyticsConfiguration : NSObject
 
 /**
@@ -235,7 +235,7 @@ NS_SWIFT_NAME(AnalyticsConfiguration)
 
 typedef  NSDictionary * _Nonnull (^FPRawModificationBlock)( NSDictionary * _Nonnull rawPayload);
 
-NS_SWIFT_NAME(AnalyticsExperimental)
+NS_SWIFT_NAME(FreshpaintExperimental)
 @interface FPAnalyticsExperimental : NSObject
 /**
  Experimental support for nanosecond timestamps.  While the freshpaint pipeline doesn't support this yet

@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @class FPAnalyticsConfiguration;
 
-NS_SWIFT_NAME(Analytics)
+NS_SWIFT_NAME(Freshpaint)
 @interface FPAnalytics : NSObject
 
 /**
