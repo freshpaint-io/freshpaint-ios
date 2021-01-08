@@ -11,8 +11,8 @@ Pod::Spec.new do |s|
 
   s.homepage         = "https//freshpaint.io/"
   s.author           = { "Freshpaint" => "michael@freshpaint.io" }
-  s.license          = "No License"
-  s.source           = { "git" => "" }
+  s.license          = "MIT"
+  s.source           = { "git" => "https://github.com/freshpaint-io/freshpaint-ios.git" }
 
   s.ios.deployment_target = '11.0'
   s.tvos.deployment_target = '9.0'
