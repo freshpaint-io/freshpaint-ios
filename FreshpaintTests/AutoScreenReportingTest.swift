@@ -4,7 +4,7 @@
 //
 
 import Foundation
-@testable import Segment
+@testable import Freshpaint
 import XCTest
 
 #if os(iOS)
@@ -16,7 +16,7 @@ class AutoScreenReportingTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
-        let config = AnalyticsConfiguration(writeKey: "foobar")
+        let config = FreshpaintConfiguration(writeKey: "foobar")
         config.trackApplicationLifecycleEvents = true
         config.recordScreenViews = true
         

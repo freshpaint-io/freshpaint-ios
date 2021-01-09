@@ -11,7 +11,7 @@
 /*
 import Nocilla
  */
-import Segment
+import Freshpaint
 import XCTest
 
 #if os(macOS)
@@ -23,7 +23,7 @@ import UIKit
 class PassthroughMiddleware: Middleware {
     var lastContext: Context?
 
-    func context(_ context: Context, next: @escaping SEGMiddlewareNext) {
+    func context(_ context: Context, next: @escaping FPMiddlewareNext) {
         lastContext = context;
         next(context)
     }
@@ -32,7 +32,7 @@ class PassthroughMiddleware: Middleware {
 class TestMiddleware: Middleware {
     var lastContext: Context?
     var swallowEvent = false
-    func context(_ context: Context, next: @escaping SEGMiddlewareNext) {
+    func context(_ context: Context, next: @escaping FPMiddlewareNext) {
         lastContext = context
         if !swallowEvent {
             next(context)
@@ -40,7 +40,7 @@ class TestMiddleware: Middleware {
     }
 }
 
-extension Analytics {
+extension Freshpaint {
     func test_integrationsManager() -> IntegrationsManager? {
         return self.value(forKey: "integrationsManager") as? IntegrationsManager
     }
@@ -50,15 +50,15 @@ extension IntegrationsManager {
     func test_integrations() -> [String: Integration]? {
         return self.value(forKey: "integrations") as? [String: Integration]
     }
-    func test_segmentIntegration() -> SegmentIntegration? {
-        return self.test_integrations()?["Segment.io"] as? SegmentIntegration
+    func test_segmentIntegration() -> FreshpaintIntegration? {
+        return self.test_integrations()?["freshpaint.io"] as? FreshpaintIntegration
     }
     func test_setCachedSettings(settings: NSDictionary) {
         self.perform(Selector(("setCachedSettings:")), with: settings)
     }
 }
 
-extension SegmentIntegration {
+extension FreshpaintIntegration {
     func test_fileStorage() -> FileStorage? {
         return self.value(forKey: "fileStorage") as? FileStorage
     }

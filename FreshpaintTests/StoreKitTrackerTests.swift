@@ -1,6 +1,6 @@
 //
 //  StoreKitTrackerTest.swift
-//  Analytics
+//  Freshpaint
 //
 //  Created by Tony Xiao on 9/20/16.
 //  Copyright © 2016 Segment. All rights reserved.
@@ -42,14 +42,14 @@ class StoreKitTrackerTests: XCTestCase {
 
     var test: TestMiddleware!
     var tracker: StoreKitTracker!
-    var analytics: Analytics!
+    var analytics: Freshpaint!
     
     override func setUp() {
         super.setUp()
-        let config = AnalyticsConfiguration(writeKey: "foobar")
+        let config = FreshpaintConfiguration(writeKey: "foobar")
         test = TestMiddleware()
         config.sourceMiddleware = [test]
-        analytics = Analytics(configuration: config)
+        analytics = Freshpaint(configuration: config)
         tracker = StoreKitTracker.trackTransactions(for: analytics)
     }
     

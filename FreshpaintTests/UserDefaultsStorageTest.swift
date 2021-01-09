@@ -5,7 +5,7 @@
 //  Copyright © 2016 Segment. All rights reserved.
 //
 
-@testable import Segment
+@testable import Freshpaint
 import XCTest
 
 class UserDefaultsStorageTest : XCTestCase {

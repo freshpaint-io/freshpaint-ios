@@ -9,8 +9,8 @@
 
 #import <zlib.h>
 #import <dlfcn.h>
-#import <Segment/NSData+SEGGZIP.h>
-#import "NSData+SEGGUNZIPP.h"
+#import <Freshpaint/NSData+FPGZIP.h>
+#import "NSData+FPGUNZIPP.h"
 
 
 @implementation NSData (SEGGUNZIPP)
@@ -59,3 +59,4 @@
 
 
 @end
+

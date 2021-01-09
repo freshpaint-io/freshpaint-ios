@@ -7,7 +7,7 @@
 //
 
 
-import Segment
+import Freshpaint
 import XCTest
 
 class AnalyticsUtilTests: XCTestCase {

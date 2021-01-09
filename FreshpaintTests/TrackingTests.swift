@@ -1,28 +1,28 @@
 //
 //  TrackingTests.swift
-//  Analytics
+//  Freshpaint
 //
 //  Created by Tony Xiao on 9/16/16.
 //  Copyright © 2016 Segment. All rights reserved.
 //
 
 
-import Segment
+import Freshpaint
 import XCTest
 
 class TrackingTests: XCTestCase {
     
     var passthrough: PassthroughMiddleware!
-    var analytics: Analytics!
+    var analytics: Freshpaint!
     
     override func setUp() {
         super.setUp()
-        let config = AnalyticsConfiguration(writeKey: "QUI5ydwIGeFFTa1IvCBUhxL9PyW5B0jE")
+        let config = FreshpaintConfiguration(writeKey: "QUI5ydwIGeFFTa1IvCBUhxL9PyW5B0jE")
         passthrough = PassthroughMiddleware()
         config.sourceMiddleware = [
             passthrough,
         ]
-        analytics = Analytics(configuration: config)
+        analytics = Freshpaint(configuration: config)
     }
     
     override func tearDown() {

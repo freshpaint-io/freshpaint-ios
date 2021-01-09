@@ -5,7 +5,7 @@
 //  Copyright © 2016 Segment. All rights reserved.
 //
 
-import Segment
+import Freshpaint
 import XCTest
 
 
@@ -18,7 +18,7 @@ class FileStorageTest : XCTestCase {
         let url = FileStorage.applicationSupportDirectoryURL()
         XCTAssertNotNil(url, "URL Should not be nil")
         #if os(macOS)
-        XCTAssertEqual(url?.lastPathComponent, "segment-test")
+        XCTAssertEqual(url?.lastPathComponent, "freshpaint-test")
         #else
         XCTAssertEqual(url?.lastPathComponent, "Application Support")
         #endif
@@ -51,14 +51,14 @@ class FileStorageTest : XCTestCase {
     }
     
     func testPersistsAndLoadsData() {
-        let dataIn = "segment".data(using: String.Encoding.utf8)!
+        let dataIn = "freshpaint".data(using: String.Encoding.utf8)!
         storage.setData(dataIn, forKey: "mydata")
         
         let dataOut = storage.data(forKey: "mydata")
         XCTAssertEqual(dataOut, dataIn, "Out and In data should match")
         
         let strOut = String(data: dataOut!, encoding: String.Encoding.utf8)
-        XCTAssertEqual(strOut, "segment")
+        XCTAssertEqual(strOut, "freshpaint")
     }
     
     func testPersistsAndLoadsString() {

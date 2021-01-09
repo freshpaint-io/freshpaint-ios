@@ -7,11 +7,11 @@
 //
 
 #import <XCTest/XCTest.h>
-@import Segment;
+@import Freshpaint;
 
 #pragma mark - Internal copy-overs for testing
 
-JSON_DICT SEGCoerceDictionary(NSDictionary *_Nullable dict);
+JSON_DICT FPCoerceDictionary(NSDictionary *_Nullable dict);
 
 @interface NSJSONSerialization (Serializable)
 + (BOOL)isOfSerializableType:(id)obj;
@@ -27,7 +27,7 @@ JSON_DICT SEGCoerceDictionary(NSDictionary *_Nullable dict);
 @interface NSArray(SerializableDeepCopy) <SEGSerializableDeepCopy>
 @end
 
-@interface MyObject: NSObject <SEGSerializable>
+@interface MyObject: NSObject <FPSerializable>
 @end
 
 @implementation MyObject
@@ -98,11 +98,11 @@ JSON_DICT SEGCoerceDictionary(NSDictionary *_Nullable dict);
     XCTAssertThrows([nonserializable serializableDeepCopy]);
     
     NSDictionary *testCoersion1 = @{@"test1": @[date], @"test2": url, @"test3": @1};
-    NSDictionary *coersionResult1 = SEGCoerceDictionary(testCoersion1);
+    NSDictionary *coersionResult1 = FPCoerceDictionary(testCoersion1);
     XCTAssertNotNil(coersionResult1);
     
     NSDictionary *testCoersion2 = @{@"test1": @[date], @"test2": url, @"test3": @1, @"test4": data};
-    XCTAssertThrows(SEGCoerceDictionary(testCoersion2));
+    XCTAssertThrows(FPCoerceDictionary(testCoersion2));
 }
 
 @end

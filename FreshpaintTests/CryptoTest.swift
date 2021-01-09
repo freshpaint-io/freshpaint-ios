@@ -5,7 +5,7 @@
 //  Copyright © 2016 Segment. All rights reserved.
 //
 
-import Segment
+import Freshpaint
 import XCTest
 
 class CryptoTest : XCTestCase {

@@ -6,17 +6,17 @@
 //  Copyright © 2016 Segment. All rights reserved.
 //
 
-import Segment
+import Freshpaint
 import XCTest
 
 class ContextTests: XCTestCase {
     
-    var analytics: Analytics!
+    var analytics: Freshpaint!
     
     override func setUp() {
         super.setUp()
-        let config = AnalyticsConfiguration(writeKey: "foobar")
-        analytics = Analytics(configuration: config)
+        let config = FreshpaintConfiguration(writeKey: "foobar")
+        analytics = Freshpaint(configuration: config)
     }
     
     func testThrowsWhenUsedIncorrectly() {
