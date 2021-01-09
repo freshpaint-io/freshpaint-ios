@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "Freshpaint"
-  s.module_name      = "FreshpaintSwift"
+  s.module_name      = "FreshpaintSDK"
   s.version          = "0.1.0"
   s.summary          = "Integrate Freshpaint with your iOS App."
 
