@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
   s.name             = "Freshpaint"
-  s.module_name      = "Freshpaint"
-  s.version          = "4.0.5"
-  s.summary          = "The hassle-free way to add analytics to your iOS app."
+  s.module_name      = "FreshpaintSwift"
+  s.version          = "0.1.0"
+  s.summary          = "Integrate Freshpaint with your iOS App."
 
   s.description      = <<-DESC
                        The Freshpaint iOS SDK for sending data from your iOS
