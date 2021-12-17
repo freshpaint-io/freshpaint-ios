@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = "Freshpaint"
   s.module_name      = "FreshpaintSDK"
-  s.version          = "0.1.0"
+  s.version          = "0.2.1"
   s.summary          = "Integrate Freshpaint with your iOS App."
 
   s.description      = <<-DESC
@@ -9,10 +9,10 @@ Pod::Spec.new do |s|
                        app into Freshpaint.
                        DESC
 
-  s.homepage         = "https//freshpaint.io/"
+  s.homepage         = "https://freshpaint.io/"
   s.author           = { "Freshpaint" => "michael@freshpaint.io" }
   s.license          = "MIT"
-  s.source           = { "git" => "https://github.com/freshpaint-io/freshpaint-ios.git" }
+  s.source           = { "git" => "https://github.com/freshpaint-io/freshpaint-ios.git", "tag" => "0.2.1" }
 
   s.ios.deployment_target = '11.0'
   s.tvos.deployment_target = '9.0'
