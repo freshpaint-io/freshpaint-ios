@@ -443,23 +443,44 @@ NSString *const kFPCachedSettingsFilename = @"freshpaint.settings.v2.plist";
     }
 }
 
+- (NSDictionary *)defaultSettings
+{
+    NSDictionary *freshpaint = [self freshpaintSettings];
+    NSDictionary *result = @{
+        @"integrations" : @{
+            @"Freshpaint.io" : freshpaint
+        },
+        @"plan" : @{
+            @"track" : @{}
+        }
+    };
+    return result;
+}
+
+- (NSDictionary *)freshpaintSettings
+{
+    NSDictionary *result = @{
+        @"apiKey" : self.configuration.writeKey,
+    };
+    return result;
+}
+
 - (void)refreshSettings
 {
     seg_dispatch_specific_async(_serialQueue, ^{
-        NSDictionary *previouslyCachedSettings = [self cachedSettings];
-        if (previouslyCachedSettings && [previouslyCachedSettings count] > 0) {
-            [self setCachedSettings:previouslyCachedSettings];
-        } else if (self.configuration.defaultSettings != nil) {
+        if (self.configuration.defaultSettings != nil) {
             NSMutableDictionary *newSettings = [self.configuration.defaultSettings serializableMutableDeepCopy];
-            newSettings[@"integrations"][@"Freshpaint.io"][@"apiKey"] = self.configuration.writeKey;
+            NSMutableDictionary *integrations = newSettings[@"integrations"];
+            if (integrations != nil) {
+                integrations[@"Freshpaint.io"] = [self freshpaintSettings];
+            } else {
+                newSettings[@"integrations"] = @{@"Freshpaint.io": [self freshpaintSettings]};
+            }
+            NSLog(@"Hit default configured: %@", newSettings);
             [self setCachedSettings:newSettings];
         } else {
-            [self setCachedSettings:@{
-                @"integrations" : @{
-                    @"Freshpaint.io" : @{@"apiKey" : self.configuration.writeKey},
-                },
-                @"plan" : @{@"track" : @{}}
-            }];
+            NSLog(@"Hit default: %@", [self defaultSettings]);
+            [self setCachedSettings:[self defaultSettings]];
         }
     });
 }
