@@ -6,7 +6,7 @@
 //  Copyright © 2016 Segment. All rights reserved.
 //
 
-#import <Freshpaint/FPAnalytics.h>
+#import "FPAnalytics.h"
 #import "ViewController.h"
 
 

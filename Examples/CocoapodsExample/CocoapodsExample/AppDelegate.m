@@ -6,7 +6,7 @@
 //  Copyright © 2016 Segment. All rights reserved.
 //
 
-#import <Freshpaint/FPAnalytics.h>
+#import "FPAnalytics.h"
 #import "AppDelegate.h"
 
 
@@ -14,8 +14,8 @@
 
 @end
 
-// https://segment.com/segment-mobile/sources/ios_cocoapods_example/overview
-NSString *const FPMENT_WRITE_KEY = @"82ef97c4-8367-4d61-b0be-261498e9dd13";
+// Mobile (iOS): Production env.
+NSString *const FPMENT_WRITE_KEY = @"5bd86532-4cc1-4b18-8392-880be8eb0e3d";
 
 
 @implementation AppDelegate
