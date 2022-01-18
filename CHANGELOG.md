@@ -1,4 +1,7 @@
-Change Log
+Version 0.2.2 (13 January, 2022)
+* [Fix](https://github.com/freshpaint-io/freshpaint-ios/pull/3) Fixed issue where integration settings were not initialized properly.
+
+Change Log from fork base (https://github.com/segmentio/analytics-ios)
 ==========
 Version 4.0.5 (pre-release) (28 August, 2020)
 -----------------------------
