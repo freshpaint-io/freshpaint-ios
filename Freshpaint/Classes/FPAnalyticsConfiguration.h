@@ -255,4 +255,6 @@ NS_SWIFT_NAME(FreshpaintExperimental)
  */
 @property (nonatomic, strong, nullable) FPRawModificationBlock rawFreshpaintModificationBlock;
 
+@property (nonatomic, assign) NSTimeInterval sessionTimeout; // Default: 30 min (1800 seconds)
+
 @end

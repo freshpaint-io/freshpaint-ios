@@ -395,6 +395,11 @@ NSUInteger const kFPBackgroundTaskInvalid = 0;
     [payload setObject:iso8601FormattedString([NSDate date]) forKey:@"sentAt"];
     [payload setObject:batch forKey:@"batch"];
 
+    [self.state validateOrRenewSessionWithTimeout:self.configuration.sessionTimeout ?: 1800];
+    NSString *sessionParameter = [NSString stringWithFormat:@"$%@", self.state.userInfo.sessionId];
+
+    [payload setObject:sessionParameter forKey:@"$session_id"];
+
     FPLog(@"%@ Flushing %lu of %lu queued API calls.", self, (unsigned long)batch.count, (unsigned long)self.queue.count);
     FPLog(@"Flushing batch %@.", payload);
 
