@@ -191,8 +191,6 @@ typedef _Nullable id (^FPStateGetBlock)(void);
         _stateQueue = dispatch_queue_create("com.freshpaint.state.queue", DISPATCH_QUEUE_CONCURRENT);
         self.userInfo = [[FPUserInfo alloc] initWithState:self];
         self.context = [[FPPayloadContext alloc] initWithState:self];
-        self.userInfo.sessionId = GenerateUUIDString();
-        self.userInfo.lastSessionTimestamp = [[NSDate date] timeIntervalSince1970];
     }
     return self;
 }
@@ -209,14 +207,6 @@ typedef _Nullable id (^FPStateGetBlock)(void);
         value = block();
     });
     return value;
-}
-
-- (void)validateOrRenewSessionWithTimeout:(NSTimeInterval)timeout {
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    if (now - self.userInfo.lastSessionTimestamp > timeout) {
-        self.userInfo.sessionId = GenerateUUIDString();
-    }
-    self.userInfo.lastSessionTimestamp = now;
 }
 
 @end
