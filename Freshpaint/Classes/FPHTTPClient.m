@@ -69,7 +69,15 @@ static const NSUInteger kMaxBatchSize = 475000; // 475KB
 
 - (nullable NSURLSessionUploadTask *)upload:(NSDictionary *)batch forWriteKey:(NSString *)writeKey completionHandler:(void (^)(BOOL retry))completionHandler
 {
-    //    batch = FPCoerceDictionary(batch);
+    [self.state validateOrRenewSessionWithTimeout:self.configuration.sessionTimeout ?: 1800];
+    NSString *sessionParameter = [NSString stringWithFormat:@"$%@", self.state.userInfo.sessionId];
+
+    NSMutableDictionary *updatedBatch = [batch mutableCopy];
+
+    updatedBatch[@"$session_id"] = sessionParameter;
+
+    batch = [updatedBatch copy];
+
     NSURLSession *session = [self sessionForWriteKey:writeKey];
 
     NSURL *url = [FRESHPAINT_API_BASE URLByAppendingPathComponent:@"/"];
