@@ -71,6 +71,7 @@
         self.payloadFilters = @{
             @"(fb\\d+://authorize#access_token=)([^ ]+)": @"$1((redacted/fb-auth-token))"
         };
+        self.sessionTimeout = 1800;
         _factories = [NSMutableArray array];
 #if TARGET_OS_IPHONE
         if ([UIApplication respondsToSelector:@selector(sharedApplication)]) {

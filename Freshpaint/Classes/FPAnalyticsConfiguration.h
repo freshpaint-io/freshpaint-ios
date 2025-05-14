@@ -229,6 +229,8 @@ NS_SWIFT_NAME(FreshpaintConfiguration)
  */
 @property (nonatomic, readonly, nonnull) FPAnalyticsExperimental *experimental;
 
+@property (nonatomic, assign) NSTimeInterval sessionTimeout;
+
 @end
 
 #pragma mark - Experimental
