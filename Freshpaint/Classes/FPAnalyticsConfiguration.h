@@ -229,6 +229,12 @@ NS_SWIFT_NAME(FreshpaintConfiguration)
  */
 @property (nonatomic, readonly, nonnull) FPAnalyticsExperimental *experimental;
 
+/**
+ * The maximum duration of a user session before it expires and is renewed.
+ * Measured in seconds. Default value is 30 minutes (1800 seconds).
+ * Session timeout interval, expressed in seconds.
+ * For example, a value of 1800 represents 30 minutes.
+ */
 @property (nonatomic, assign) NSTimeInterval sessionTimeout;
 
 @end
