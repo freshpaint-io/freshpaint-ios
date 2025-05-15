@@ -27,6 +27,7 @@ static FPAnalytics *__sharedInstance = nil;
 @property (nonatomic, strong) FPStoreKitTracker *storeKitTracker;
 @property (nonatomic, strong) FPIntegrationsManager *integrationsManager;
 @property (nonatomic, strong) FPMiddlewareRunner *runner;
+@property (nonatomic, strong) FPState *state;
 @end
 
 
@@ -45,6 +46,8 @@ static FPAnalytics *__sharedInstance = nil;
     NSCParameterAssert(configuration != nil);
 
     if (self = [self init]) {
+        self.state = [FPState sharedInstance];
+
         self.oneTimeConfiguration = configuration;
         self.enabled = YES;
 
@@ -534,7 +537,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 {
     // this has to match the actual version, NOT what's in info.plist
     // because Apple only accepts X.X.X as versions in the review process.
-    return @"0.2.2";
+    return @"0.2.3";
 }
 
 #pragma mark - Helpers
@@ -566,5 +569,14 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     // Could probably do more things with callback later, but we don't use it yet.
     [self.runner run:context callback:nil];
 }
+
+- (NSString *)validatedSessionId
+{
+    NSTimeInterval timeout = self.state.configuration.sessionTimeout ?: 1800;
+    [self.state validateOrRenewSessionWithTimeout:timeout];
+    
+    return self.state.userInfo.sessionId;
+}
+
 
 @end

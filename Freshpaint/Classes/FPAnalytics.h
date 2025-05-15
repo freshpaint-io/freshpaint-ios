@@ -218,6 +218,8 @@ NS_SWIFT_NAME(Freshpaint)
 /** Returns the registered device token of this device */
 - (NSString *)getDeviceToken;
 
+- (NSString *)validatedSessionId;
+
 @end
 
 NS_ASSUME_NONNULL_END

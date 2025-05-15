@@ -391,29 +391,46 @@ NSUInteger const kFPBackgroundTaskInvalid = 0;
 
 - (void)sendData:(NSArray *)batch
 {
+    NSString *sessionParameter = [self.analytics validatedSessionId];
+
+    NSMutableArray *mutBatch = [NSMutableArray arrayWithCapacity:batch.count];
+
+    for (NSDictionary *event in batch) {
+        NSMutableDictionary *mutEvent =
+            [NSMutableDictionary dictionaryWithDictionary:event];
+
+        NSMutableDictionary *props =
+            [mutEvent[@"properties"] mutableCopy] ?: [NSMutableDictionary dictionary];
+
+        props[@"$session_id"] = sessionParameter; 
+
+        mutEvent[@"properties"] = [props copy];
+
+        [mutBatch addObject:[mutEvent copy]];
+    }
+
     NSMutableDictionary *payload = [[NSMutableDictionary alloc] init];
-    [payload setObject:iso8601FormattedString([NSDate date]) forKey:@"sentAt"];
-    [payload setObject:batch forKey:@"batch"];
+    payload[@"sentAt"] = iso8601FormattedString([NSDate date]);
+    payload[@"batch"]  = mutBatch;
 
-    FPLog(@"%@ Flushing %lu of %lu queued API calls.", self, (unsigned long)batch.count, (unsigned long)self.queue.count);
-    FPLog(@"Flushing batch %@.", payload);
+    FPLog(@"Payload ➜ %@", payload);
 
-    self.batchRequest = [self.httpClient upload:payload forWriteKey:self.configuration.writeKey completionHandler:^(BOOL retry) {
+    self.batchRequest =
+        [self.httpClient upload:payload
+                   forWriteKey:self.configuration.writeKey
+            completionHandler:^(BOOL retry) {
+
         void (^completion)(void) = ^{
             if (retry) {
                 [self notifyForName:FPFreshpaintRequestDidFailNotification userInfo:batch];
-                self.batchRequest = nil;
-                [self endBackgroundTask];
-                return;
+            } else {
+                [self.queue removeObjectsInArray:batch];
+                [self persistQueue];
+                [self notifyForName:FPFreshpaintRequestDidSucceedNotification userInfo:batch];
             }
-
-            [self.queue removeObjectsInArray:batch];
-            [self persistQueue];
-            [self notifyForName:FPFreshpaintRequestDidSucceedNotification userInfo:batch];
             self.batchRequest = nil;
             [self endBackgroundTask];
         };
-        
         [self dispatchBackground:completion];
     }];
 
