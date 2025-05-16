@@ -279,6 +279,15 @@ NSUInteger const kFPBackgroundTaskInvalid = 0;
     payload[@"type"] = action;
 
     [self dispatchBackground:^{
+        // attach the session ID into the payload’s `properties` dictionary
+        NSString *sessionParameter = [self.analytics validatedSessionId];
+
+        NSMutableDictionary *props = [payload[@"properties"] mutableCopy] ?: [NSMutableDictionary dictionary];
+        
+        props[@"$session_id"] = sessionParameter;
+        
+        [payload setValue:[props copy] forKey:@"properties"];
+
         // attach userId and anonymousId inside the dispatch_async in case
         // they've changed (see identify function)
 
@@ -391,46 +400,29 @@ NSUInteger const kFPBackgroundTaskInvalid = 0;
 
 - (void)sendData:(NSArray *)batch
 {
-    NSString *sessionParameter = [self.analytics validatedSessionId];
-
-    NSMutableArray *mutBatch = [NSMutableArray arrayWithCapacity:batch.count];
-
-    for (NSDictionary *event in batch) {
-        NSMutableDictionary *mutEvent =
-            [NSMutableDictionary dictionaryWithDictionary:event];
-
-        NSMutableDictionary *props =
-            [mutEvent[@"properties"] mutableCopy] ?: [NSMutableDictionary dictionary];
-
-        props[@"$session_id"] = sessionParameter; 
-
-        mutEvent[@"properties"] = [props copy];
-
-        [mutBatch addObject:[mutEvent copy]];
-    }
-
     NSMutableDictionary *payload = [[NSMutableDictionary alloc] init];
-    payload[@"sentAt"] = iso8601FormattedString([NSDate date]);
-    payload[@"batch"]  = mutBatch;
+    [payload setObject:iso8601FormattedString([NSDate date]) forKey:@"sentAt"];
+    [payload setObject:batch forKey:@"batch"];
 
-    FPLog(@"Payload ➜ %@", payload);
+    FPLog(@"%@ Flushing %lu of %lu queued API calls.", self, (unsigned long)batch.count, (unsigned long)self.queue.count);
+    FPLog(@"Flushing batch %@.", payload);
 
-    self.batchRequest =
-        [self.httpClient upload:payload
-                   forWriteKey:self.configuration.writeKey
-            completionHandler:^(BOOL retry) {
-
+    self.batchRequest = [self.httpClient upload:payload forWriteKey:self.configuration.writeKey completionHandler:^(BOOL retry) {
         void (^completion)(void) = ^{
             if (retry) {
                 [self notifyForName:FPFreshpaintRequestDidFailNotification userInfo:batch];
-            } else {
-                [self.queue removeObjectsInArray:batch];
-                [self persistQueue];
-                [self notifyForName:FPFreshpaintRequestDidSucceedNotification userInfo:batch];
+                self.batchRequest = nil;
+                [self endBackgroundTask];
+                return;
             }
+
+            [self.queue removeObjectsInArray:batch];
+            [self persistQueue];
+            [self notifyForName:FPFreshpaintRequestDidSucceedNotification userInfo:batch];
             self.batchRequest = nil;
             [self endBackgroundTask];
         };
+        
         [self dispatchBackground:completion];
     }];
 
