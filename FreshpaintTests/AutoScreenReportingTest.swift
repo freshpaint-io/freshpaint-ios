@@ -61,7 +61,7 @@ class AutoScreenReportingTests: XCTestCase {
     }
     
     func testTopViewControllerReturnsCurrentSelectedViewController() {
-        class CustomContainerViewController: UIViewController, SEGScreenReporting {
+        class CustomContainerViewController: UIViewController, FPScreenReporting {
             var selectedIndex: Int = 0
             var seg_mainViewController: UIViewController? {
                 return children[selectedIndex]
