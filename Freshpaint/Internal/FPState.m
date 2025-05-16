@@ -213,12 +213,12 @@ typedef _Nullable id (^FPStateGetBlock)(void);
 
 - (void)validateOrRenewSessionWithTimeout:(NSTimeInterval)timeout {
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    NSTimeInterval diff = now - self.userInfo.lastSessionTimestamp;
+    NSTimeInterval currentSessionDuration = now - self.userInfo.lastSessionTimestamp;
 
-    NSLog(@"[Session] now=%.0f, last=%.0f, diff=%.0f s, timeout=%.0f s",
-          now, self.userInfo.lastSessionTimestamp, diff, timeout);
+    NSLog(@"[Session] now=%.0f, last=%.0f, currentSessionDuration=%.0f s, timeout=%.0f s",
+          now, self.userInfo.lastSessionTimestamp, currentSessionDuration, timeout);
 
-    if (diff > timeout) {
+    if (currentSessionDuration > timeout) {
         self.userInfo.sessionId = GenerateUUIDString();
         self.userInfo.lastSessionTimestamp = now;
     }

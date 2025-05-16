@@ -572,7 +572,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
 - (NSString *)validatedSessionId
 {
-    NSTimeInterval timeout = self.state.configuration.sessionTimeout ?: 1800;
+    NSTimeInterval timeout = self.state.configuration.sessionTimeout;
     [self.state validateOrRenewSessionWithTimeout:timeout];
     
     return self.state.userInfo.sessionId;
