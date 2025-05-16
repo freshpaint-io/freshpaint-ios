@@ -145,6 +145,8 @@
 		64FDB4D9257832BB001884FD /* FPStoreKitTracker.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3B7256EE283001884FD /* FPStoreKitTracker.h */; };
 		64FDB4DA257832BB001884FD /* FPFileStorage.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3BB256EE283001884FD /* FPFileStorage.h */; };
 		A3B6E29925116B3A00609A13 /* Freshpaint.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EADEB85B1DECD080005322DA /* Freshpaint.framework */; };
+		C31833C22DD7A44C00F2EE90 /* SessionTimeoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31833C12DD7A44900F2EE90 /* SessionTimeoutTests.swift */; };
+		C31833C42DD7A5AD00F2EE90 /* SessionIdInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -293,6 +295,8 @@
 		64FDB486257831A7001884FD /* freshpaint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = freshpaint.h; sourceTree = "<group>"; };
 		64FDB487257831A7001884FD /* freshpaint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = freshpaint.m; sourceTree = "<group>"; };
 		C31674B18CD818C64F8F3935 /* Pods_SegmentTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SegmentTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C31833C12DD7A44900F2EE90 /* SessionTimeoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTimeoutTests.swift; sourceTree = "<group>"; };
+		C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionIdInjectionTests.swift; sourceTree = "<group>"; };
 		EADEB85B1DECD080005322DA /* Freshpaint.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Freshpaint.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EADEB86A1DECD0EF005322DA /* FreshpaintTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshpaintTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EADEB8FF1DED3711005322DA /* circle.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = circle.yml; sourceTree = "<group>"; };
@@ -423,6 +427,8 @@
 		64FDB442256F05A3001884FD /* FreshpaintTests */ = {
 			isa = PBXGroup;
 			children = (
+				C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */,
+				C31833C12DD7A44900F2EE90 /* SessionTimeoutTests.swift */,
 				64FDB443256F05A3001884FD /* TrackingTests.swift */,
 				644DF34C25A8FDF4000E5F2B /* FreshpaintTests-Bridging-Header.h */,
 				64FDB445256F05A3001884FD /* FreshpaintTests.swift */,
@@ -734,11 +740,13 @@
 			files = (
 				64FDB469256F05A4001884FD /* UserDefaultsStorageTest.swift in Sources */,
 				64FDB46A256F05A4001884FD /* AnalyticsUtilTests.swift in Sources */,
+				C31833C22DD7A44C00F2EE90 /* SessionTimeoutTests.swift in Sources */,
 				64FDB468256F05A3001884FD /* EndToEndTests.swift in Sources */,
 				644DF35625A8FF75000E5F2B /* NSData+FPGUNZPP.m in Sources */,
 				64FDB45B256F05A3001884FD /* TrackingTests.swift in Sources */,
 				64FDB45C256F05A3001884FD /* FreshpaintTests.swift in Sources */,
 				64FDB465256F05A3001884FD /* TestUtils.swift in Sources */,
+				C31833C42DD7A5AD00F2EE90 /* SessionIdInjectionTests.swift in Sources */,
 				64FDB467256F05A3001884FD /* HTTPClientTest.swift in Sources */,
 				64FDB46C256F05A4001884FD /* FileStorageTest.swift in Sources */,
 				64FDB45D256F05A3001884FD /* StoreKitTrackerTests.swift in Sources */,
