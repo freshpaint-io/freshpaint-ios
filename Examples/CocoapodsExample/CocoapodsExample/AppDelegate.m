@@ -27,6 +27,7 @@ NSString *const FPMENT_WRITE_KEY = @"5bd86532-4cc1-4b18-8392-880be8eb0e3d";
     FPAnalyticsConfiguration *configuration = [FPAnalyticsConfiguration configurationWithWriteKey:FPMENT_WRITE_KEY];
     configuration.trackApplicationLifecycleEvents = YES;
     configuration.flushAt = 1;
+    configuration.sessionTimeout = 120; 
     [FPAnalytics setupWithConfiguration:configuration];
     [[FPAnalytics sharedAnalytics] identify:@"Prateek" traits:nil options: @{
                                                                               @"anonymousId":@"test_anonymousId"

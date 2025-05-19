@@ -279,6 +279,15 @@ NSUInteger const kFPBackgroundTaskInvalid = 0;
     payload[@"type"] = action;
 
     [self dispatchBackground:^{
+        // attach the session ID into the payload’s `properties` dictionary
+        NSString *sessionParameter = [self.analytics validatedSessionId];
+
+        NSMutableDictionary *props = [payload[@"properties"] mutableCopy] ?: [NSMutableDictionary dictionary];
+        
+        props[@"$session_id"] = sessionParameter;
+        
+        [payload setValue:[props copy] forKey:@"properties"];
+
         // attach userId and anonymousId inside the dispatch_async in case
         // they've changed (see identify function)
 

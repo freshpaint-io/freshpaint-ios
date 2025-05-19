@@ -31,6 +31,8 @@
 @end
 #endif
 
+static const NSTimeInterval DefaultSessionTimeout = 1800;
+
 @implementation FPAnalyticsExperimental
 @end
 
@@ -71,6 +73,7 @@
         self.payloadFilters = @{
             @"(fb\\d+://authorize#access_token=)([^ ]+)": @"$1((redacted/fb-auth-token))"
         };
+        self.sessionTimeout = DefaultSessionTimeout;
         _factories = [NSMutableArray array];
 #if TARGET_OS_IPHONE
         if ([UIApplication respondsToSelector:@selector(sharedApplication)]) {
