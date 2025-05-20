@@ -218,7 +218,11 @@ NS_SWIFT_NAME(Freshpaint)
 /** Returns the registered device token of this device */
 - (NSString *)getDeviceToken;
 
+/** Returns the session ID of the current user. */
 - (NSString *)validatedSessionId;
+
+/** Returns whether this is the first event in the session */
+- (BOOL)isFirstEventInSession;
 
 @end
 
