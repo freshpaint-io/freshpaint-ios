@@ -578,5 +578,15 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     return self.state.userInfo.sessionId;
 }
 
+- (BOOL)isFirstEventInSession
+{
+    NSTimeInterval timeout = self.state.configuration.sessionTimeout;
+    NSTimeInterval now     = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval lastSessionTimestamp  = self.state.userInfo.lastSessionTimestamp;
+    NSTimeInterval currentSessionDuration = now - lastSessionTimestamp;
+
+    return (lastSessionTimestamp == 0) || (currentSessionDuration > timeout);
+}
+
 
 @end
