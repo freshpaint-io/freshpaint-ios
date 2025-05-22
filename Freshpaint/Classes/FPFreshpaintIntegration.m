@@ -280,13 +280,15 @@ NSUInteger const kFPBackgroundTaskInvalid = 0;
 
     [self dispatchBackground:^{
         // attach the session ID into the payload’s `properties` dictionary
-        BOOL isFirstEventInSession = [self.analytics isFirstEventInSession];
+        NSDictionary<NSString *, id> *sessionInfo = [self.analytics sessionInfo];
 
-        NSString *sessionParameter = [self.analytics validatedSessionId];
+        NSString *sessionId = sessionInfo[@"sessionId"];
+
+        BOOL isFirstEventInSession = [sessionInfo[@"isFirstEventInSession"] boolValue];
 
         NSMutableDictionary *props = [payload[@"properties"] mutableCopy] ?: [NSMutableDictionary dictionary];
         
-        props[@"$session_id"] = sessionParameter;
+        props[@"$session_id"] = sessionId;
         props[@"$is_first_event_in_session"] = @(isFirstEventInSession);
 
         [payload setValue:[props copy] forKey:@"properties"];

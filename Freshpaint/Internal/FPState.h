@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, nullable) NSDictionary *traits;
 @property (nonatomic, strong) NSString *sessionId;
 @property (nonatomic, assign) NSTimeInterval lastSessionTimestamp;
+@property (nonatomic, assign) BOOL isFirstEventInSession;
 @end
 
 @interface FPPayloadContext: NSObject

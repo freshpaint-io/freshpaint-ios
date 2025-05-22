@@ -193,6 +193,7 @@ typedef _Nullable id (^FPStateGetBlock)(void);
         self.context = [[FPPayloadContext alloc] initWithState:self];
         self.userInfo.sessionId = GenerateUUIDString();
         self.userInfo.lastSessionTimestamp = 0;
+        self.userInfo.isFirstEventInSession = NO;
     }
     return self;
 }
@@ -212,6 +213,7 @@ typedef _Nullable id (^FPStateGetBlock)(void);
 }
 
 - (void)validateOrRenewSessionWithTimeout:(NSTimeInterval)timeout {
+    self.userInfo.isFirstEventInSession = NO;
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval lastSessionTimestamp = self.userInfo.lastSessionTimestamp;
     NSTimeInterval currentSessionDuration = now - lastSessionTimestamp;
@@ -222,6 +224,7 @@ typedef _Nullable id (^FPStateGetBlock)(void);
     if (lastSessionTimestamp == 0 || currentSessionDuration > timeout) {
         self.userInfo.sessionId = GenerateUUIDString();
         self.userInfo.lastSessionTimestamp = now;
+        self.userInfo.isFirstEventInSession = YES;
     }
 
 }
