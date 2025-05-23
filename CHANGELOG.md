@@ -1,5 +1,6 @@
 Version 0.2.3 (14 May, 2025)
 * [New] SDK now persists `session_id` across launches and renews it automatically after `sessionTimeout` (default 30 min, configurable).
+* [New] Added `$first_event_in_session` flag to every event’s `properties` to indicate the first event in each session.
 
 Version 0.2.2 (13 January, 2022)
 * [Fix](https://github.com/freshpaint-io/freshpaint-ios/pull/3) Fixed issue where integration settings were not initialized properly.
