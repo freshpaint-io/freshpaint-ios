@@ -570,13 +570,17 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     [self.runner run:context callback:nil];
 }
 
-- (NSString *)validatedSessionId
-{
+- (NSDictionary<NSString *, id> *)sessionInfo {
     NSTimeInterval timeout = self.state.configuration.sessionTimeout;
     [self.state validateOrRenewSessionWithTimeout:timeout];
-    
-    return self.state.userInfo.sessionId;
-}
 
+    NSString *sessionId = self.state.userInfo.sessionId;
+    BOOL isFirstEvent   = self.state.userInfo.isFirstEventInSession;
+
+    return @{
+      @"sessionId": sessionId,
+      @"isFirstEventInSession": @(isFirstEvent)
+    };
+}
 
 @end

@@ -105,7 +105,7 @@ class SessionIdInjectionTests: XCTestCase {
     /// Sends two events *within* the same `sessionTimeout` window.
     /// Expects both to share the SAME `$session_id`.
     func testSessionIdPersistsWithinTimeout() {
-        // 1 s de timeout: enviamos el segundo evento a los 0,3 s.
+        // 1 s timeout: we send the second event at 0.3 s.
         configuration.sessionTimeout = 10
 
         let exp = expectation(description: "second event keeps same $session_id")
@@ -137,6 +137,54 @@ class SessionIdInjectionTests: XCTestCase {
         }
 
         wait(for: [exp], timeout: 2.0)
+    }
+
+    /// Verifies the `$is_first_event_in_session` flag behavior:
+    /// - `true` for the very first event ever or after the timeout expires.
+    /// - `false` for intermediate events within the timeout period.
+    func testIsFirstEventInSessionFlagBehavior() {
+        let expectations = [
+            expectation(description: "First event → true"),
+            expectation(description: "Second event → false"),
+            expectation(description: "Third event → true after timeout")
+        ]
+
+        let expectedFlags = [ true, false, true ]
+        
+        var eventIndex = 0
+
+        configuration.experimental.rawFreshpaintModificationBlock = { event in
+            guard
+                let props   = event["properties"] as? [String: Any],
+                let isFirstEventInSession = props["$is_first_event_in_session"] as? Bool
+            else { return event }
+
+            // Check against expectedFlags[eventIndex]
+            if eventIndex < expectedFlags.count, isFirstEventInSession == expectedFlags[eventIndex] {
+                expectations[eventIndex].fulfill()
+            }
+            
+            eventIndex += 1
+            return event
+        }
+
+        // First event
+        analytics.track("first for flag");   
+        analytics.flush()
+        
+        // Second event
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.analytics.track("second within timeout"); 
+            self.analytics.flush();
+        }
+
+        // Third event
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            self.analytics.track("third after timeout"); 
+            self.analytics.flush();
+        }
+
+        wait(for: expectations, timeout: 5.0)
     }
 
 }
