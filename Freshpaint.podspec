@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.license          = "MIT"
   s.source           = { "git" => "https://github.com/freshpaint-io/freshpaint-ios.git", "tag" => "0.2.3" }
 
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '15.1'
   s.tvos.deployment_target = '9.0'
 
   s.ios.frameworks = 'CoreTelephony'
