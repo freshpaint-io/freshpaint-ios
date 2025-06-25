@@ -1,3 +1,12 @@
+Version 0.3.0 (25 June, 2025)
+* [Breaking] Updated minimum Swift version requirement to 5.9+
+* [Breaking] Updated minimum Xcode version requirement to 15.0+
+* [Fix] Fixed Package.swift configuration to remove invalid exclude paths
+* [Improvement] Enhanced Swift-Objective-C interoperability
+* [Improvement] Updated Swift Package Manager configuration for better compatibility
+* [Improvement] Enhanced iOS 15+ support and optimizations
+* [Improvement] Improved build reliability across different Xcode versions
+
 Version 0.2.3 (14 May, 2025)
 * [New] SDK now persists `session_id` across launches and renews it automatically after `sessionTimeout` (default 30 min, configurable).
 * [New] Added `$first_event_in_session` flag to every event’s `properties` to indicate the first event in each session.
