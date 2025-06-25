@@ -25,7 +25,6 @@ let package = Package(
             name: "Freshpaint",
             dependencies: [],
             path: "Freshpaint/",
-            exclude: ["SwiftSources"],
             sources: ["Classes", "Internal"],
             publicHeadersPath: "Classes",
             cSettings: [
