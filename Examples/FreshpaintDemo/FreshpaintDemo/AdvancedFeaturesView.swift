@@ -68,7 +68,7 @@ struct AdvancedFeaturesView: View {
                     Text("Debug Logging")
                     Spacer()
                     Toggle("", isOn: $debugLogsEnabled)
-                        .onChange(of: debugLogsEnabled) { value in
+                        .onChange(of: debugLogsEnabled) { _, value in
                             toggleDebugLogging(value)
                         }
                 }
@@ -79,7 +79,7 @@ struct AdvancedFeaturesView: View {
                         Spacer()
                     }
                     Slider(value: $flushInterval, in: 10...300, step: 10)
-                        .onChange(of: flushInterval) { value in
+                        .onChange(of: flushInterval) { _, value in
                             updateFlushInterval(value)
                         }
                 }
@@ -90,7 +90,7 @@ struct AdvancedFeaturesView: View {
                         Spacer()
                     }
                     Slider(value: $flushAt, in: 1...100, step: 1)
-                        .onChange(of: flushAt) { value in
+                        .onChange(of: flushAt) { _, value in
                             updateFlushAt(value)
                         }
                 }
@@ -101,7 +101,7 @@ struct AdvancedFeaturesView: View {
                         Spacer()
                     }
                     Slider(value: $maxQueueSize, in: 100...5000, step: 100)
-                        .onChange(of: maxQueueSize) { value in
+                        .onChange(of: maxQueueSize) { _, value in
                             updateMaxQueueSize(value)
                         }
                 }
@@ -265,8 +265,8 @@ struct AdvancedFeaturesView: View {
     
     private func loadCurrentConfiguration() {
         loadSessionInfo()
-        anonymousId = Freshpaint.shared().getAnonymousId() ?? "Unknown"
-        deviceToken = Freshpaint.shared().getDeviceToken() ?? "Not available"
+        anonymousId = Freshpaint.shared().getAnonymousId()
+        deviceToken = Freshpaint.shared().getDeviceToken()
         addDebugLog("📊 Loaded current SDK configuration")
     }
     
@@ -299,7 +299,7 @@ struct AdvancedFeaturesView: View {
     private func generateNewSession() {
         Freshpaint.shared().reset()
         loadSessionInfo()
-        anonymousId = Freshpaint.shared().getAnonymousId() ?? "Unknown"
+        anonymousId = Freshpaint.shared().getAnonymousId()
         addDebugLog("🆕 New session generated")
         addDebugLog("New Anonymous ID: \(anonymousId)")
     }

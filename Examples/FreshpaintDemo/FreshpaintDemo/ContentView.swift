@@ -353,7 +353,7 @@ struct ContentView: View {
     // MARK: - Helper Functions
     
     private func getAnonymousId() -> String {
-        return Freshpaint.shared().getAnonymousId() ?? "unknown"
+        return Freshpaint.shared().getAnonymousId()
     }
     
     private func addDebugLog(_ message: String) {
