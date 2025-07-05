@@ -179,7 +179,7 @@
 			mainGroup = 76CA4BDE2E05BDC900AC6FAB;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				76773DD32E0B842200D70EB7 /* XCLocalSwiftPackageReference "../freshpaint-ios" */,
+				76773DD32E0B842200D70EB7 /* XCLocalSwiftPackageReference "../.." */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 76CA4BE82E05BDC900AC6FAB /* Products */;
@@ -548,9 +548,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		76773DD32E0B842200D70EB7 /* XCLocalSwiftPackageReference "../freshpaint-ios" */ = {
+		76773DD32E0B842200D70EB7 /* XCLocalSwiftPackageReference "../.." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = "../freshpaint-ios";
+			relativePath = ../..;
 		};
 /* End XCLocalSwiftPackageReference section */
 
