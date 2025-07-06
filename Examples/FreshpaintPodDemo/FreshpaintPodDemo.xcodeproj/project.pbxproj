@@ -29,9 +29,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D1999574-2B32-464A-825C-98865BBF99D7 /* FreshpaintPodDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FreshpaintPodDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		76CA4BF42E05BDCA00AC6FAB /* FreshpaintPodDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshpaintPodDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		76CA4BFE2E05BDCA00AC6FAB /* FreshpaintPodDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreshpaintPodDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		"D1999574-2B32-464A-825C-98865BBF99D7" /* FreshpaintPodDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FreshpaintPodDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -69,48 +69,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		76CA4BDE2E05BDC900AC6FAB = {
-			isa = PBXGroup;
-			children = (
-				CE800B66C7F24A87B6733FD890AA990F /* FreshpaintDemo */,
-				136A8DCC012A4FC29D89101C2A4EB660 /* Products */,
-			);
-			sourceTree = "<group>";
-		};
 		136A8DCC012A4FC29D89101C2A4EB660 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D1999574-2B32-464A-825C-98865BBF99D7 /* FreshpaintPodDemo.app */,
+				"D1999574-2B32-464A-825C-98865BBF99D7" /* FreshpaintPodDemo.app */,
 				76CA4BF42E05BDCA00AC6FAB /* FreshpaintPodDemoTests.xctest */,
 				76CA4BFE2E05BDCA00AC6FAB /* FreshpaintPodDemoUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
+		76CA4BDE2E05BDC900AC6FAB = {
+			isa = PBXGroup;
+			children = (
+				CE800B66C7F24A87B6733FD890AA990F /* FreshpaintPodDemo */,
+				136A8DCC012A4FC29D89101C2A4EB660 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B8DC7715B1AD48B6A1305340277BE26C /* FreshpaintDemo */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 76CA4C082E05BDCA00AC6FAB /* Build configuration list for PBXNativeTarget "FreshpaintPodDemo" */;
-			buildPhases = (
-				76CA4BE32E05BDC900AC6FAB /* Sources */,
-				76CA4BE42E05BDC900AC6FAB /* Frameworks */,
-				76CA4BE52E05BDC900AC6FAB /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				CE800B66C7F24A87B6733FD890AA990F /* FreshpaintDemo */,
-			);
-			name = FreshpaintPodDemo;
-			productName = FreshpaintPodDemo;
-			productReference = D1999574-2B32-464A-825C-98865BBF99D7 /* FreshpaintPodDemo.app */;
-			productType = "com.apple.product-type.application";
-		};
-		76CA4BF32E05BDCA00AC6FAB /* FreshpaintDemoTests */ = {
+		76CA4BF32E05BDCA00AC6FAB /* FreshpaintPodDemoTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 76CA4C0B2E05BDCA00AC6FAB /* Build configuration list for PBXNativeTarget "FreshpaintPodDemoTests" */;
 			buildPhases = (
@@ -128,7 +108,7 @@
 			productReference = 76CA4BF42E05BDCA00AC6FAB /* FreshpaintPodDemoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		76CA4BFD2E05BDCA00AC6FAB /* FreshpaintDemoUITests */ = {
+		76CA4BFD2E05BDCA00AC6FAB /* FreshpaintPodDemoUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 76CA4C0E2E05BDCA00AC6FAB /* Build configuration list for PBXNativeTarget "FreshpaintPodDemoUITests" */;
 			buildPhases = (
@@ -146,6 +126,26 @@
 			productReference = 76CA4BFE2E05BDCA00AC6FAB /* FreshpaintPodDemoUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		B8DC7715B1AD48B6A1305340277BE26C /* FreshpaintPodDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 76CA4C082E05BDCA00AC6FAB /* Build configuration list for PBXNativeTarget "FreshpaintPodDemo" */;
+			buildPhases = (
+				76CA4BE32E05BDC900AC6FAB /* Sources */,
+				76CA4BE42E05BDC900AC6FAB /* Frameworks */,
+				76CA4BE52E05BDC900AC6FAB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CE800B66C7F24A87B6733FD890AA990F /* FreshpaintPodDemo */,
+			);
+			name = FreshpaintPodDemo;
+			productName = FreshpaintPodDemo;
+			productReference = "D1999574-2B32-464A-825C-98865BBF99D7" /* FreshpaintPodDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -156,9 +156,6 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
-					B8DC7715B1AD48B6A1305340277BE26C = {
-						CreatedOnToolsVersion = 16.4;
-					};
 					76CA4BF32E05BDCA00AC6FAB = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = B8DC7715B1AD48B6A1305340277BE26C;
@@ -166,6 +163,9 @@
 					76CA4BFD2E05BDCA00AC6FAB = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = B8DC7715B1AD48B6A1305340277BE26C;
+					};
+					B8DC7715B1AD48B6A1305340277BE26C = {
+						CreatedOnToolsVersion = 16.4;
 					};
 				};
 			};
@@ -179,16 +179,15 @@
 			mainGroup = 76CA4BDE2E05BDC900AC6FAB;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				76773DD32E0B842200D70EB7 /* XCLocalSwiftPackageReference "../.." */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 136A8DCC012A4FC29D89101C2A4EB660 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B8DC7715B1AD48B6A1305340277BE26C /* FreshpaintDemo */,
-				76CA4BF32E05BDCA00AC6FAB /* FreshpaintDemoTests */,
-				76CA4BFD2E05BDCA00AC6FAB /* FreshpaintDemoUITests */,
+				B8DC7715B1AD48B6A1305340277BE26C /* FreshpaintPodDemo */,
+				76CA4BF32E05BDCA00AC6FAB /* FreshpaintPodDemoTests */,
+				76CA4BFD2E05BDCA00AC6FAB /* FreshpaintPodDemoUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -244,12 +243,12 @@
 /* Begin PBXTargetDependency section */
 		76CA4BF62E05BDCA00AC6FAB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B8DC7715B1AD48B6A1305340277BE26C /* FreshpaintDemo */;
+			target = B8DC7715B1AD48B6A1305340277BE26C /* FreshpaintPodDemo */;
 			targetProxy = 76CA4BF52E05BDCA00AC6FAB /* PBXContainerItemProxy */;
 		};
 		76CA4C002E05BDCA00AC6FAB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B8DC7715B1AD48B6A1305340277BE26C /* FreshpaintDemo */;
+			target = B8DC7715B1AD48B6A1305340277BE26C /* FreshpaintPodDemo */;
 			targetProxy = 76CA4BFF2E05BDCA00AC6FAB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -546,13 +545,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		76773DD32E0B842200D70EB7 /* XCLocalSwiftPackageReference "../.." */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../..;
-		};
-/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
 		765FF7492E05D8F100E0A999 /* XCRemoteSwiftPackageReference "freshpaint-ios" */ = {
