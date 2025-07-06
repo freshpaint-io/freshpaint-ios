@@ -11,7 +11,7 @@ import Freshpaint
 @main
 struct FreshpaintDemoApp: App {
     init() {
-        let config = FreshpaintConfiguration(writeKey: "ca88c2f6-ec3d-4ebc-964b-af0fb2f9cfe5")
+        let config = FreshpaintConfiguration(writeKey: "ca88c2f6-ec3d-4ebc-964b-af0fb2f9cfe5") // Write your key here
         
         // Core tracking features
         config.trackApplicationLifecycleEvents = true
