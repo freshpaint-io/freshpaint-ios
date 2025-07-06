@@ -68,9 +68,16 @@ struct ContentView: View {
     
     private var headerView: some View {
         VStack(spacing: 8) {
-            Text("Freshpaint Demo")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+        
+            HStack {
+                Image("fp_logo")
+                    .resizable()
+                    .frame(width: 32, height: 32)
+                
+                Text("Freshpaint Demo")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+            }
             
             Text("Comprehensive SDK Feature Showcase")
                 .font(.subheadline)
