@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DebugLogView: View {
-    let logs: [String]
+    @State var logs: [String]
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
     
@@ -43,7 +43,7 @@ struct DebugLogView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Clear") {
-                        // This would need to be passed as a binding if we want to clear logs
+                        logs = []
                     }
                     .disabled(logs.isEmpty)
                 }
