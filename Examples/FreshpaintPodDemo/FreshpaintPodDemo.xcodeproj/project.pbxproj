@@ -6,13 +6,22 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		76F7317F4DBC0CD8BC9ED45A /* Pods_FreshpaintPodDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBEAC8CAEAEB2C6039502BFE /* Pods_FreshpaintPodDemo.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		769B582A2E1B34B8003523A8 /* FreshpaintPodDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FreshpaintPodDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8E9670EA6C2A27CC66741836 /* Pods-FreshpaintPodDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FreshpaintPodDemo.release.xcconfig"; path = "Target Support Files/Pods-FreshpaintPodDemo/Pods-FreshpaintPodDemo.release.xcconfig"; sourceTree = "<group>"; };
+		96E28F34D625EEB9397CE519 /* Pods-FreshpaintPodDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FreshpaintPodDemo.debug.xcconfig"; path = "Target Support Files/Pods-FreshpaintPodDemo/Pods-FreshpaintPodDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		CBEAC8CAEAEB2C6039502BFE /* Pods_FreshpaintPodDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FreshpaintPodDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		769B582C2E1B34B8003523A8 /* FreshpaintPodDemo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = FreshpaintPodDemo;
 			sourceTree = "<group>";
 		};
@@ -23,17 +32,38 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				76F7317F4DBC0CD8BC9ED45A /* Pods_FreshpaintPodDemo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2FBECE6ABA064BDB8B4CBAD0 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				96E28F34D625EEB9397CE519 /* Pods-FreshpaintPodDemo.debug.xcconfig */,
+				8E9670EA6C2A27CC66741836 /* Pods-FreshpaintPodDemo.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		5C171D0AB63B85BD42ED8F8C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CBEAC8CAEAEB2C6039502BFE /* Pods_FreshpaintPodDemo.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		769B58212E1B34B8003523A8 = {
 			isa = PBXGroup;
 			children = (
 				769B582C2E1B34B8003523A8 /* FreshpaintPodDemo */,
 				769B582B2E1B34B8003523A8 /* Products */,
+				2FBECE6ABA064BDB8B4CBAD0 /* Pods */,
+				5C171D0AB63B85BD42ED8F8C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -52,9 +82,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 769B58352E1B34B9003523A8 /* Build configuration list for PBXNativeTarget "FreshpaintPodDemo" */;
 			buildPhases = (
+				4EE491C66E060157B2FEAEF6 /* [CP] Check Pods Manifest.lock */,
 				769B58262E1B34B8003523A8 /* Sources */,
 				769B58272E1B34B8003523A8 /* Frameworks */,
 				769B58282E1B34B8003523A8 /* Resources */,
+				E6ECA7D47F7A47520EA7CC03 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -64,8 +96,6 @@
 				769B582C2E1B34B8003523A8 /* FreshpaintPodDemo */,
 			);
 			name = FreshpaintPodDemo;
-			packageProductDependencies = (
-			);
 			productName = FreshpaintPodDemo;
 			productReference = 769B582A2E1B34B8003523A8 /* FreshpaintPodDemo.app */;
 			productType = "com.apple.product-type.application";
@@ -113,6 +143,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4EE491C66E060157B2FEAEF6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-FreshpaintPodDemo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E6ECA7D47F7A47520EA7CC03 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-FreshpaintPodDemo/Pods-FreshpaintPodDemo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-FreshpaintPodDemo/Pods-FreshpaintPodDemo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FreshpaintPodDemo/Pods-FreshpaintPodDemo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		769B58262E1B34B8003523A8 /* Sources */ = {
@@ -248,6 +320,7 @@
 		};
 		769B58362E1B34B9003523A8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 96E28F34D625EEB9397CE519 /* Pods-FreshpaintPodDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -276,6 +349,7 @@
 		};
 		769B58372E1B34B9003523A8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8E9670EA6C2A27CC66741836 /* Pods-FreshpaintPodDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
