@@ -1,89 +1,254 @@
-# FreshpaintPodDemo
+# FreshpaintPodDemo - CocoaPods Integration
 
-This is a demo iOS application that demonstrates how to integrate the Freshpaint SDK using CocoaPods 
+A comprehensive demo iOS application showing how to integrate the Freshpaint SDK using **CocoaPods**.
 
-## Project Setup
+> **💡 We recommend using Swift Package Manager** whenever possible for easier setup and better Xcode integration. Use this CocoaPods example only if your project requires CocoaPods or you prefer this dependency management approach.
 
-This project uses **CocoaPods** to integrate the Freshpaint SDK.
+## 🚀 Quick Start
 
 ### Prerequisites
-
-- Xcode 16.4+
 - iOS 15.1+
+- Xcode 16.4+
 - CocoaPods installed (`gem install cocoapods`)
 
 ### Installation
 
-1. **Open the workspace** (not the `.xcodeproj`):
+1. **Clone or download the project**
+2. **Install dependencies**:
+   ```bash
+   cd FreshpaintPodDemo
+   pod install
+   ```
+3. **Open the workspace** (not the .xcodeproj):
    ```bash
    open FreshpaintPodDemo.xcworkspace
    ```
+4. **Build and run** - the SDK is already configured!
 
-2. **Local SDK Integration**: The project is configured to use the local Freshpaint SDK via CocoaPods:
-   ```ruby
-   pod 'Freshpaint', :path => '../..'
-   ```
+## 📱 What's Included
 
-3. **Build and Run**: The project should build and run directly from Xcode.
+This demo showcases **identical functionality** to the Swift Package Manager version, demonstrating all major Freshpaint SDK features:
 
-## Key Configuration
+### Core Features Tab 🎯
+- **Event Tracking**: Custom events with properties
+- **Screen Tracking**: Automatic and manual screen views
+- **User Identity**: Anonymous and identified user management
+- **User Aliasing**: Link anonymous activity to identified users
+- **Group Analytics**: Organization/team tracking
+- **Session Management**: Flush and reset functionality
 
-### CocoaPods Setup
+### User Journey Tab 👤
+- **Complete User Lifecycle**: From anonymous visitor to power user
+- **7 Journey Stages**: Each with specific tracking examples
+- **Real-world Scenarios**: Onboarding, feature adoption, conversions
 
-- **Podfile**: References the Freshpaint SDK using `:path => '../..'` (You should use `pod 'Freshpaint', '0.3.0'` instead)
-- **Module Name**: Uses `FreshpaintSDK` (as defined in the podspec)
-- **Import Statement**: `import FreshpaintSDK` (not `import Freshpaint`)
+### Advanced Features Tab ⚙️
+- **SDK Configuration**: Real-time settings monitoring
+- **Performance Testing**: Batch events and stress testing
+- **Debug Logging**: Comprehensive event inspection
+- **Session Information**: Anonymous ID, session details
 
-### CocoaPods Sandbox Error
+## 🔧 SDK Integration Guide
 
-**Problem**: Build fails with error:
+### For Your Own Project
+
+**Important**: This demo uses a local SDK reference for development. For your production app:
+
+#### 1. Add to Podfile
+
+Create or update your `Podfile`:
+
+```ruby
+platform :ios, '15.1'
+
+target 'YourApp' do
+  use_frameworks!
+  
+  # Add Freshpaint SDK
+  pod 'Freshpaint', '~> 0.3.0'
+  
+  # Your other dependencies...
+end
+```
+
+#### 2. Install Dependencies
+
+```bash
+pod install
+```
+
+#### 3. Import and Initialize
+
+```swift
+import SwiftUI
+import FreshpaintSDK  // Note: CocoaPods uses 'FreshpaintSDK' module name
+
+@main
+struct YourApp: App {
+    init() {
+        let config = FreshpaintConfiguration(writeKey: "YOUR_WRITE_KEY_HERE")
+        
+        // Configure tracking features
+        config.trackApplicationLifecycleEvents = true
+        config.recordScreenViews = true
+        
+        // Performance settings
+        config.flushAt = 20
+        config.flushInterval = 30
+        config.maxQueueSize = 1000
+        
+        // Initialize SDK
+        Freshpaint.setup(with: config)
+    }
+    
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
+```
+
+#### 4. Start Tracking
+
+```swift
+// Track events
+Freshpaint.shared().track("Button Tapped", properties: [
+    "button_name": "get_started",
+    "screen": "home"
+])
+
+// Identify users
+Freshpaint.shared().identify("user_123", traits: [
+    "name": "John Doe",
+    "email": "john@example.com"
+])
+
+// Track screens
+Freshpaint.shared().screen("Home Screen", properties: [
+    "tab": "main"
+])
+```
+
+## ⚠️ CocoaPods-Specific Setup
+
+### User Script Sandboxing Fix
+
+If you encounter this build error:
 ```
 Sandbox: rsync(xxxxx) deny(1) file-write-create /Users/.../FreshpaintSDK.framework/.FreshpaintSDK.xxxxxx
 ```
 
-**Solution**: The project is pre-configured with `ENABLE_USER_SCRIPT_SANDBOXING = NO` to prevent this issue. If you encounter this error:
+**Solution**: Disable User Script Sandboxing in your project settings:
 
-1. Open the project settings in Xcode
-2. Select the FreshpaintPodDemo target
-3. Go to Build Settings
+1. Open your project settings in Xcode
+2. Select your app target
+3. Go to **Build Settings**
 4. Search for "User Script Sandboxing"
-5. Set "Enable User Script Sandboxing" to **No** for both Debug and Release
+5. Set **"Enable User Script Sandboxing"** to **No** for both Debug and Release
 
-**Why this happens**: Xcode's User Script Sandboxing feature blocks CocoaPods framework embedding scripts from writing to the app bundle directory.
+**Why this happens**: Xcode's User Script Sandboxing blocks CocoaPods framework embedding scripts from writing to the app bundle.
 
-### Module Import Issues
+### Module Import Differences
 
-**Problem**: `import Freshpaint` doesn't work
+| Integration Method | Import Statement |
+|-------------------|------------------|
+| **Swift Package Manager** | `import Freshpaint` |
+| **CocoaPods** | `import FreshpaintSDK` |
 
-**Solution**: Use `import FreshpaintSDK` instead. The module name is defined in the podspec as `FreshpaintSDK`.
+## 📊 Key SDK Methods
 
+### Essential Tracking Methods
+- `track()` - Custom events with properties
+- `screen()` - Screen view tracking
+- `identify()` - User identification with traits
+- `alias()` - Link anonymous to identified users
+- `group()` - Associate users with organizations
+- `flush()` - Force send queued events
+- `reset()` - Clear user session data
 
+### Configuration Options
+- **Batch Settings**: Control when events are sent
+- **Privacy Controls**: Location, Bluetooth, advertising tracking
+- **Session Management**: Timeout and lifecycle tracking
+- **Debug Features**: Development logging and testing
 
-## Project Structure
+## 🔍 Debug and Testing
 
-- **FreshpaintPodDemo.xcworkspace**: Main workspace file (use this to open the project)
-- **FreshpaintPodDemo.xcodeproj**: Xcode project file
-- **Podfile**: CocoaPods dependency configuration
-- **Pods/**: CocoaPods generated files and local SDK integration
-- **FreshpaintPodDemo/**: Source code directory
+### Enable Debug Logging
+```swift
+#if DEBUG
+Freshpaint.debug(true)  // Development only
+#endif
+```
 
-## SDK Features Demonstrated
+### Testing Features in Demo
+- **Real-time Logs**: See all SDK activity
+- **Performance Tests**: Batch events, stress testing
+- **Network Simulation**: Test offline scenarios
+- **Session Monitoring**: Track user state changes
 
-This demo app showcases various Freshpaint SDK features:
+## 🏗️ Project Structure
 
-- Basic SDK initialization and configuration
-- Event tracking examples
-- User journey tracking
-- Advanced features and configurations
-- Debug logging and development tools
+```
+FreshpaintPodDemo/
+├── FreshpaintPodDemo.xcworkspace    # Use this to open project
+├── FreshpaintPodDemo.xcodeproj      # Xcode project file
+├── Podfile                          # CocoaPods dependencies
+├── Pods/                            # Generated CocoaPods files
+└── FreshpaintPodDemo/
+    ├── FreshpaintPodDemoApp.swift   # SDK initialization
+    ├── ContentView.swift            # Core features demo
+    ├── UserJourneyView.swift        # User lifecycle examples
+    ├── AdvancedFeaturesView.swift   # Testing and configuration
+    └── DebugLogView.swift          # Debug log viewer
+```
 
-## Bundle Identifier
+## 💡 Best Practices
 
-- **App**: `io.freshpaint.FreshpaintPodDemo`
+### 1. Event Naming
+- Use consistent naming conventions
+- Include relevant context in properties
+- Structure data logically
 
-## Notes
+### 2. User Identity
+- Start with anonymous tracking
+- Use `alias()` when users sign up
+- Update traits as you learn more
 
-- This project is specifically designed for **local development** with CocoaPods
-- The project `FreshpaintDemo` project uses Swift Package Manager
-- Both demo projects coexist and serve different integration methods
-- Always use the `.xcworkspace` file when opening this project in Xcode
+### 3. Performance
+- Let the SDK batch events automatically
+- Use `flush()` only when needed
+- Configure batch size for your use case
+
+### 4. Privacy
+- Control tracking permissions appropriately
+- Use `reset()` when users log out
+- Filter sensitive data
+
+## 🚨 Important Notes
+
+- **Always use `.xcworkspace`**: Open `FreshpaintPodDemo.xcworkspace`, not the `.xcodeproj`
+- **Module Import**: Use `import FreshpaintSDK` (this differs from Swift Package Manager)
+- **Write Key**: Replace the demo write key with your actual Freshpaint write key
+- **Local Reference**: This demo uses `:path => '../..'` - use `pod 'Freshpaint', '~> 0.3.0'` for your project
+- **User Script Sandboxing**: Disable if you encounter framework embedding errors
+
+## 📚 Next Steps
+
+1. **Explore the Demo**: Try all features to understand capabilities
+2. **Review Source Code**: See implementation patterns and best practices
+3. **Integrate in Your App**: Follow the integration guide above
+4. **Configure Build Settings**: Ensure User Script Sandboxing is disabled
+5. **Test Thoroughly**: Use debug logging to verify tracking
+
+## 📖 Additional Resources
+
+- [Freshpaint Documentation](https://docs.freshpaint.io)
+- [iOS SDK GitHub Repository](https://github.com/freshpaint-io/freshpaint-ios)
+- [CocoaPods Documentation](https://guides.cocoapods.org)
+- [Analytics Best Practices](https://docs.freshpaint.io/best-practices)
+
+---
+
+**Need CocoaPods integration?** This demo provides a complete reference implementation, including solutions for common CocoaPods-specific issues.
