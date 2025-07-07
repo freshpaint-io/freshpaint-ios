@@ -77,7 +77,13 @@ end
 pod install
 ```
 
-#### 3. Import and Initialize
+#### 3. Get Your API Key
+
+1. **Create a Freshpaint Account**: Sign up at [https://freshpaint.io](https://freshpaint.io)
+2. **Get Your Write Key**: Navigate to your project settings to find your unique write key
+3. **Replace the Demo Key**: The demo uses a placeholder key that won't send real data
+
+#### 4. Import and Initialize
 
 ```swift
 import SwiftUI
@@ -109,7 +115,7 @@ struct YourApp: App {
 }
 ```
 
-#### 4. Start Tracking
+#### 5. Start Tracking
 
 ```swift
 // Track events
@@ -228,19 +234,21 @@ FreshpaintPodDemo/
 
 ## 🚨 Important Notes
 
+- **API Key Required**: You **must** replace the demo write key with your own from [freshpaint.io](https://freshpaint.io) - the demo key won't send real data
 - **Always use `.xcworkspace`**: Open `FreshpaintPodDemo.xcworkspace`, not the `.xcodeproj`
 - **Module Import**: Use `import FreshpaintSDK` (this differs from Swift Package Manager)
-- **Write Key**: Replace the demo write key with your actual Freshpaint write key
 - **Local Reference**: This demo uses `:path => '../..'` - use `pod 'Freshpaint', '~> 0.3.0'` for your project
 - **User Script Sandboxing**: Disable if you encounter framework embedding errors
+- **Account Setup**: Create a free account at [https://freshpaint.io](https://freshpaint.io) to get started
 
 ## 📚 Next Steps
 
-1. **Explore the Demo**: Try all features to understand capabilities
-2. **Review Source Code**: See implementation patterns and best practices
-3. **Integrate in Your App**: Follow the integration guide above
-4. **Configure Build Settings**: Ensure User Script Sandboxing is disabled
-5. **Test Thoroughly**: Use debug logging to verify tracking
+1. **Create Freshpaint Account**: Sign up at [https://freshpaint.io](https://freshpaint.io) to get your write key
+2. **Explore the Demo**: Try all features to understand capabilities
+3. **Review Source Code**: See implementation patterns and best practices
+4. **Integrate in Your App**: Follow the integration guide above
+5. **Configure Build Settings**: Ensure User Script Sandboxing is disabled
+6. **Test Thoroughly**: Use debug logging to verify tracking
 
 ## 📖 Additional Resources
 

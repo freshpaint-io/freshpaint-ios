@@ -57,7 +57,13 @@ In Xcode:
 3. Select version `0.3.0` or latest
 4. Add to your target
 
-#### 2. Import and Initialize
+#### 2. Get Your API Key
+
+1. **Create a Freshpaint Account**: Sign up at [https://freshpaint.io](https://freshpaint.io)
+2. **Get Your Write Key**: Navigate to your project settings to find your unique write key
+3. **Replace the Demo Key**: The demo uses a placeholder key that won't send real data
+
+#### 3. Import and Initialize
 
 ```swift
 import SwiftUI
@@ -89,7 +95,7 @@ struct YourApp: App {
 }
 ```
 
-#### 3. Start Tracking
+#### 4. Start Tracking
 
 ```swift
 // Track events
@@ -177,16 +183,18 @@ FreshpaintDemo/
 
 ## 🚨 Important Notes
 
+- **API Key Required**: You **must** replace the demo write key with your own from [freshpaint.io](https://freshpaint.io) - the demo key won't send real data
 - **Module Import**: For production apps, use `import Freshpaint` (this demo uses `import FreshpaintSDK` due to local development setup)
-- **Write Key**: Replace the demo write key with your actual Freshpaint write key
 - **Local Reference**: This demo uses a local SDK reference - use the GitHub URL for your project
+- **Account Setup**: Create a free account at [https://freshpaint.io](https://freshpaint.io) to get started
 
 ## 📚 Next Steps
 
-1. **Explore the Demo**: Try all features to understand capabilities
-2. **Review Source Code**: See implementation patterns and best practices
-3. **Integrate in Your App**: Follow the integration guide above
-4. **Test Thoroughly**: Use debug logging to verify tracking
+1. **Create Freshpaint Account**: Sign up at [https://freshpaint.io](https://freshpaint.io) to get your write key
+2. **Explore the Demo**: Try all features to understand capabilities
+3. **Review Source Code**: See implementation patterns and best practices
+4. **Integrate in Your App**: Follow the integration guide above
+5. **Test Thoroughly**: Use debug logging to verify tracking
 
 ## 📖 Additional Resources
 
