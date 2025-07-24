@@ -37,3 +37,6 @@ Carthage
 Pods/
 .clang-format
 .idea
+
+# Configuration files with API keys
+**/Config.plist

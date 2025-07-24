@@ -54,7 +54,7 @@ This demo showcases **all major Freshpaint SDK features** through an interactive
 In Xcode:
 1. Go to **File → Add Package Dependencies**
 2. Enter: `https://github.com/freshpaint-io/freshpaint-ios`
-3. Select version `0.3.0` or latest
+3. Select latest version
 4. Add to your target
 
 #### 2. Get Your API Key
