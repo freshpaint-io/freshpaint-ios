@@ -11,7 +11,9 @@ import FreshpaintSDK
 @main
 struct FreshpaintDemoApp: App {
     init() {
-        let config = FreshpaintConfiguration(writeKey: "ca88c2f6-ec3d-4ebc-964b-af0fb2f9cfe5") // Write your key here
+        // Load write key from Config.plist
+        let writeKey = Self.loadWriteKey()
+        let config = FreshpaintConfiguration(writeKey: writeKey)
         
         // Core tracking features
         config.trackApplicationLifecycleEvents = true
@@ -41,6 +43,17 @@ struct FreshpaintDemoApp: App {
         #endif
         
         Freshpaint.setup(with: config)
+    }
+    
+    // MARK: - Configuration Loading
+    private static func loadWriteKey() -> String {
+        guard let path = Bundle.main.path(forResource: "Config", ofType: "plist"),
+              let plist = NSDictionary(contentsOfFile: path),
+              let writeKey = plist["FreshpaintWriteKey"] as? String,
+              writeKey != "YOUR_WRITE_KEY_HERE" else {
+            fatalError("❌ Please set your Freshpaint write key in Config.plist")
+        }
+        return writeKey
     }
     
     var body: some Scene {

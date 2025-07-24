@@ -1,5 +1,5 @@
 PODS:
-  - Freshpaint (0.3.0)
+  - Freshpaint (0.4.0)
 
 DEPENDENCIES:
   - Freshpaint (from `../..`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../.."
 
 SPEC CHECKSUMS:
-  Freshpaint: 39b3e5194e430d0f1f852585db37065c0c4fd407
+  Freshpaint: 3cceb63ed0e770f62523ecbe6c80939caac2a029
 
 PODFILE CHECKSUM: a9878b0fbbd07abf32fb6ea2e1929505d1e9c711
 

@@ -65,7 +65,7 @@ target 'YourApp' do
   use_frameworks!
   
   # Add Freshpaint SDK
-  pod 'Freshpaint', '~> 0.3.0'
+  pod 'Freshpaint', '~> 0.4.0'
   
   # Your other dependencies...
 end
@@ -237,7 +237,7 @@ FreshpaintPodDemo/
 - **API Key Required**: You **must** replace the demo write key with your own from [freshpaint.io](https://freshpaint.io) - the demo key won't send real data
 - **Always use `.xcworkspace`**: Open `FreshpaintPodDemo.xcworkspace`, not the `.xcodeproj`
 - **Module Import**: Use `import FreshpaintSDK` (this differs from Swift Package Manager)
-- **Local Reference**: This demo uses `:path => '../..'` - use `pod 'Freshpaint', '~> 0.3.0'` for your project
+- **Local Reference**: This demo uses `:path => '../..'`
 - **User Script Sandboxing**: Disable if you encounter framework embedding errors
 - **Account Setup**: Create a free account at [https://freshpaint.io](https://freshpaint.io) to get started
 
