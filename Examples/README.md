@@ -21,14 +21,26 @@ The same demo app functionality using **CocoaPods** integration for projects tha
 ### Option 1: Swift Package Manager (Recommended)
 
 1. Open `FreshpaintDemo/FreshpaintDemo.xcodeproj`
-2. Follow the setup instructions in `FreshpaintDemo/README.md`
+2. **Set up your API key**:
+   ```bash
+   cd FreshpaintDemo/FreshpaintDemo/
+   cp Config.plist.example Config.plist
+   ```
+   Edit `Config.plist` and replace `YOUR_WRITE_KEY_HERE` with your actual Freshpaint write key
+3. Build and run the project
 
 ### Option 2: CocoaPods
 
 1. Navigate to `FreshpaintPodDemo/`
 2. Run `pod install`
 3. Open `FreshpaintPodDemo.xcworkspace`
-4. Follow the setup instructions in `FreshpaintPodDemo/README.md`
+4. **Set up your API key**:
+   ```bash
+   cd FreshpaintPodDemo/FreshpaintPodDemo/
+   cp Config.plist.example Config.plist
+   ```
+   Edit `Config.plist` and replace `YOUR_WRITE_KEY_HERE` with your actual Freshpaint write key
+5. Build and run the project
 
 ## What's Included
 
@@ -49,7 +61,24 @@ Both demo apps showcase identical functionality:
 **Important**: These examples use local SDK references for development purposes. For your production app:
 
 1. **Swift Package Manager**: Add the Freshpaint package from GitHub
-2. **CocoaPods**: Use `pod 'Freshpaint', '~> 0.3.0'` in your Podfile
+2. **CocoaPods**: Use `pod 'Freshpaint', '~> 0.4.0'` in your Podfile
+
+### 🔐 API Key Setup
+
+Both example projects use a secure configuration approach to protect API keys:
+
+1. **Copy the example config**:
+   ```bash
+   cp Config.plist.example Config.plist
+   ```
+
+2. **Edit `Config.plist`** and add your write key:
+   ```xml
+   <key>FreshpaintWriteKey</key>
+   <string>your-actual-write-key-here</string>
+   ```
+
+3. **Important**: The `Config.plist` file is ignored by git to keep your API keys secure
 
 See individual README files for detailed integration steps specific to each approach.
 
