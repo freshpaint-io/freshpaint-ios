@@ -73,20 +73,20 @@ import Freshpaint  // Note: Use 'Freshpaint', not 'FreshpaintSDK'
 struct YourApp: App {
     init() {
         let config = FreshpaintConfiguration(writeKey: "YOUR_WRITE_KEY_HERE")
-        
+
         // Configure tracking features
         config.trackApplicationLifecycleEvents = true
         config.recordScreenViews = true
-        
+
         // Performance settings
         config.flushAt = 20
         config.flushInterval = 30
         config.maxQueueSize = 1000
-        
+
         // Initialize SDK
         Freshpaint.setup(with: config)
     }
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -200,7 +200,6 @@ FreshpaintDemo/
 
 - [Freshpaint Documentation](https://docs.freshpaint.io)
 - [iOS SDK GitHub Repository](https://github.com/freshpaint-io/freshpaint-ios)
-- [Analytics Best Practices](https://docs.freshpaint.io/best-practices)
 
 ---
 

@@ -63,10 +63,10 @@ platform :ios, '15.1'
 
 target 'YourApp' do
   use_frameworks!
-  
+
   # Add Freshpaint SDK
   pod 'Freshpaint', '~> 0.4.0'
-  
+
   # Your other dependencies...
 end
 ```
@@ -93,20 +93,20 @@ import FreshpaintSDK  // Note: CocoaPods uses 'FreshpaintSDK' module name
 struct YourApp: App {
     init() {
         let config = FreshpaintConfiguration(writeKey: "YOUR_WRITE_KEY_HERE")
-        
+
         // Configure tracking features
         config.trackApplicationLifecycleEvents = true
         config.recordScreenViews = true
-        
+
         // Performance settings
         config.flushAt = 20
         config.flushInterval = 30
         config.maxQueueSize = 1000
-        
+
         // Initialize SDK
         Freshpaint.setup(with: config)
     }
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -255,7 +255,6 @@ FreshpaintPodDemo/
 - [Freshpaint Documentation](https://docs.freshpaint.io)
 - [iOS SDK GitHub Repository](https://github.com/freshpaint-io/freshpaint-ios)
 - [CocoaPods Documentation](https://guides.cocoapods.org)
-- [Analytics Best Practices](https://docs.freshpaint.io/best-practices)
 
 ---
 

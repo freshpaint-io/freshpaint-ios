@@ -115,7 +115,7 @@ See individual README files for detailed integration steps specific to each appr
 For questions about the Freshpaint iOS SDK:
 
 - 📖 [Full Documentation](https://docs.freshpaint.io)
-- 💬 [Support Portal](https://freshpaint.io/support)
+- 💬 [Support Portal](https://support.freshpaint.io)
 - 🐛 [Report Issues](https://github.com/freshpaint-io/freshpaint-ios/issues)
 
 ## License
