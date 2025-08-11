@@ -18,7 +18,10 @@ class FileStorageTest : XCTestCase {
         let url = FileStorage.applicationSupportDirectoryURL()
         XCTAssertNotNil(url, "URL Should not be nil")
         #if os(macOS)
-        XCTAssertEqual(url?.lastPathComponent, "freshpaint-test")
+        // macOS can return either "freshpaint-test" or "xctest" (in CI environments)
+        let expectedComponents = ["freshpaint-test", "xctest"]
+        XCTAssertTrue(expectedComponents.contains(url?.lastPathComponent ?? ""), 
+                     "Expected one of \(expectedComponents), got \(url?.lastPathComponent ?? "nil")")
         #else
         // iOS can return either "Application Support" or "xctest" (in CI environments)
         let expectedComponents = ["Application Support", "xctest"]
