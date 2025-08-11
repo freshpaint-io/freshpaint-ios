@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build_and_test:
     macos:
-      xcode: "15.4.0"
+      xcode: "16.4.0"
       resource_class: m4pro.medium
     steps:
       - checkout
@@ -24,7 +24,10 @@ jobs:
       - store_test_results:
           # relies on xcpretty --report junit
           path: build/reports
-      - run: bash <(curl -s https://codecov.io/bash)
+      - run:
+          name: Upload coverage to Codecov
+          command: |
+            bash <(curl -s https://codecov.io/bash) -t ${CODECOV_TOKEN}
 
 workflows:
   version: 2
@@ -38,7 +41,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - scheduled_e2e_testing
     jobs:
       - build_and_test
