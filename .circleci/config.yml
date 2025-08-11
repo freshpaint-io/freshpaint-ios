@@ -19,7 +19,6 @@ jobs:
       - run: make build-macos
       - run: make test-macos
       - run: make lint
-      - run: make carthage
 
       - store_test_results:
           # relies on xcpretty --report junit
