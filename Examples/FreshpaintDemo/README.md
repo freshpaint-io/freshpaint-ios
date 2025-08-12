@@ -22,7 +22,7 @@ A comprehensive demo iOS application showing how to integrate the Freshpaint SDK
 
 ## 📱 What's Included
 
-This demo showcases **all major Freshpaint SDK features** through an interactive interface:
+This demo showcases **identical functionality** to the CocoaPods version, demonstrating all major Freshpaint SDK features:
 
 ### Core Features Tab 🎯
 - **Event Tracking**: Custom events with properties
@@ -67,7 +67,7 @@ In Xcode:
 
 ```swift
 import SwiftUI
-import Freshpaint  // Note: Use 'Freshpaint', not 'FreshpaintSDK'
+import Freshpaint  // Note: Swift Package Manager uses 'Freshpaint' module name
 
 @main
 struct YourApp: App {
@@ -116,6 +116,25 @@ Freshpaint.shared().screen("Home Screen", properties: [
 ])
 ```
 
+## ⚡ Swift Package Manager Benefits
+
+### Why We Recommend SPM
+
+| Feature | Swift Package Manager | CocoaPods |
+|---------|----------------------|-----------|
+| **Setup Complexity** | ✅ Simple Xcode integration | ❌ Requires external tool |
+| **Build Integration** | ✅ Native Xcode support | ⚠️ May require build fixes |
+| **Dependency Resolution** | ✅ Automatic | ⚠️ Manual pod updates |
+| **Xcode Integration** | ✅ First-class support | ⚠️ Workspace required |
+| **Module Import** | `import Freshpaint` | `import FreshpaintSDK` |
+
+### Module Import Differences
+
+| Integration Method | Import Statement |
+|-------------------|------------------|
+| **Swift Package Manager** | `import Freshpaint` |
+| **CocoaPods** | `import FreshpaintSDK` |
+
 ## 📊 Key SDK Methods
 
 ### Essential Tracking Methods
@@ -152,11 +171,14 @@ Freshpaint.debug(true)  // Development only
 
 ```
 FreshpaintDemo/
-├── FreshpaintDemoApp.swift      # SDK initialization
-├── ContentView.swift            # Core features demo
-├── UserJourneyView.swift        # User lifecycle examples
-├── AdvancedFeaturesView.swift   # Testing and configuration
-└── DebugLogView.swift          # Debug log viewer
+├── FreshpaintDemo.xcodeproj        # Xcode project file
+└── FreshpaintDemo/
+    ├── FreshpaintDemoApp.swift     # SDK initialization
+    ├── ContentView.swift           # Core features demo
+    ├── UserJourneyView.swift       # User lifecycle examples
+    ├── AdvancedFeaturesView.swift  # Testing and configuration
+    ├── DebugLogView.swift         # Debug log viewer
+    └── Config.plist               # Configuration file
 ```
 
 ## 💡 Best Practices
@@ -184,8 +206,8 @@ FreshpaintDemo/
 ## 🚨 Important Notes
 
 - **API Key Required**: You **must** replace the demo write key with your own from [freshpaint.io](https://freshpaint.io) - the demo key won't send real data
-- **Module Import**: For production apps, use `import Freshpaint` (this demo uses `import FreshpaintSDK` due to local development setup)
-- **Local Reference**: This demo uses a local SDK reference - use the GitHub URL for your project
+- **Module Import**: Use `import Freshpaint`
+- **Local Reference**: This demo uses a local SDK reference for development
 - **Account Setup**: Create a free account at [https://freshpaint.io](https://freshpaint.io) to get started
 
 ## 📚 Next Steps
@@ -200,6 +222,7 @@ FreshpaintDemo/
 
 - [Freshpaint Documentation](https://docs.freshpaint.io)
 - [iOS SDK GitHub Repository](https://github.com/freshpaint-io/freshpaint-ios)
+- [Swift Package Manager Documentation](https://swift.org/package-manager/)
 
 ---
 
