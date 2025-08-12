@@ -427,27 +427,27 @@
 		64FDB442256F05A3001884FD /* FreshpaintTests */ = {
 			isa = PBXGroup;
 			children = (
+				64FDB457256F05A3001884FD /* AnalyticsUtilTests.swift */,
+				64FDB449256F05A3001884FD /* AutoScreenReportingTest.swift */,
+				64FDB458256F05A3001884FD /* ContextTest.swift */,
+				64FDB44A256F05A3001884FD /* CryptoTest.swift */,
+				64FDB455256F05A3001884FD /* EndToEndTests.swift */,
+				64FDB459256F05A3001884FD /* FileStorageTest.swift */,
+				64FDB445256F05A3001884FD /* FreshpaintTests.swift */,
+				644DF34C25A8FDF4000E5F2B /* FreshpaintTests-Bridging-Header.h */,
+				64FDB454256F05A3001884FD /* HTTPClientTest.swift */,
+				64FDB45A256F05A3001884FD /* Info.plist */,
+				64FDB447256F05A3001884FD /* IntegrationsManagerTest.swift */,
+				64FDB453256F05A3001884FD /* MiddlewareTests.swift */,
+				64FDB44C256F05A3001884FD /* SerializationTests.m */,
 				C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */,
 				C31833C12DD7A44900F2EE90 /* SessionTimeoutTests.swift */,
-				64FDB443256F05A3001884FD /* TrackingTests.swift */,
-				644DF34C25A8FDF4000E5F2B /* FreshpaintTests-Bridging-Header.h */,
-				64FDB445256F05A3001884FD /* FreshpaintTests.swift */,
 				64FDB446256F05A3001884FD /* StoreKitTrackerTests.swift */,
-				64FDB447256F05A3001884FD /* IntegrationsManagerTest.swift */,
+				64FDB443256F05A3001884FD /* TrackingTests.swift */,
 				644DF31625A7E1FE000E5F2B /* UIViewController+FPScreenTest.h */,
 				644DF34D25A8FE46000E5F2B /* UIViewController+FPScreenTest.h */,
-				64FDB449256F05A3001884FD /* AutoScreenReportingTest.swift */,
-				64FDB44A256F05A3001884FD /* CryptoTest.swift */,
-				64FDB44C256F05A3001884FD /* SerializationTests.m */,
-				64FDB44D256F05A3001884FD /* Utils */,
-				64FDB453256F05A3001884FD /* MiddlewareTests.swift */,
-				64FDB454256F05A3001884FD /* HTTPClientTest.swift */,
-				64FDB455256F05A3001884FD /* EndToEndTests.swift */,
 				64FDB456256F05A3001884FD /* UserDefaultsStorageTest.swift */,
-				64FDB457256F05A3001884FD /* AnalyticsUtilTests.swift */,
-				64FDB458256F05A3001884FD /* ContextTest.swift */,
-				64FDB459256F05A3001884FD /* FileStorageTest.swift */,
-				64FDB45A256F05A3001884FD /* Info.plist */,
+				64FDB44D256F05A3001884FD /* Utils */,
 			);
 			path = FreshpaintTests;
 			sourceTree = "<group>";
@@ -476,12 +476,12 @@
 		EADEB8511DECD080005322DA = {
 			isa = PBXGroup;
 			children = (
-				64FDB442256F05A3001884FD /* FreshpaintTests */,
-				64FDB37D256EE283001884FD /* Freshpaint */,
+				245A982558D113AD25B2912E /* Frameworks */,
 				64FDB485257831A7001884FD /* freshpaint */,
+				64FDB37D256EE283001884FD /* Freshpaint */,
+				64FDB442256F05A3001884FD /* FreshpaintTests */,
 				EADEB85C1DECD080005322DA /* Products */,
 				EADEB8FE1DED36ED005322DA /* Supporting Files */,
-				245A982558D113AD25B2912E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -612,7 +612,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0810;
-				LastUpgradeCheck = 1200;
+				LastUpgradeCheck = 1640;
 				ORGANIZATIONNAME = Freshpaint;
 				TargetAttributes = {
 					64FDB483257831A7001884FD = {
@@ -780,7 +780,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -799,7 +799,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -860,13 +860,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvos appletvsimulator macosx";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
 				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -921,13 +921,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos appletvos appletvsimulator macosx";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
 				TVOS_DEPLOYMENT_TARGET = 10.0;
 				VALIDATE_PRODUCT = YES;

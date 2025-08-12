@@ -224,11 +224,54 @@ NSUInteger const kFPBackgroundTaskInvalid = 0;
     [self enqueueAction:@"track" dictionary:dictionary context:payload.context integrations:payload.integrations];
 }
 
++ (NSString *)createFirebaseScreenClass:(NSString *)screenName
+{
+    if (!screenName || screenName.length == 0) {
+        return @"UnknownScreen";
+    }
+    
+    // Split by spaces and join with capitalized words
+    NSMutableString *result = [[NSMutableString alloc] init];
+    NSArray *words = [screenName componentsSeparatedByString:@" "];
+    
+    for (NSString *word in words) {
+        NSString *trimmedWord = [word stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        if (trimmedWord.length > 0) {
+            // Capitalize first letter, keep rest as is
+            NSString *firstChar = [[trimmedWord substringToIndex:1] uppercaseString];
+            NSString *restOfWord = trimmedWord.length > 1 ? [trimmedWord substringFromIndex:1] : @"";
+            [result appendString:[firstChar stringByAppendingString:restOfWord]];
+        }
+    }
+    
+    // Remove any non-alphanumeric characters
+    NSCharacterSet *allowedChars = [NSCharacterSet alphanumericCharacterSet];
+    NSString *filtered = [[result componentsSeparatedByCharactersInSet:[allowedChars invertedSet]] componentsJoinedByString:@""];
+    
+    // Add "Screen" suffix
+    if (![filtered hasSuffix:@"Screen"]) {
+        filtered = [filtered stringByAppendingString:@"Screen"];
+    }
+    
+    return filtered.length > 0 ? filtered : @"UnknownScreen";
+}
+
 - (void)screen:(FPScreenPayload *)payload
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-    [dictionary setValue:payload.name forKey:@"name"];
-    [dictionary setValue:payload.properties forKey:@"properties"];
+    [dictionary setValue:@"screen_view" forKey:@"event"];
+    
+    // Create properties with Firebase parameters
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    if (payload.properties) {
+        [properties addEntriesFromDictionary:payload.properties];
+    }
+    
+    // Add required Firebase parameters
+    [properties setValue:payload.name forKey:@"firebase_screen"];
+    [properties setValue:[[self class] createFirebaseScreenClass:payload.name] forKey:@"firebase_screen_class"];
+    
+    [dictionary setValue:properties forKey:@"properties"];
     [dictionary setValue:payload.timestamp forKey:@"timestamp"];
     [dictionary setValue:payload.messageId forKey:@"messageId"];
 
