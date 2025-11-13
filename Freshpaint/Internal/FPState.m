@@ -32,7 +32,12 @@ typedef _Nullable id (^FPStateGetBlock)(void);
 @end
 
 
-@interface FPUserInfo () <FPStateObject>
+@interface FPUserInfo () <FPStateObject> {
+    @public
+    NSString *_sessionId;
+    NSTimeInterval _lastSessionTimestamp;
+    BOOL _isFirstEventInSession;
+}
 @end
 
 @interface FPPayloadContext () <FPStateObject>
@@ -49,6 +54,9 @@ typedef _Nullable id (^FPStateGetBlock)(void);
 @synthesize anonymousId = _anonymousId;
 @synthesize userId = _userId;
 @synthesize traits = _traits;
+@synthesize sessionId = _sessionId;
+@synthesize lastSessionTimestamp = _lastSessionTimestamp;
+@synthesize isFirstEventInSession = _isFirstEventInSession;
 
 - (instancetype)initWithState:(FPState *)state
 {
@@ -97,6 +105,48 @@ typedef _Nullable id (^FPStateGetBlock)(void);
 {
     [state setValueWithBlock: ^{
         self->_traits = [traits serializableDeepCopy];
+    }];
+}
+
+- (NSString *)sessionId
+{
+    return [state valueWithBlock:^id{
+        return self->_sessionId;
+    }];
+}
+
+- (void)setSessionId:(NSString *)sessionId
+{
+    [state setValueWithBlock: ^{
+        self->_sessionId = [sessionId copy];
+    }];
+}
+
+- (NSTimeInterval)lastSessionTimestamp
+{
+    return [[state valueWithBlock:^id{
+        return @(self->_lastSessionTimestamp);
+    }] doubleValue];
+}
+
+- (void)setLastSessionTimestamp:(NSTimeInterval)lastSessionTimestamp
+{
+    [state setValueWithBlock: ^{
+        self->_lastSessionTimestamp = lastSessionTimestamp;
+    }];
+}
+
+- (BOOL)isFirstEventInSession
+{
+    return [[state valueWithBlock:^id{
+        return @(self->_isFirstEventInSession);
+    }] boolValue];
+}
+
+- (void)setIsFirstEventInSession:(BOOL)isFirstEventInSession
+{
+    [state setValueWithBlock: ^{
+        self->_isFirstEventInSession = isFirstEventInSession;
     }];
 }
 
@@ -213,20 +263,25 @@ typedef _Nullable id (^FPStateGetBlock)(void);
 }
 
 - (void)validateOrRenewSessionWithTimeout:(NSTimeInterval)timeout {
-    self.userInfo.isFirstEventInSession = NO;
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    NSTimeInterval lastSessionTimestamp = self.userInfo.lastSessionTimestamp;
-    NSTimeInterval currentSessionDuration = now - lastSessionTimestamp;
+    // Wrap all session validation logic in a single atomic operation to prevent race conditions
+    [self setValueWithBlock:^{
+        NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+        NSTimeInterval lastSessionTimestamp = self->_userInfo->_lastSessionTimestamp;
+        NSTimeInterval currentSessionDuration = now - lastSessionTimestamp;
 
-    NSLog(@"[Session] now=%.3f, last=%.3f, currentSessionDuration=%.3f s, timeout=%.0f s",
-          now, self.userInfo.lastSessionTimestamp, currentSessionDuration, timeout);
+        NSLog(@"[Session] now=%.3f, last=%.3f, currentSessionDuration=%.3f s, timeout=%.0f s",
+              now, lastSessionTimestamp, currentSessionDuration, timeout);
 
-    if (lastSessionTimestamp == 0 || currentSessionDuration > timeout) {
-        self.userInfo.sessionId = GenerateUUIDString();
-        self.userInfo.lastSessionTimestamp = now;
-        self.userInfo.isFirstEventInSession = YES;
-    }
-
+        if (lastSessionTimestamp == 0 || currentSessionDuration > timeout) {
+            // Start new session
+            self->_userInfo->_sessionId = GenerateUUIDString();
+            self->_userInfo->_lastSessionTimestamp = now;
+            self->_userInfo->_isFirstEventInSession = YES;
+        } else {
+            // Continue existing session
+            self->_userInfo->_isFirstEventInSession = NO;
+        }
+    }];
 }
 
 @end
