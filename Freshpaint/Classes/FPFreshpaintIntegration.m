@@ -322,8 +322,8 @@ NSUInteger const kFPBackgroundTaskInvalid = 0;
     payload[@"type"] = action;
 
     [self dispatchBackground:^{
-        // attach the session ID into the payload’s `properties` dictionary
-        NSDictionary<NSString *, id> *sessionInfo = [self.analytics sessionInfo];
+        // attach the session ID into the payload's `properties` dictionary
+        NSDictionary<NSString *, id> *sessionInfo = [self.analytics sessionInfoForAction:action];
 
         NSString *sessionId = sessionInfo[@"sessionId"];
 

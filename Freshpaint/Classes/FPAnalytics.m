@@ -570,12 +570,19 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     [self.runner run:context callback:nil];
 }
 
-- (NSDictionary<NSString *, id> *)sessionInfo {
+- (NSDictionary<NSString *, id> *)sessionInfoForAction:(NSString *)action {
     NSTimeInterval timeout = self.state.configuration.sessionTimeout;
-    [self.state validateOrRenewSessionWithTimeout:timeout];
+
+    // Only validate/renew session for engagement events (track, screen)
+    // Not for metadata events (identify, group, alias)
+    BOOL isEngagementEvent = [action isEqualToString:@"track"] || [action isEqualToString:@"screen"];
+
+    if (isEngagementEvent) {
+        [self.state validateOrRenewSessionWithTimeout:timeout];
+    }
 
     NSString *sessionId = self.state.userInfo.sessionId;
-    BOOL isFirstEvent   = self.state.userInfo.isFirstEventInSession;
+    BOOL isFirstEvent   = isEngagementEvent ? self.state.userInfo.isFirstEventInSession : NO;
 
     return @{
       @"sessionId": sessionId,
