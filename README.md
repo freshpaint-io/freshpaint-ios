@@ -3,7 +3,7 @@
 [![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org)
 [![iOS](https://img.shields.io/badge/iOS-15.0+-blue.svg)](https://developer.apple.com/ios/)
 [![tvOS](https://img.shields.io/badge/tvOS-12.0+-blue.svg)](https://developer.apple.com/tvos/)
-[![Version](https://img.shields.io/badge/version-0.4.0-green.svg)](https://github.com/freshpaint-io/freshpaint-ios)
+[![Version](https://img.shields.io/badge/version-0.4.1-green.svg)](https://github.com/freshpaint-io/freshpaint-ios)
 
 The Freshpaint iOS SDK for sending data from your iOS app into Freshpaint.
 

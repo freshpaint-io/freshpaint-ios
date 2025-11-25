@@ -1,3 +1,7 @@
+Version 0.4.1 (25 November, 2025)
+* [Fix] Fixed `$is_first_event_in_session` flag to only apply to engagement events (track, screen) and not metadata events (identify, group, alias). This ensures the session start flag is properly attributed to the first screen view for accurate GA4 attribution.
+* [Fix] Fixed race condition in session handling that caused inconsistent session start flags when multiple events fired simultaneously. This resolves issues where GA4 events would reach destinations but not appear in Realtime reporting.
+
 Version 0.4.0 (10 July, 2025)
 * [New] Enhanced SwiftUI automatic screen view tracking with deduplication to prevent multiple events
 * [New] Added `firebase_screen` and `firebase_screen_class` properties to screen events for Firebase Analytics integration
