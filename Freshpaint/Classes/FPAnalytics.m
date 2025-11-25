@@ -537,7 +537,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 {
     // this has to match the actual version, NOT what's in info.plist
     // because Apple only accepts X.X.X as versions in the review process.
-    return @"0.4.0";
+    return @"0.4.1";
 }
 
 #pragma mark - Helpers
