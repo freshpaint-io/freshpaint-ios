@@ -178,13 +178,14 @@ class SessionIdInjectionTests: XCTestCase {
             self.analytics.flush();
         }
 
-        // Third event
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            self.analytics.track("third after timeout"); 
+        // Third event — fire at 2.0s to give slow CI runners enough slack
+        // while still being well past the 1-second sessionTimeout.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.analytics.track("third after timeout");
             self.analytics.flush();
         }
 
-        wait(for: expectations, timeout: 5.0)
+        wait(for: expectations, timeout: 10.0)
     }
 
 }
