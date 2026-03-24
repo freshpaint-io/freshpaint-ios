@@ -194,6 +194,9 @@
 
 - (void)testDeviceContextContainsDeviceIdAndIdfv
 {
+#if TARGET_OS_IPHONE
+    // device_id and idfv are only populated inside mobileSpecifications(),
+    // which is itself guarded with #if TARGET_OS_IPHONE — skip on macOS.
     FPAnalyticsConfiguration *config = [FPAnalyticsConfiguration configurationWithWriteKey:@"test"];
     NSDictionary *context = getStaticContext(config, nil);
     NSDictionary *device  = context[@"device"];
@@ -205,6 +208,7 @@
     // device_id should be a valid UUID
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:device[@"device_id"]];
     XCTAssertNotNil(uuid, @"device_id should be a valid UUID, got: %@", device[@"device_id"]);
+#endif
 }
 
 @end
