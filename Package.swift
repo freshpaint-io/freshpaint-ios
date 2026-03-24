@@ -32,7 +32,8 @@ let package = Package(
                 .headerSearchPath("Classes")
             ],
             linkerSettings: [
-                .linkedFramework("CoreTelephony", .when(platforms: [.iOS, .macOS]))
+                .linkedFramework("CoreTelephony", .when(platforms: [.iOS, .macOS])),
+                .unsafeFlags(["-weak_framework", "AppTrackingTransparency", "-weak_framework", "AdServices"], .when(platforms: [.iOS]))
             ]
         ),
     ]

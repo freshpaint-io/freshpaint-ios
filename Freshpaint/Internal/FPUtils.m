@@ -7,6 +7,7 @@
 #import "FPAnalyticsConfiguration.h"
 #import "FPReachability.h"
 #import "FPAnalytics.h"
+#import "FPStableDeviceId.h"
 
 #include <sys/sysctl.h>
 
@@ -201,6 +202,8 @@ NSDictionary *mobileSpecifications(FPAnalyticsConfiguration *configuration, NSSt
 #endif
         dict[@"model"] = getDeviceModel();
         dict[@"id"] = [[device identifierForVendor] UUIDString];
+        dict[@"idfv"] = [[device identifierForVendor] UUIDString];
+        dict[@"device_id"] = [FPStableDeviceId deviceId];
         if (getAdTrackingEnabled(configuration)) {
             NSString *idfa = configuration.adSupportBlock();
             // This isn't ideal.  We're doing this because we can't actually check if IDFA is enabled on

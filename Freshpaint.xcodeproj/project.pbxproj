@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5B77FC7474E2A963C0E85390 /* FPStableDeviceIdTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */; };
 		644DF35625A8FF75000E5F2B /* NSData+FPGUNZPP.m in Sources */ = {isa = PBXBuildFile; fileRef = 644DF35525A8FF75000E5F2B /* NSData+FPGUNZPP.m */; };
 		64FDB3BD256EE283001884FD /* FPAliasPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB37F256EE283001884FD /* FPAliasPayload.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		64FDB3BE256EE283001884FD /* FPFreshpaintIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB380256EE283001884FD /* FPFreshpaintIntegration.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -147,6 +148,7 @@
 		A3B6E29925116B3A00609A13 /* Freshpaint.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EADEB85B1DECD080005322DA /* Freshpaint.framework */; };
 		C31833C22DD7A44C00F2EE90 /* SessionTimeoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31833C12DD7A44900F2EE90 /* SessionTimeoutTests.swift */; };
 		C31833C42DD7A5AD00F2EE90 /* SessionIdInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */; };
+		F54F79ED3362F50D0E40A8D7 /* FPStableDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = 21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -207,6 +209,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		074D5A1055EE3FC12D4FF48B /* FPStableDeviceId.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FPStableDeviceId.h; sourceTree = "<group>"; };
+		21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPStableDeviceId.m; sourceTree = "<group>"; };
+		387069D742A18C75212315B9 /* FreshpaintTests.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = FreshpaintTests.entitlements; sourceTree = "<group>"; };
 		644DF31625A7E1FE000E5F2B /* UIViewController+FPScreenTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIViewController+FPScreenTest.h"; sourceTree = "<group>"; };
 		644DF33A25A7E45C000E5F2B /* NSData+FPGUNZIPP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+FPGUNZIPP.h"; sourceTree = "<group>"; };
 		644DF34C25A8FDF4000E5F2B /* FreshpaintTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FreshpaintTests-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -294,6 +299,7 @@
 		64FDB484257831A7001884FD /* libfreshpaint.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libfreshpaint.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		64FDB486257831A7001884FD /* freshpaint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = freshpaint.h; sourceTree = "<group>"; };
 		64FDB487257831A7001884FD /* freshpaint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = freshpaint.m; sourceTree = "<group>"; };
+		BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPStableDeviceIdTests.m; sourceTree = "<group>"; };
 		C31674B18CD818C64F8F3935 /* Pods_SegmentTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SegmentTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C31833C12DD7A44900F2EE90 /* SessionTimeoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTimeoutTests.swift; sourceTree = "<group>"; };
 		C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionIdInjectionTests.swift; sourceTree = "<group>"; };
@@ -420,6 +426,8 @@
 				64FDB3B9256EE283001884FD /* FPUserDefaultsStorage.m */,
 				64FDB3BA256EE283001884FD /* NSViewController+FPScreen.m */,
 				64FDB3BB256EE283001884FD /* FPFileStorage.h */,
+				074D5A1055EE3FC12D4FF48B /* FPStableDeviceId.h */,
+				21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */,
 			);
 			path = Internal;
 			sourceTree = "<group>";
@@ -448,6 +456,8 @@
 				644DF34D25A8FE46000E5F2B /* UIViewController+FPScreenTest.h */,
 				64FDB456256F05A3001884FD /* UserDefaultsStorageTest.swift */,
 				64FDB44D256F05A3001884FD /* Utils */,
+				BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */,
+				387069D742A18C75212315B9 /* FreshpaintTests.entitlements */,
 			);
 			path = FreshpaintTests;
 			sourceTree = "<group>";
@@ -731,6 +741,7 @@
 				64FDB3F6256EE283001884FD /* FPUserDefaultsStorage.m in Sources */,
 				64FDB3C7256EE283001884FD /* FPPayload.m in Sources */,
 				64FDB3F1256EE283001884FD /* FPAES256Crypto.m in Sources */,
+				F54F79ED3362F50D0E40A8D7 /* FPStableDeviceId.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -757,6 +768,7 @@
 				64FDB466256F05A3001884FD /* MiddlewareTests.swift in Sources */,
 				64FDB46B256F05A4001884FD /* ContextTest.swift in Sources */,
 				64FDB45F256F05A3001884FD /* AutoScreenReportingTest.swift in Sources */,
+				5B77FC7474E2A963C0E85390 /* FPStableDeviceIdTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
