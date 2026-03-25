@@ -645,8 +645,7 @@
 					};
 					EADEB85A1DECD080005322DA = {
 						CreatedOnToolsVersion = 8.1;
-						DevelopmentTeam = R2Z82YY566;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 					EADEB8691DECD0EF005322DA = {
 						CreatedOnToolsVersion = 8.1;
@@ -971,10 +970,10 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = R2Z82YY566;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -984,6 +983,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.freshpaint.Freshpaint;
 				PRODUCT_NAME = Freshpaint;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
@@ -994,10 +994,10 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = R2Z82YY566;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1007,6 +1007,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.freshpaint.Freshpaint;
 				PRODUCT_NAME = Freshpaint;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
