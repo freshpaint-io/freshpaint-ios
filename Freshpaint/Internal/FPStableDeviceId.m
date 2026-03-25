@@ -12,6 +12,7 @@
 static NSString *const kFPStableDeviceIdService = @"com.freshpaint.sdk.device_id";
 static NSString *const kFPStableDeviceIdAccount = @"device_id";
 
+// Access to this variable is serialized via fp_queue (dispatch_sync).
 static NSString *_fpCachedDeviceId = nil;
 
 @implementation FPStableDeviceId
