@@ -16,6 +16,7 @@
 #import "FPIntegrationsManager.h"
 #import "FPState.h"
 #import "FPUtils.h"
+#import "FPAttributionMiddleware.h"
 
 static FPAnalytics *__sharedInstance = nil;
 
@@ -60,8 +61,9 @@ static FPAnalytics *__sharedInstance = nil;
             configuration.destinationMiddleware = @[[configuration.edgeFunctionMiddleware destinationMiddleware]];
         }
 
-        self.runner = [[FPMiddlewareRunner alloc] initWithMiddleware:
-                                                       [configuration.sourceMiddleware ?: @[] arrayByAddingObject:self.integrationsManager]];
+        FPAttributionMiddleware *attributionMiddleware = [[FPAttributionMiddleware alloc] initWithConfiguration:configuration];
+        NSArray *sourceMiddlewares = [@[attributionMiddleware] arrayByAddingObjectsFromArray:configuration.sourceMiddleware ?: @[]];
+        self.runner = [[FPMiddlewareRunner alloc] initWithMiddleware:[sourceMiddlewares arrayByAddingObject:self.integrationsManager]];
 
         // Pass through for application state change events
         id<FPApplicationProtocol> application = configuration.application;

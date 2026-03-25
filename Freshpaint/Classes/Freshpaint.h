@@ -15,6 +15,7 @@ FOUNDATION_EXPORT double FreshpaintVersionNumber;
 FOUNDATION_EXPORT const unsigned char FreshpaintVersionString[];
 
 #import "FPAnalytics.h"
+#import "FPAttributionMiddleware.h"
 #import "FPFreshpaintIntegration.h"
 #import "FPFreshpaintIntegrationFactory.h"
 #import "FPContext.h"

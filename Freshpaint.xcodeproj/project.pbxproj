@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		204F34B08E432CC775EF391D /* FPAttributionMiddleware.h in Headers */ = {isa = PBXBuildFile; fileRef = FD103F0B18245918A82F733C /* FPAttributionMiddleware.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3DCAF6C056067280EBDFD6E3 /* FPPayload+FPAttributionEnrichment.h in Headers */ = {isa = PBXBuildFile; fileRef = B38969724D688583AF3FBFD8 /* FPPayload+FPAttributionEnrichment.h */; };
 		5B77FC7474E2A963C0E85390 /* FPStableDeviceIdTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */; };
 		644DF35625A8FF75000E5F2B /* NSData+FPGUNZPP.m in Sources */ = {isa = PBXBuildFile; fileRef = 644DF35525A8FF75000E5F2B /* NSData+FPGUNZPP.m */; };
 		64FDB3BD256EE283001884FD /* FPAliasPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB37F256EE283001884FD /* FPAliasPayload.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -146,8 +148,10 @@
 		64FDB4D9257832BB001884FD /* FPStoreKitTracker.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3B7256EE283001884FD /* FPStoreKitTracker.h */; };
 		64FDB4DA257832BB001884FD /* FPFileStorage.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 64FDB3BB256EE283001884FD /* FPFileStorage.h */; };
 		A3B6E29925116B3A00609A13 /* Freshpaint.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EADEB85B1DECD080005322DA /* Freshpaint.framework */; };
+		BE1F16EE4BA083E9F5E95BDB /* FPAttributionMiddleware.m in Sources */ = {isa = PBXBuildFile; fileRef = 8D5F0B5BE182A223FDBD6A25 /* FPAttributionMiddleware.m */; };
 		C31833C22DD7A44C00F2EE90 /* SessionTimeoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31833C12DD7A44900F2EE90 /* SessionTimeoutTests.swift */; };
 		C31833C42DD7A5AD00F2EE90 /* SessionIdInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */; };
+		C4DCBE8F513B51283301B56A /* FPAttributionMiddlewareTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E9658BDA53E5F368643AD98 /* FPAttributionMiddlewareTests.m */; };
 		F54F79ED3362F50D0E40A8D7 /* FPStableDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = 21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */; };
 /* End PBXBuildFile section */
 
@@ -209,9 +213,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		074D5A1055EE3FC12D4FF48B /* FPStableDeviceId.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FPStableDeviceId.h; sourceTree = "<group>"; };
-		21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPStableDeviceId.m; sourceTree = "<group>"; };
+		074D5A1055EE3FC12D4FF48B /* FPStableDeviceId.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; includeInIndex = 1; path = FPStableDeviceId.h; sourceTree = "<group>"; };
+		21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; includeInIndex = 1; path = FPStableDeviceId.m; sourceTree = "<group>"; };
 		387069D742A18C75212315B9 /* FreshpaintTests.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = FreshpaintTests.entitlements; sourceTree = "<group>"; };
+		4E9658BDA53E5F368643AD98 /* FPAttributionMiddlewareTests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPAttributionMiddlewareTests.m; sourceTree = "<group>"; };
 		644DF31625A7E1FE000E5F2B /* UIViewController+FPScreenTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIViewController+FPScreenTest.h"; sourceTree = "<group>"; };
 		644DF33A25A7E45C000E5F2B /* NSData+FPGUNZIPP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+FPGUNZIPP.h"; sourceTree = "<group>"; };
 		644DF34C25A8FDF4000E5F2B /* FreshpaintTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FreshpaintTests-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -299,7 +304,9 @@
 		64FDB484257831A7001884FD /* libfreshpaint.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libfreshpaint.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		64FDB486257831A7001884FD /* freshpaint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = freshpaint.h; sourceTree = "<group>"; };
 		64FDB487257831A7001884FD /* freshpaint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = freshpaint.m; sourceTree = "<group>"; };
-		BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPStableDeviceIdTests.m; sourceTree = "<group>"; };
+		8D5F0B5BE182A223FDBD6A25 /* FPAttributionMiddleware.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPAttributionMiddleware.m; sourceTree = "<group>"; };
+		B38969724D688583AF3FBFD8 /* FPPayload+FPAttributionEnrichment.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "FPPayload+FPAttributionEnrichment.h"; sourceTree = "<group>"; };
+		BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; includeInIndex = 1; path = FPStableDeviceIdTests.m; sourceTree = "<group>"; };
 		C31674B18CD818C64F8F3935 /* Pods_SegmentTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SegmentTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C31833C12DD7A44900F2EE90 /* SessionTimeoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTimeoutTests.swift; sourceTree = "<group>"; };
 		C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionIdInjectionTests.swift; sourceTree = "<group>"; };
@@ -309,6 +316,7 @@
 		EADEB9001DED3711005322DA /* Analytics.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = Analytics.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		EADEB9011DED3711005322DA /* Podfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Podfile.lock; sourceTree = "<group>"; };
 		FCBCA487BBFE32EC6A04989F /* Pods_SegmentTestsTVOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SegmentTestsTVOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FD103F0B18245918A82F733C /* FPAttributionMiddleware.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FPAttributionMiddleware.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -398,6 +406,8 @@
 				64FDB3A3256EE283001884FD /* FPWebhookIntegration.m */,
 				64FDB3A4256EE283001884FD /* FPScreenPayload.m */,
 				64FDB3A5256EE283001884FD /* FPHTTPClient.h */,
+				FD103F0B18245918A82F733C /* FPAttributionMiddleware.h */,
+				8D5F0B5BE182A223FDBD6A25 /* FPAttributionMiddleware.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -428,6 +438,7 @@
 				64FDB3BB256EE283001884FD /* FPFileStorage.h */,
 				074D5A1055EE3FC12D4FF48B /* FPStableDeviceId.h */,
 				21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */,
+				B38969724D688583AF3FBFD8 /* FPPayload+FPAttributionEnrichment.h */,
 			);
 			path = Internal;
 			sourceTree = "<group>";
@@ -458,6 +469,7 @@
 				64FDB44D256F05A3001884FD /* Utils */,
 				BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */,
 				387069D742A18C75212315B9 /* FreshpaintTests.entitlements */,
+				4E9658BDA53E5F368643AD98 /* FPAttributionMiddlewareTests.m */,
 			);
 			path = FreshpaintTests;
 			sourceTree = "<group>";
@@ -556,6 +568,8 @@
 				64FDB3E8256EE283001884FD /* FPUserDefaultsStorage.h in Headers */,
 				64FDB3D4256EE283001884FD /* FPReachability.h in Headers */,
 				64FDB3ED256EE283001884FD /* NSViewController+FPScreen.h in Headers */,
+				204F34B08E432CC775EF391D /* FPAttributionMiddleware.h in Headers */,
+				3DCAF6C056067280EBDFD6E3 /* FPPayload+FPAttributionEnrichment.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -631,7 +645,8 @@
 					};
 					EADEB85A1DECD080005322DA = {
 						CreatedOnToolsVersion = 8.1;
-						ProvisioningStyle = Manual;
+						DevelopmentTeam = R2Z82YY566;
+						ProvisioningStyle = Automatic;
 					};
 					EADEB8691DECD0EF005322DA = {
 						CreatedOnToolsVersion = 8.1;
@@ -742,6 +757,7 @@
 				64FDB3C7256EE283001884FD /* FPPayload.m in Sources */,
 				64FDB3F1256EE283001884FD /* FPAES256Crypto.m in Sources */,
 				F54F79ED3362F50D0E40A8D7 /* FPStableDeviceId.m in Sources */,
+				BE1F16EE4BA083E9F5E95BDB /* FPAttributionMiddleware.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -769,6 +785,7 @@
 				64FDB46B256F05A4001884FD /* ContextTest.swift in Sources */,
 				64FDB45F256F05A3001884FD /* AutoScreenReportingTest.swift in Sources */,
 				5B77FC7474E2A963C0E85390 /* FPStableDeviceIdTests.m in Sources */,
+				C4DCBE8F513B51283301B56A /* FPAttributionMiddlewareTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -954,10 +971,10 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = R2Z82YY566;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -967,7 +984,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.freshpaint.Freshpaint;
 				PRODUCT_NAME = Freshpaint;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
@@ -978,10 +994,10 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = R2Z82YY566;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -991,7 +1007,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.freshpaint.Freshpaint;
 				PRODUCT_NAME = Freshpaint;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
