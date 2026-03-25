@@ -49,9 +49,13 @@ static NSString *_fpCachedDeviceId = nil;
         NSString *newId = [[NSUUID UUID] UUIDString];
         BOOL written = [self fp_writeToKeychain:newId];
         if (written) {
-            // Persist in memory only when Keychain write succeeded.
-            _fpCachedDeviceId = newId;
-            result = newId;
+            // fp_writeToKeychain may have set _fpCachedDeviceId to a
+            // pre-existing Keychain value (errSecDuplicateItem path).
+            // Only assign newId if the cache wasn't already populated.
+            if (!_fpCachedDeviceId) {
+                _fpCachedDeviceId = newId;
+            }
+            result = _fpCachedDeviceId;
         }
         // If write failed: result remains nil here.
         // The caller falls back to IDFV and we do NOT cache,

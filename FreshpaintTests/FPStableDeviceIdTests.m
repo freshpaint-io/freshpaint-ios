@@ -117,6 +117,12 @@
 
 - (void)testDeviceIdRestoredFromKeychainAfterCacheReset
 {
+    // Probe Keychain availability before asserting persistence.
+    NSString *probe = [[NSUUID UUID] UUIDString];
+    BOOL available = [FPStableDeviceId fp_writeToKeychain:probe];
+    [FPStableDeviceId fp_deleteKeychainItemForTesting];
+    XCTSkipUnless(available, @"Keychain unavailable in this environment — skipping");
+
     // Generate and persist on first call.
     NSString *first = [FPStableDeviceId deviceId];
 
@@ -172,20 +178,28 @@
     XCTAssertEqualObjects(value, read);
 }
 
-- (void)testDuplicateKeychainItemIsReadBackNotFallback
+- (void)testDuplicateKeychainItemIsReadBackNotOverwritten
 {
-    // Pre-seed a Keychain item, then call deviceId — which will hit errSecDuplicateItem
-    // on SecItemAdd and must read back the existing value rather than falling to IDFV.
-    NSString *knownId = @"AABBCCDD-0000-0000-0000-112233445566";
-    BOOL written = [FPStableDeviceId fp_writeToKeychain:knownId];
+    // Seed an original value into Keychain.
+    NSString *originalId = @"AABBCCDD-0000-0000-0000-112233445566";
+    BOOL written = [FPStableDeviceId fp_writeToKeychain:originalId];
     XCTSkipUnless(written, @"Keychain unavailable in this environment — skipping");
 
-    // Reset cache so deviceId() tries SecItemAdd (which will get errSecDuplicateItem).
+    // Simulate the errSecDuplicateItem path by calling fp_writeToKeychain with a
+    // different ID while the original is still in Keychain. The method must:
+    //   (a) detect the duplicate, (b) read back the original, (c) set the cache.
     [FPStableDeviceId fp_resetCachedIdForTesting];
+    NSString *differentId = @"11111111-2222-3333-4444-555555555555";
+    BOOL result = [FPStableDeviceId fp_writeToKeychain:differentId];
+    XCTAssertTrue(result, @"fp_writeToKeychain must return YES on errSecDuplicateItem when read-back succeeds");
 
-    NSString *result = [FPStableDeviceId deviceId];
-    XCTAssertEqualObjects(result, knownId,
-        @"deviceId must return the pre-existing Keychain value, not an IDFV fallback");
+    // The cache must now hold the original Keychain value, NOT differentId.
+    // Verify via deviceId — cache is already populated so it returns immediately.
+    NSString *deviceId = [FPStableDeviceId deviceId];
+    XCTAssertEqualObjects(deviceId, originalId,
+        @"On errSecDuplicateItem, cache must hold the existing Keychain value, not the new UUID");
+    XCTAssertNotEqualObjects(deviceId, differentId,
+        @"The new UUID must not overwrite the existing Keychain value");
 }
 
 - (void)testReadFromEmptyKeychainReturnsNil
