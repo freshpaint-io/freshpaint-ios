@@ -97,7 +97,20 @@ static NSString *_fpCachedDeviceId = nil;
     };
 
     OSStatus status = SecItemAdd((__bridge CFDictionaryRef)query, NULL);
-    return (status == errSecSuccess);
+    if (status == errSecSuccess) {
+        return YES;
+    }
+    if (status == errSecDuplicateItem) {
+        // An item already exists (e.g. restored backup, MDM-provisioned device,
+        // or a partial write from a previous launch). Read it back so the caller
+        // can populate the cache rather than falling back to IDFV permanently.
+        NSString *existing = [self fp_readFromKeychain];
+        if (existing) {
+            _fpCachedDeviceId = existing;
+        }
+        return (existing != nil);
+    }
+    return NO;
 }
 
 + (NSString *)fp_idfvFallback

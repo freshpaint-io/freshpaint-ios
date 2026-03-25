@@ -201,8 +201,9 @@ NSDictionary *mobileSpecifications(FPAnalyticsConfiguration *configuration, NSSt
         dict[@"name"] = [device model];
 #endif
         dict[@"model"] = getDeviceModel();
-        dict[@"id"] = [[device identifierForVendor] UUIDString];
-        dict[@"idfv"] = [[device identifierForVendor] UUIDString];
+        NSString *vendorId = [[device identifierForVendor] UUIDString];
+        dict[@"id"] = vendorId;
+        dict[@"idfv"] = vendorId;
         dict[@"device_id"] = [FPStableDeviceId deviceId];
         if (getAdTrackingEnabled(configuration)) {
             NSString *idfa = configuration.adSupportBlock();

@@ -106,12 +106,8 @@
     // Verify Keychain is available in this environment before asserting.
     NSString *probe = [[NSUUID UUID] UUIDString];
     BOOL available  = [FPStableDeviceId fp_writeToKeychain:probe];
-    if (!available) {
-        // Keychain unavailable on this simulator/environment — skip.
-        [FPStableDeviceId fp_deleteKeychainItemForTesting];
-        return;
-    }
     [FPStableDeviceId fp_deleteKeychainItemForTesting];
+    XCTSkipUnless(available, @"Keychain unavailable in this environment — skipping");
 
     NSString *deviceId = [FPStableDeviceId deviceId];
     NSString *stored   = [FPStableDeviceId fp_readFromKeychain];
@@ -137,10 +133,7 @@
 {
     NSString *knownId = @"DEADBEEF-0000-0000-0000-123456789ABC";
     BOOL written = [FPStableDeviceId fp_writeToKeychain:knownId];
-    if (!written) {
-        // Keychain unavailable on this simulator/environment — skip.
-        return;
-    }
+    XCTSkipUnless(written, @"Keychain unavailable in this environment — skipping");
 
     NSString *result = [FPStableDeviceId deviceId];
     XCTAssertEqualObjects(result, knownId,
@@ -173,13 +166,26 @@
 {
     NSString *value   = [[NSUUID UUID] UUIDString];
     BOOL      written = [FPStableDeviceId fp_writeToKeychain:value];
-    if (!written) {
-        // Keychain unavailable on this simulator/environment — skip.
-        return;
-    }
+    XCTSkipUnless(written, @"Keychain unavailable in this environment — skipping");
 
     NSString *read = [FPStableDeviceId fp_readFromKeychain];
     XCTAssertEqualObjects(value, read);
+}
+
+- (void)testDuplicateKeychainItemIsReadBackNotFallback
+{
+    // Pre-seed a Keychain item, then call deviceId — which will hit errSecDuplicateItem
+    // on SecItemAdd and must read back the existing value rather than falling to IDFV.
+    NSString *knownId = @"AABBCCDD-0000-0000-0000-112233445566";
+    BOOL written = [FPStableDeviceId fp_writeToKeychain:knownId];
+    XCTSkipUnless(written, @"Keychain unavailable in this environment — skipping");
+
+    // Reset cache so deviceId() tries SecItemAdd (which will get errSecDuplicateItem).
+    [FPStableDeviceId fp_resetCachedIdForTesting];
+
+    NSString *result = [FPStableDeviceId deviceId];
+    XCTAssertEqualObjects(result, knownId,
+        @"deviceId must return the pre-existing Keychain value, not an IDFV fallback");
 }
 
 - (void)testReadFromEmptyKeychainReturnsNil
