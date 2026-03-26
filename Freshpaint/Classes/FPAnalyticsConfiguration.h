@@ -237,6 +237,22 @@ NS_SWIFT_NAME(FreshpaintConfiguration)
  */
 @property (nonatomic, assign) NSTimeInterval sessionTimeout;
 
+/**
+ * Whether the analytics client should automatically request App Tracking Transparency permission.
+ * `NO` by default.
+ */
+@property (nonatomic, assign) BOOL autoRequestATT;
+
+/**
+ * The SKAdNetwork conversion value to report. Valid values are 0–63. `0` by default.
+ */
+@property (nonatomic, assign) NSInteger skanConversionValue;
+
+/**
+ * Whether the analytics client should automatically track the first app open event. `YES` by default.
+ */
+@property (nonatomic, assign) BOOL autoTrackFirstOpen;
+
 @end
 
 #pragma mark - Experimental
