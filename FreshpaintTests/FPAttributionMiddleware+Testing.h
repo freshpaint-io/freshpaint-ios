@@ -1,6 +1,6 @@
 //
 //  FPAttributionMiddleware+Testing.h
-//  Analytics
+//  Freshpaint
 //
 //  Test seam for FPAttributionMiddleware. Import this header in unit tests only.
 //  Do NOT import from production code or include in the SDK's public headers.

@@ -11,16 +11,11 @@
 #import "FPTrackPayload.h"
 #import "FPIdentifyPayload.h"
 #import "FPPayload.h"
+#import "FPATTTestConstants.h"
 
 // ---------------------------------------------------------------------------
 #pragma mark - Helpers
 // ---------------------------------------------------------------------------
-
-/// ATT status constants matching ATTrackingManager values.
-static const NSUInteger kATTNotDetermined = 0;
-static const NSUInteger kATTRestricted    = 1;
-static const NSUInteger kATTDenied        = 2;
-static const NSUInteger kATTAuthorized    = 3;
 
 static NSString *const kValidIDFA        = @"12345678-1234-1234-1234-123456789ABC";
 static NSString *const kZeroedIDFA       = @"00000000-0000-0000-0000-000000000000";

@@ -18,6 +18,7 @@
 #import "FPUtils.h"
 #import "FPAttributionMiddleware.h"
 #import "FPStableDeviceId.h"
+#import "FPATTRuntime.h"
 
 static FPAnalytics *__sharedInstance = nil;
 
@@ -30,10 +31,6 @@ static FPAnalytics *__sharedInstance = nil;
 @property (nonatomic, strong) FPIntegrationsManager *integrationsManager;
 @property (nonatomic, strong) FPMiddlewareRunner *runner;
 @property (nonatomic, strong) FPState *state;
-
-// Test injection — do not use in production code.
-@property (nonatomic, copy, nullable) NSUInteger (^fp_attStatusProvider)(void);
-@property (nonatomic, copy, nullable) void (^fp_attRequestInterceptor)(void(^_Nullable)(NSUInteger));
 
 - (void)_handleDidBecomeActiveForATT;
 
@@ -556,20 +553,13 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
 + (NSUInteger)trackingAuthorizationStatus
 {
-#if TARGET_OS_IOS
-    Class attManagerClass = NSClassFromString(@"ATTrackingManager");
-    if (!attManagerClass) {
-        return 0;
-    }
-    SEL statusSel = NSSelectorFromString(@"trackingAuthorizationStatus");
-    if (![attManagerClass respondsToSelector:statusSel]) {
-        return 0;
-    }
-    NSUInteger (*statusIMP)(id, SEL) = (NSUInteger (*)(id, SEL))[attManagerClass methodForSelector:statusSel];
-    return statusIMP(attManagerClass, statusSel);
-#else
-    return 0;
-#endif
+    // Uses the shared FPATTRuntime helper. Maps kFPATTStatusUnavailable → 0 so
+    // callers always receive a value in the documented range [0, 3].
+    // Note: 0 here means either "notDetermined" or "framework absent". Use the
+    // att_status field in event device context (set by FPAttributionMiddleware)
+    // to distinguish the two — it reports "unavailable" when the framework is absent.
+    NSUInteger status = FPATTGetCurrentStatus();
+    return (status == kFPATTStatusUnavailable) ? 0 : status;
 }
 
 + (void)requestTrackingAuthorizationWithCompletionHandler:(void (^_Nullable)(NSUInteger))completion
@@ -641,17 +631,27 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
 - (void)_handleDidBecomeActiveForATT
 {
-#if TARGET_OS_IOS
-    if (!self.oneTimeConfiguration.autoRequestATT) {
-        return;
-    }
-    NSUInteger status = self.fp_attStatusProvider ? self.fp_attStatusProvider() : [FPAnalytics trackingAuthorizationStatus];
-    if (status == 0) { // notDetermined only — duplicate-prompt prevention
-        if (self.fp_attRequestInterceptor) {
-            self.fp_attRequestInterceptor(nil);
-        } else {
-            [FPAnalytics requestTrackingAuthorizationWithCompletionHandler:nil];
-        }
+#if TARGET_OS_IPHONE
+    if (!self.oneTimeConfiguration.autoRequestATT) return;
+
+    // In test builds, FPAnalytics+ATTTesting.h injects a provider via associated
+    // objects. In production, objc_getAssociatedObject returns nil here.
+    NSUInteger (^statusProvider)(void) = objc_getAssociatedObject(
+        self, NSSelectorFromString(@"fp_attStatusProvider"));
+    NSUInteger status = statusProvider ? statusProvider() : FPATTGetCurrentStatus();
+
+    // Guard: ATT framework absent or status already determined — no prompt needed.
+    // Without this guard, autoRequestATT=YES would dispatch a no-op request on every
+    // didBecomeActive when ATT is unavailable (framework not linked), since
+    // +trackingAuthorizationStatus maps kFPATTStatusUnavailable to 0 (notDetermined).
+    if (status == kFPATTStatusUnavailable || status != 0) return;
+
+    void (^requestInterceptor)(void(^_Nullable)(NSUInteger)) = objc_getAssociatedObject(
+        self, NSSelectorFromString(@"fp_attRequestInterceptor"));
+    if (requestInterceptor) {
+        requestInterceptor(nil);
+    } else {
+        [FPAnalytics requestTrackingAuthorizationWithCompletionHandler:nil];
     }
 #endif
 }

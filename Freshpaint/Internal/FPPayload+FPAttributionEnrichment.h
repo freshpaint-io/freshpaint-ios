@@ -1,6 +1,6 @@
 //
 //  FPPayload+FPAttributionEnrichment.h
-//  Analytics
+//  Freshpaint
 //
 //  Internal-only category. Exposes device-context mutation for
 //  FPAttributionMiddleware. Do NOT import from public-facing files.

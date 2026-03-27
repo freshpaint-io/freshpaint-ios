@@ -1,6 +1,6 @@
 //
 //  FPAttributionMiddleware.h
-//  Analytics
+//  Freshpaint
 //
 //  Enriches every event with ATT consent status (att_status) and
 //  conditionally includes IDFA (only when ATT status is authorized).

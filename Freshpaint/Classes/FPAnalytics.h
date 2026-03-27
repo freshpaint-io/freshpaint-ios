@@ -227,8 +227,10 @@ NS_SWIFT_NAME(Freshpaint)
  * Returns the current App Tracking Transparency authorization status.
  * Values mirror ATTrackingManager.ATTrackingAuthorizationStatus:
  *   0 = notDetermined, 1 = restricted, 2 = denied, 3 = authorized.
- * Returns 0 if AppTrackingTransparency is not available on this platform.
- * iOS 14+ only; always returns 0 on other platforms.
+ * Returns 0 when AppTrackingTransparency is unavailable (framework not linked,
+ * or non-iOS platform). Note: 0 therefore means either "not yet prompted" or
+ * "framework absent"; check the att_status field in event device context
+ * (set by FPAttributionMiddleware) to distinguish between these two cases.
  */
 + (NSUInteger)trackingAuthorizationStatus;
 

@@ -56,6 +56,9 @@
 
 - (void)fp_mergeDeviceContextValues:(NSDictionary *)additions
 {
+    // The middleware pipeline runs on a serial analytics queue, so concurrent
+    // access to the same payload is not expected in normal usage. The lock is
+    // a defensive measure against custom middleware that dispatches off-queue.
     @synchronized(self) {
         NSMutableDictionary *ctx = [self.context mutableCopy] ?: [NSMutableDictionary dictionary];
         NSMutableDictionary *device = [ctx[@"device"] mutableCopy] ?: [NSMutableDictionary dictionary];

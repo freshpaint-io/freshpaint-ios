@@ -9,28 +9,45 @@
 #import <objc/runtime.h>
 #import "FPAnalytics.h"
 #import "FPAnalyticsConfiguration.h"
+#import "FPATTTestConstants.h"
 
 // ---------------------------------------------------------------------------
-#pragma mark - Test-only extension
+#pragma mark - Test seam
 // ---------------------------------------------------------------------------
 
-/// Expose private instance properties and the auto-request helper for testing.
-/// These are declared in FPAnalytics.m's private @interface — this category
-/// lets tests access them without modifying the public header.
+/// Test-only category backed by associated objects — adds no ivar storage to the
+/// production FPAnalytics class. The selector strings used as keys here must match
+/// those used in FPAnalytics.m's _handleDidBecomeActiveForATT.
 @interface FPAnalytics (FPATTTesting)
 @property (nonatomic, copy, nullable) NSUInteger (^fp_attStatusProvider)(void);
 @property (nonatomic, copy, nullable) void (^fp_attRequestInterceptor)(void(^_Nullable)(NSUInteger));
-- (void)_handleDidBecomeActiveForATT;
 @end
 
-// ---------------------------------------------------------------------------
-#pragma mark - ATT status constants
-// ---------------------------------------------------------------------------
+@implementation FPAnalytics (FPATTTesting)
 
-static const NSUInteger kATTNotDetermined = 0;
-static const NSUInteger kATTRestricted    = 1;
-static const NSUInteger kATTDenied        = 2;
-static const NSUInteger kATTAuthorized    = 3;
+- (void)setFp_attStatusProvider:(NSUInteger (^)(void))fp_attStatusProvider {
+    objc_setAssociatedObject(self,
+        NSSelectorFromString(@"fp_attStatusProvider"),
+        fp_attStatusProvider,
+        OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (NSUInteger (^)(void))fp_attStatusProvider {
+    return objc_getAssociatedObject(self, NSSelectorFromString(@"fp_attStatusProvider"));
+}
+
+- (void)setFp_attRequestInterceptor:(void (^)(void(^_Nullable)(NSUInteger)))fp_attRequestInterceptor {
+    objc_setAssociatedObject(self,
+        NSSelectorFromString(@"fp_attRequestInterceptor"),
+        fp_attRequestInterceptor,
+        OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (void (^)(void(^_Nullable)(NSUInteger)))fp_attRequestInterceptor {
+    return objc_getAssociatedObject(self, NSSelectorFromString(@"fp_attRequestInterceptor"));
+}
+
+@end
 
 // ---------------------------------------------------------------------------
 #pragma mark - Test class
@@ -183,6 +200,26 @@ static const NSUInteger kATTAuthorized    = 3;
 #endif
 }
 
+/// ATT framework absent — autoRequestATT=YES must not dispatch the request even when
+/// +trackingAuthorizationStatus returns 0, since 0 here means "unavailable", not "notDetermined".
+- (void)testAutoRequestSkipsPromptWhenATTUnavailable
+{
+#if TARGET_OS_IOS
+    self.configuration.autoRequestATT = YES;
+    // Simulate ATT framework absent via the sentinel value.
+    self.analytics.fp_attStatusProvider = ^NSUInteger { return NSUIntegerMax; };
+
+    __block BOOL requestCalled = NO;
+    self.analytics.fp_attRequestInterceptor = ^(void(^_Nullable completion)(NSUInteger)) {
+        requestCalled = YES;
+    };
+
+    [self.analytics _handleDidBecomeActiveForATT];
+
+    XCTAssertFalse(requestCalled, @"ATT prompt must NOT fire when ATT framework is unavailable");
+#endif
+}
+
 // ---------------------------------------------------------------------------
 #pragma mark - AC 1: +trackingAuthorizationStatus
 // ---------------------------------------------------------------------------
@@ -228,10 +265,12 @@ static const NSUInteger kATTAuthorized    = 3;
                                              @selector(fp_stubbedTrackingAuthorizationStatusAuthorized));
     method_exchangeImplementations(origMethod, stubMethod);
 
-    NSString *idfa = [FPAnalytics advertisingIdentifier];
+    // Guarantee restoration even if the assertion below throws.
+    [self addTeardownBlock:^{
+        method_exchangeImplementations(origMethod, stubMethod);
+    }];
 
-    // Restore original implementation.
-    method_exchangeImplementations(origMethod, stubMethod);
+    NSString *idfa = [FPAnalytics advertisingIdentifier];
 
     // AdSupport is not linked in this test target, so idfa will be nil.
     // The invariant: must be nil or a valid UUID string — no crash.

@@ -1,23 +1,15 @@
 //
 //  FPAttributionMiddleware.m
-//  Analytics
+//  Freshpaint
 //
 
 #import "FPAttributionMiddleware.h"
 #import "FPContext.h"
 #import "FPPayload.h"
 #import "FPPayload+FPAttributionEnrichment.h"
-
-#if TARGET_OS_IPHONE
-#import <objc/message.h>
-#endif
+#import "FPATTRuntime.h"
 
 static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000";
-
-// Sentinel returned when ATT framework is unavailable (tvOS, macOS, old iOS without ATT linked).
-// Kept out of the ATTrackingManager range (0–3) so backend consumers can distinguish
-// "user hasn't been prompted" (notDetermined=0) from "platform has no ATT".
-static const NSUInteger kFPATTStatusUnavailable = NSUIntegerMax;
 
 typedef NSUInteger (^FPATTStatusProvider)(void);
 
@@ -45,34 +37,19 @@ typedef NSUInteger (^FPATTStatusProvider)(void);
     if (self.attStatusProvider) {
         return self.attStatusProvider();
     }
-
-#if TARGET_OS_IPHONE
-    Class cls = NSClassFromString(@"ATTrackingManager");
-    if (cls) {
-        SEL sel = NSSelectorFromString(@"trackingAuthorizationStatus");
-        if ([cls respondsToSelector:sel]) {
-            // Cast to avoid undefined behavior from variadic objc_msgSend.
-            typedef NSUInteger (*ATTStatusIMP)(id, SEL);
-            ATTStatusIMP imp = (ATTStatusIMP)[cls methodForSelector:sel];
-            if (imp) {
-                return imp(cls, sel);
-            }
-        }
-    }
-#endif
-
-    // ATT unavailable (tvOS, macOS, old iOS without ATT framework linked).
-    return kFPATTStatusUnavailable;
+    // Shared runtime-only lookup (FPATTRuntime.h). Returns kFPATTStatusUnavailable
+    // when AppTrackingTransparency is not linked.
+    return FPATTGetCurrentStatus();
 }
 
 - (NSString *)attStatusStringForStatus:(NSUInteger)status
 {
     if (status == kFPATTStatusUnavailable) return @"unavailable";
     switch (status) {
-        case 1:  return @"restricted";
-        case 2:  return @"denied";
-        case 3:  return @"authorized";
-        default: return @"notDetermined";
+        case 1:  return @"restricted";   // ATTrackingManagerAuthorizationStatusRestricted
+        case 2:  return @"denied";       // ATTrackingManagerAuthorizationStatusDenied
+        case 3:  return @"authorized";   // ATTrackingManagerAuthorizationStatusAuthorized
+        default: return @"notDetermined"; // ATTrackingManagerAuthorizationStatusNotDetermined (0)
     }
 }
 
