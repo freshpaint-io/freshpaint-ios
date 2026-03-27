@@ -221,6 +221,43 @@ NS_SWIFT_NAME(Freshpaint)
 /** Returns the current session info as a dictionary, sessionId and isFirstEventInSession. Only validates/renews session for engagement events (track, screen). */
 - (NSDictionary<NSString *, id> *)sessionInfoForAction:(NSString *)action;
 
+#pragma mark - ATT (App Tracking Transparency)
+
+/**
+ * Returns the current App Tracking Transparency authorization status.
+ * Values mirror ATTrackingManager.ATTrackingAuthorizationStatus:
+ *   0 = notDetermined, 1 = restricted, 2 = denied, 3 = authorized.
+ * Returns 0 if AppTrackingTransparency is not available on this platform.
+ * iOS 14+ only; always returns 0 on other platforms.
+ */
++ (NSUInteger)trackingAuthorizationStatus;
+
+/**
+ * Requests App Tracking Transparency authorization from the user.
+ * Presents the ATT prompt if the current status is notDetermined.
+ * The completion handler is called with the final authorization status.
+ * This method dispatches to the main thread automatically if needed.
+ * iOS 14+ only; calls completion(0) immediately on unsupported platforms.
+ *
+ * @param completion Called with the final ATT status (same values as trackingAuthorizationStatus).
+ *                   May be nil.
+ */
++ (void)requestTrackingAuthorizationWithCompletionHandler:(void (^_Nullable)(NSUInteger status))completion;
+
+/**
+ * Returns the IDFA (advertising identifier) string if ATT is authorized, or nil otherwise.
+ * Requires AdSupport.framework to be linked by the host app.
+ * Returns nil if ATT status is not authorized or AdSupport is not available.
+ */
++ (nullable NSString *)advertisingIdentifier;
+
+/**
+ * Returns the stable device identifier that persists across app reinstalls via Keychain.
+ * Falls back to IDFV when Keychain operations fail.
+ * This is the value attached as `device_id` in every event's device context.
+ */
++ (NSString *)stableDeviceId;
+
 @end
 
 NS_ASSUME_NONNULL_END

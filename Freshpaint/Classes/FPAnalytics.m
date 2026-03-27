@@ -17,6 +17,7 @@
 #import "FPState.h"
 #import "FPUtils.h"
 #import "FPAttributionMiddleware.h"
+#import "FPStableDeviceId.h"
 
 static FPAnalytics *__sharedInstance = nil;
 
@@ -29,6 +30,13 @@ static FPAnalytics *__sharedInstance = nil;
 @property (nonatomic, strong) FPIntegrationsManager *integrationsManager;
 @property (nonatomic, strong) FPMiddlewareRunner *runner;
 @property (nonatomic, strong) FPState *state;
+
+// Test injection — do not use in production code.
+@property (nonatomic, copy, nullable) NSUInteger (^fp_attStatusProvider)(void);
+@property (nonatomic, copy, nullable) void (^fp_attRequestInterceptor)(void(^_Nullable)(NSUInteger));
+
+- (void)_handleDidBecomeActiveForATT;
+
 @end
 
 
@@ -149,6 +157,8 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         [self _applicationWillEnterForeground];
     } else if ([note.name isEqualToString:UIApplicationDidEnterBackgroundNotification]) {
       [self _applicationDidEnterBackground];
+    } else if ([note.name isEqualToString:UIApplicationDidBecomeActiveNotification]) {
+        [self _handleDidBecomeActiveForATT];
     }
 }
 #elif TARGET_OS_OSX
@@ -540,6 +550,110 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     // this has to match the actual version, NOT what's in info.plist
     // because Apple only accepts X.X.X as versions in the review process.
     return @"0.4.1";
+}
+
+#pragma mark - ATT (App Tracking Transparency)
+
++ (NSUInteger)trackingAuthorizationStatus
+{
+#if TARGET_OS_IOS
+    Class attManagerClass = NSClassFromString(@"ATTrackingManager");
+    if (!attManagerClass) {
+        return 0;
+    }
+    SEL statusSel = NSSelectorFromString(@"trackingAuthorizationStatus");
+    if (![attManagerClass respondsToSelector:statusSel]) {
+        return 0;
+    }
+    NSUInteger (*statusIMP)(id, SEL) = (NSUInteger (*)(id, SEL))[attManagerClass methodForSelector:statusSel];
+    return statusIMP(attManagerClass, statusSel);
+#else
+    return 0;
+#endif
+}
+
++ (void)requestTrackingAuthorizationWithCompletionHandler:(void (^_Nullable)(NSUInteger))completion
+{
+#if TARGET_OS_IOS
+    Class attManagerClass = NSClassFromString(@"ATTrackingManager");
+    if (!attManagerClass) {
+        if (completion) completion(0);
+        return;
+    }
+    SEL requestSel = NSSelectorFromString(@"requestTrackingAuthorizationWithCompletionHandler:");
+    if (![attManagerClass respondsToSelector:requestSel]) {
+        if (completion) completion(0);
+        return;
+    }
+    void (*requestIMP)(id, SEL, void(^)(NSUInteger)) =
+        (void (*)(id, SEL, void(^)(NSUInteger)))[attManagerClass methodForSelector:requestSel];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        requestIMP(attManagerClass, requestSel, completion ?: ^(NSUInteger __unused s){});
+    });
+#else
+    if (completion) completion(0);
+#endif
+}
+
++ (nullable NSString *)advertisingIdentifier
+{
+#if TARGET_OS_IOS
+    if ([self trackingAuthorizationStatus] != 3) {
+        return nil;
+    }
+    Class asimClass = NSClassFromString(@"ASIdentifierManager");
+    if (!asimClass) {
+        return nil;
+    }
+    SEL sharedSel = NSSelectorFromString(@"sharedManager");
+    if (![asimClass respondsToSelector:sharedSel]) {
+        return nil;
+    }
+    id (*sharedIMP)(id, SEL) = (id (*)(id, SEL))[asimClass methodForSelector:sharedSel];
+    id manager = sharedIMP(asimClass, sharedSel);
+    if (!manager) {
+        return nil;
+    }
+    SEL idSel = NSSelectorFromString(@"advertisingIdentifier");
+    if (![manager respondsToSelector:idSel]) {
+        return nil;
+    }
+    id (*idIMP)(id, SEL) = (id (*)(id, SEL))[manager methodForSelector:idSel];
+    id nsuuid = idIMP(manager, idSel);
+    if (!nsuuid) {
+        return nil;
+    }
+    SEL uuidStrSel = NSSelectorFromString(@"UUIDString");
+    if (![nsuuid respondsToSelector:uuidStrSel]) {
+        return nil;
+    }
+    id (*uuidStrIMP)(id, SEL) = (id (*)(id, SEL))[nsuuid methodForSelector:uuidStrSel];
+    return uuidStrIMP(nsuuid, uuidStrSel);
+#else
+    return nil;
+#endif
+}
+
++ (NSString *)stableDeviceId
+{
+    return [FPStableDeviceId deviceId];
+}
+
+- (void)_handleDidBecomeActiveForATT
+{
+#if TARGET_OS_IOS
+    if (!self.oneTimeConfiguration.autoRequestATT) {
+        return;
+    }
+    NSUInteger status = self.fp_attStatusProvider ? self.fp_attStatusProvider() : [FPAnalytics trackingAuthorizationStatus];
+    if (status == 0) { // notDetermined only — duplicate-prompt prevention
+        if (self.fp_attRequestInterceptor) {
+            self.fp_attRequestInterceptor(nil);
+        } else {
+            [FPAnalytics requestTrackingAuthorizationWithCompletionHandler:nil];
+        }
+    }
+#endif
 }
 
 #pragma mark - Helpers
