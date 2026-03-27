@@ -56,11 +56,13 @@
 
 - (void)fp_mergeDeviceContextValues:(NSDictionary *)additions
 {
-    NSMutableDictionary *ctx = [self.context mutableCopy] ?: [NSMutableDictionary dictionary];
-    NSMutableDictionary *device = [ctx[@"device"] mutableCopy] ?: [NSMutableDictionary dictionary];
-    [device addEntriesFromDictionary:additions];
-    ctx[@"device"] = [device copy];
-    self.context = [ctx copy];
+    @synchronized(self) {
+        NSMutableDictionary *ctx = [self.context mutableCopy] ?: [NSMutableDictionary dictionary];
+        NSMutableDictionary *device = [ctx[@"device"] mutableCopy] ?: [NSMutableDictionary dictionary];
+        [device addEntriesFromDictionary:additions];
+        ctx[@"device"] = [device copy];
+        self.context = [ctx copy];
+    }
 }
 
 @end

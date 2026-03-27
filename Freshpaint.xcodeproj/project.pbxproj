@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		204F34B08E432CC775EF391D /* FPAttributionMiddleware.h in Headers */ = {isa = PBXBuildFile; fileRef = FD103F0B18245918A82F733C /* FPAttributionMiddleware.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		204F34B08E432CC775EF391D /* FPAttributionMiddleware.h in Headers */ = {isa = PBXBuildFile; fileRef = FD103F0B18245918A82F733C /* FPAttributionMiddleware.h */; settings = {}; };
 		3DCAF6C056067280EBDFD6E3 /* FPPayload+FPAttributionEnrichment.h in Headers */ = {isa = PBXBuildFile; fileRef = B38969724D688583AF3FBFD8 /* FPPayload+FPAttributionEnrichment.h */; };
 		5B77FC7474E2A963C0E85390 /* FPStableDeviceIdTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */; };
 		644DF35625A8FF75000E5F2B /* NSData+FPGUNZPP.m in Sources */ = {isa = PBXBuildFile; fileRef = 644DF35525A8FF75000E5F2B /* NSData+FPGUNZPP.m */; };
@@ -152,6 +152,7 @@
 		C31833C22DD7A44C00F2EE90 /* SessionTimeoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31833C12DD7A44900F2EE90 /* SessionTimeoutTests.swift */; };
 		C31833C42DD7A5AD00F2EE90 /* SessionIdInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */; };
 		C4DCBE8F513B51283301B56A /* FPAttributionMiddlewareTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E9658BDA53E5F368643AD98 /* FPAttributionMiddlewareTests.m */; };
+		8095CEAE90D447A9AB8462A5 /* FPATTAPITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 90051D82B0D54973ADDA2929 /* FPATTAPITests.m */; };
 		F54F79ED3362F50D0E40A8D7 /* FPStableDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = 21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */; };
 /* End PBXBuildFile section */
 
@@ -217,6 +218,8 @@
 		21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; includeInIndex = 1; path = FPStableDeviceId.m; sourceTree = "<group>"; };
 		387069D742A18C75212315B9 /* FreshpaintTests.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = FreshpaintTests.entitlements; sourceTree = "<group>"; };
 		4E9658BDA53E5F368643AD98 /* FPAttributionMiddlewareTests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPAttributionMiddlewareTests.m; sourceTree = "<group>"; };
+		A1B2C3D4E5F6789012345678 /* FPAttributionMiddleware+Testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "FPAttributionMiddleware+Testing.h"; sourceTree = "<group>"; };
+		90051D82B0D54973ADDA2929 /* FPATTAPITests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPATTAPITests.m; sourceTree = "<group>"; };
 		644DF31625A7E1FE000E5F2B /* UIViewController+FPScreenTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIViewController+FPScreenTest.h"; sourceTree = "<group>"; };
 		644DF33A25A7E45C000E5F2B /* NSData+FPGUNZIPP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+FPGUNZIPP.h"; sourceTree = "<group>"; };
 		644DF34C25A8FDF4000E5F2B /* FreshpaintTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FreshpaintTests-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -470,6 +473,8 @@
 				BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */,
 				387069D742A18C75212315B9 /* FreshpaintTests.entitlements */,
 				4E9658BDA53E5F368643AD98 /* FPAttributionMiddlewareTests.m */,
+				90051D82B0D54973ADDA2929 /* FPATTAPITests.m */,
+				A1B2C3D4E5F6789012345678 /* FPAttributionMiddleware+Testing.h */,
 			);
 			path = FreshpaintTests;
 			sourceTree = "<group>";
@@ -785,6 +790,7 @@
 				64FDB45F256F05A3001884FD /* AutoScreenReportingTest.swift in Sources */,
 				5B77FC7474E2A963C0E85390 /* FPStableDeviceIdTests.m in Sources */,
 				C4DCBE8F513B51283301B56A /* FPAttributionMiddlewareTests.m in Sources */,
+				8095CEAE90D447A9AB8462A5 /* FPATTAPITests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

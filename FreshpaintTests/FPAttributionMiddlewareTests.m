@@ -4,7 +4,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "FPAttributionMiddleware.h"
+#import "FPAttributionMiddleware+Testing.h"
 #import "FPAnalyticsConfiguration.h"
 #import "FPAnalytics.h"
 #import "FPContext.h"
@@ -361,15 +361,18 @@ static NSString *const kZeroedIDFA       = @"00000000-0000-0000-0000-00000000000
 - (void)testExistingDeviceFieldsPreserved
 {
 #if TARGET_OS_IPHONE
-    // IDFV is set in static context by mobileSpecifications().
-    // The middleware must not remove it.
+    // Explicitly seed an idfv in the payload context so the test does not rely
+    // on FPState having it populated in a test environment.
     FPAttributionMiddleware *mw = [[FPAttributionMiddleware alloc] initWithConfiguration:self.configuration];
     mw.attStatusProvider = ^NSUInteger { return kATTNotDetermined; };
 
-    FPContext *result = [self runMiddleware:mw withContext:[self makeContextWithPayload:[self makeTrackPayload]]];
+    FPTrackPayload *payload = [[FPTrackPayload alloc] initWithEvent:@"Test Event"
+                                                         properties:nil
+                                                            context:@{@"device": @{@"idfv": @"FAKE-IDFV-1234"}}
+                                                       integrations:@{}];
+    FPContext *result = [self runMiddleware:mw withContext:[self makeContextWithPayload:payload]];
     NSDictionary *device = result.payload.context[@"device"];
-    // idfv should still be present (set by mobileSpecifications in static context).
-    XCTAssertNotNil(device[@"idfv"], @"idfv must not be clobbered by attribution middleware");
+    XCTAssertEqualObjects(device[@"idfv"], @"FAKE-IDFV-1234", @"idfv must not be clobbered by attribution middleware");
 #endif
 }
 

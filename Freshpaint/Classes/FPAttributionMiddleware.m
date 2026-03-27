@@ -14,8 +14,16 @@
 
 static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000";
 
+// Sentinel returned when ATT framework is unavailable (tvOS, macOS, old iOS without ATT linked).
+// Kept out of the ATTrackingManager range (0–3) so backend consumers can distinguish
+// "user hasn't been prompted" (notDetermined=0) from "platform has no ATT".
+static const NSUInteger kFPATTStatusUnavailable = NSUIntegerMax;
+
+typedef NSUInteger (^FPATTStatusProvider)(void);
+
 @interface FPAttributionMiddleware ()
 @property (nonatomic, strong) FPAnalyticsConfiguration *configuration;
+@property (nonatomic, copy, nullable) FPATTStatusProvider attStatusProvider;
 @end
 
 
@@ -54,11 +62,12 @@ static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000"
 #endif
 
     // ATT unavailable (tvOS, macOS, old iOS without ATT framework linked).
-    return 0; // notDetermined
+    return kFPATTStatusUnavailable;
 }
 
 - (NSString *)attStatusStringForStatus:(NSUInteger)status
 {
+    if (status == kFPATTStatusUnavailable) return @"unavailable";
     switch (status) {
         case 1:  return @"restricted";
         case 2:  return @"denied";
