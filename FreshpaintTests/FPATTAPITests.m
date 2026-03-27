@@ -21,6 +21,7 @@
 @interface FPAnalytics (FPATTTesting)
 @property (nonatomic, copy, nullable) NSUInteger (^fp_attStatusProvider)(void);
 @property (nonatomic, copy, nullable) void (^fp_attRequestInterceptor)(void(^_Nullable)(NSUInteger));
+- (void)_handleDidBecomeActiveForATT;
 @end
 
 @implementation FPAnalytics (FPATTTesting)
