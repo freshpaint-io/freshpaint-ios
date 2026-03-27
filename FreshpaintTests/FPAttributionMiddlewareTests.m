@@ -4,6 +4,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <objc/runtime.h>
 #import "FPAttributionMiddleware+Testing.h"
 #import "FPAnalyticsConfiguration.h"
 #import "FPAnalytics.h"
@@ -12,6 +13,28 @@
 #import "FPIdentifyPayload.h"
 #import "FPPayload.h"
 #import "FPATTTestConstants.h"
+
+// ---------------------------------------------------------------------------
+#pragma mark - Test seam implementation
+// ---------------------------------------------------------------------------
+
+/// Backs FPAttributionMiddleware (FPTesting) with associated objects so no ivar
+/// storage is added to the production class. The selector string used as key must
+/// match the one used in FPAttributionMiddleware.m's currentATTStatus.
+@implementation FPAttributionMiddleware (FPTesting)
+
+- (void)setAttStatusProvider:(NSUInteger (^)(void))attStatusProvider {
+    objc_setAssociatedObject(self,
+        NSSelectorFromString(@"attStatusProvider"),
+        attStatusProvider,
+        OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (NSUInteger (^)(void))attStatusProvider {
+    return objc_getAssociatedObject(self, NSSelectorFromString(@"attStatusProvider"));
+}
+
+@end
 
 // ---------------------------------------------------------------------------
 #pragma mark - Helpers

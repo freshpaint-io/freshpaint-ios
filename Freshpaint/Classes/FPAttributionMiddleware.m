@@ -8,14 +8,12 @@
 #import "FPPayload.h"
 #import "FPPayload+FPAttributionEnrichment.h"
 #import "FPATTRuntime.h"
+#import <objc/runtime.h>
 
 static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000";
 
-typedef NSUInteger (^FPATTStatusProvider)(void);
-
 @interface FPAttributionMiddleware ()
 @property (nonatomic, strong) FPAnalyticsConfiguration *configuration;
-@property (nonatomic, copy, nullable) FPATTStatusProvider attStatusProvider;
 @end
 
 
@@ -33,10 +31,11 @@ typedef NSUInteger (^FPATTStatusProvider)(void);
 
 - (NSUInteger)currentATTStatus
 {
-    // Test injection takes priority.
-    if (self.attStatusProvider) {
-        return self.attStatusProvider();
-    }
+    // In tests, FPAttributionMiddleware+Testing.h injects a provider via associated
+    // objects. In production, objc_getAssociatedObject returns nil here.
+    NSUInteger (^provider)(void) = objc_getAssociatedObject(
+        self, NSSelectorFromString(@"attStatusProvider"));
+    if (provider) { return provider(); }
     // Shared runtime-only lookup (FPATTRuntime.h). Returns kFPATTStatusUnavailable
     // when AppTrackingTransparency is not linked.
     return FPATTGetCurrentStatus();
@@ -46,10 +45,10 @@ typedef NSUInteger (^FPATTStatusProvider)(void);
 {
     if (status == kFPATTStatusUnavailable) return @"unavailable";
     switch (status) {
-        case 1:  return @"restricted";   // ATTrackingManagerAuthorizationStatusRestricted
-        case 2:  return @"denied";       // ATTrackingManagerAuthorizationStatusDenied
-        case 3:  return @"authorized";   // ATTrackingManagerAuthorizationStatusAuthorized
-        default: return @"notDetermined"; // ATTrackingManagerAuthorizationStatusNotDetermined (0)
+        case kFPATTStatusRestricted:    return @"restricted";
+        case kFPATTStatusDenied:        return @"denied";
+        case kFPATTStatusAuthorized:    return @"authorized";
+        default:                        return @"notDetermined"; // kFPATTStatusNotDetermined (0)
     }
 }
 
@@ -66,7 +65,7 @@ typedef NSUInteger (^FPATTStatusProvider)(void);
         enrichment[@"att_status"] = [self attStatusStringForStatus:status];
 
         // Include IDFA only when fully authorized and adSupportBlock is set.
-        if (status == 3 && self.configuration.adSupportBlock != nil) {
+        if (status == kFPATTStatusAuthorized && self.configuration.adSupportBlock != nil) {
             NSString *idfa = self.configuration.adSupportBlock();
             if (idfa && idfa.length > 0 && ![idfa isEqualToString:kFPAllZerosIDFA]) {
                 enrichment[@"advertisingId"] = idfa;

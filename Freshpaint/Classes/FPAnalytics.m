@@ -588,7 +588,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 + (nullable NSString *)advertisingIdentifier
 {
 #if TARGET_OS_IOS
-    if ([self trackingAuthorizationStatus] != 3) {
+    if ([self trackingAuthorizationStatus] != kFPATTStatusAuthorized) {
         return nil;
     }
     Class asimClass = NSClassFromString(@"ASIdentifierManager");

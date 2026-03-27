@@ -10,6 +10,13 @@
 #pragma once
 #import <Foundation/Foundation.h>
 
+/// ATT authorization status values — mirror ATTrackingManager.ATTrackingAuthorizationStatus.
+/// Defined here so production code never hard-codes the magic integers.
+static const NSUInteger kFPATTStatusNotDetermined = 0;
+static const NSUInteger kFPATTStatusRestricted    = 1;
+static const NSUInteger kFPATTStatusDenied        = 2;
+static const NSUInteger kFPATTStatusAuthorized    = 3;
+
 /// Sentinel returned when the ATT framework is unavailable (macOS, or an iOS/tvOS
 /// build that has not linked AppTrackingTransparency). Kept outside the
 /// ATTrackingManager range (0–3) so callers can distinguish "user not yet prompted"
