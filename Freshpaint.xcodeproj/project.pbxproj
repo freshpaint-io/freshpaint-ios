@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		204F34B08E432CC775EF391D /* FPAttributionMiddleware.h in Headers */ = {isa = PBXBuildFile; fileRef = FD103F0B18245918A82F733C /* FPAttributionMiddleware.h */; settings = {}; };
 		3DCAF6C056067280EBDFD6E3 /* FPPayload+FPAttributionEnrichment.h in Headers */ = {isa = PBXBuildFile; fileRef = B38969724D688583AF3FBFD8 /* FPPayload+FPAttributionEnrichment.h */; };
+		A9406C83AEB727F546DDFA8F /* FPATTRuntime.h in Headers */ = {isa = PBXBuildFile; fileRef = 264F73BDFE32CD69D92391CB /* FPATTRuntime.h */; };
 		5B77FC7474E2A963C0E85390 /* FPStableDeviceIdTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */; };
 		644DF35625A8FF75000E5F2B /* NSData+FPGUNZPP.m in Sources */ = {isa = PBXBuildFile; fileRef = 644DF35525A8FF75000E5F2B /* NSData+FPGUNZPP.m */; };
 		64FDB3BD256EE283001884FD /* FPAliasPayload.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB37F256EE283001884FD /* FPAliasPayload.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -308,6 +309,8 @@
 		64FDB486257831A7001884FD /* freshpaint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = freshpaint.h; sourceTree = "<group>"; };
 		64FDB487257831A7001884FD /* freshpaint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = freshpaint.m; sourceTree = "<group>"; };
 		8D5F0B5BE182A223FDBD6A25 /* FPAttributionMiddleware.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPAttributionMiddleware.m; sourceTree = "<group>"; };
+		264F73BDFE32CD69D92391CB /* FPATTRuntime.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FPATTRuntime.h; sourceTree = "<group>"; };
+		59ECC4379B2D4AEF8B1FF16D /* FPATTTestConstants.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FPATTTestConstants.h; sourceTree = "<group>"; };
 		B38969724D688583AF3FBFD8 /* FPPayload+FPAttributionEnrichment.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "FPPayload+FPAttributionEnrichment.h"; sourceTree = "<group>"; };
 		BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; includeInIndex = 1; path = FPStableDeviceIdTests.m; sourceTree = "<group>"; };
 		C31674B18CD818C64F8F3935 /* Pods_SegmentTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SegmentTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -441,6 +444,7 @@
 				64FDB3BB256EE283001884FD /* FPFileStorage.h */,
 				074D5A1055EE3FC12D4FF48B /* FPStableDeviceId.h */,
 				21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */,
+				264F73BDFE32CD69D92391CB /* FPATTRuntime.h */,
 				B38969724D688583AF3FBFD8 /* FPPayload+FPAttributionEnrichment.h */,
 			);
 			path = Internal;
@@ -475,6 +479,7 @@
 				4E9658BDA53E5F368643AD98 /* FPAttributionMiddlewareTests.m */,
 				90051D82B0D54973ADDA2929 /* FPATTAPITests.m */,
 				A1B2C3D4E5F6789012345678 /* FPAttributionMiddleware+Testing.h */,
+				59ECC4379B2D4AEF8B1FF16D /* FPATTTestConstants.h */,
 			);
 			path = FreshpaintTests;
 			sourceTree = "<group>";
@@ -575,6 +580,7 @@
 				64FDB3ED256EE283001884FD /* NSViewController+FPScreen.h in Headers */,
 				204F34B08E432CC775EF391D /* FPAttributionMiddleware.h in Headers */,
 				3DCAF6C056067280EBDFD6E3 /* FPPayload+FPAttributionEnrichment.h in Headers */,
+				A9406C83AEB727F546DDFA8F /* FPATTRuntime.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
