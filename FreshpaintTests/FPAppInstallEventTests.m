@@ -18,7 +18,9 @@
 
 /// Exposes the private lifecycle handler and the DEBUG ATT status injectable.
 @interface FPAnalytics (FPInstallTesting)
+#ifdef DEBUG
 @property (nonatomic, copy, nullable) NSUInteger (^fp_attStatusProvider)(void);
+#endif
 - (void)_applicationDidFinishLaunchingWithOptions:(nullable NSDictionary *)launchOptions;
 @end
 
@@ -268,6 +270,22 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
     XCTAssertNotNil(payload, @"app_install payload must be captured");
     XCTAssertNil(payload.properties[@"idfa"],
                  @"idfa must be absent when ATT status is not authorized");
+#endif
+}
+
+/// idfa must NOT appear when ATT is authorized but adSupportBlock is nil.
+- (void)testIDFAAbsentWhenAdSupportBlockNil
+{
+#if TARGET_OS_IOS
+    self.analytics.fp_attStatusProvider = ^NSUInteger { return kFPATTAuthorized; };
+    // adSupportBlock intentionally not set — remains nil
+
+    [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
+
+    FPTrackPayload *payload = [self capturedInstallPayload];
+    XCTAssertNotNil(payload, @"app_install payload must be captured");
+    XCTAssertNil(payload.properties[@"idfa"],
+                 @"idfa must be absent when adSupportBlock is nil even if ATT is authorized");
 #endif
 }
 

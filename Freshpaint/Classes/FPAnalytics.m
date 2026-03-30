@@ -228,14 +228,16 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
         [self track:@"app_install" properties:[installProps copy]];
 #else
+        // Non-iOS platforms: emit only app_version. Fields that require iOS APIs
+        // (idfv, att_status, idfa, os_version) are intentionally omitted.
         [self track:@"app_install" properties:@{
             @"app_version" : currentVersion ?: @"",
         }];
 #endif
         // Guard: write the install flag immediately after enqueue so a subsequent
         // cold launch after app-kill does not re-fire the event.
-        [[NSUserDefaults standardUserDefaults] setObject:currentVersion forKey:FPVersionKey];
-        [[NSUserDefaults standardUserDefaults] setObject:currentBuild forKey:FPBuildKeyV2];
+        [[NSUserDefaults standardUserDefaults] setObject:currentVersion ?: @"" forKey:FPVersionKey];
+        [[NSUserDefaults standardUserDefaults] setObject:currentBuild ?: @"" forKey:FPBuildKeyV2];
     } else {
         if (![currentBuild isEqualToString:previousBuildV2]) {
             [self track:@"Application Updated" properties:@{
@@ -246,8 +248,8 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
             }];
         }
         // Write for returning users. Fresh install already wrote above.
-        [[NSUserDefaults standardUserDefaults] setObject:currentVersion forKey:FPVersionKey];
-        [[NSUserDefaults standardUserDefaults] setObject:currentBuild forKey:FPBuildKeyV2];
+        [[NSUserDefaults standardUserDefaults] setObject:currentVersion ?: @"" forKey:FPVersionKey];
+        [[NSUserDefaults standardUserDefaults] setObject:currentBuild ?: @"" forKey:FPBuildKeyV2];
     }
 
 #if TARGET_OS_IPHONE
