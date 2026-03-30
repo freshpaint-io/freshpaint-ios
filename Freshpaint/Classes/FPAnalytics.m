@@ -16,7 +16,6 @@
 #import "FPIntegrationsManager.h"
 #import "FPState.h"
 #import "FPUtils.h"
-#import "FPAttributionMiddleware.h"
 #import "FPStableDeviceId.h"
 #import "FPATTRuntime.h"
 
