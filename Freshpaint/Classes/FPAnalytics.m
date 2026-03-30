@@ -21,6 +21,9 @@
 
 static FPAnalytics *__sharedInstance = nil;
 
+// All-zeros IDFA value returned when the advertising identifier is not available.
+static NSString *const kFPInstallZeroedIDFA = @"00000000-0000-0000-0000-000000000000";
+
 
 @interface FPAnalytics ()
 
@@ -219,7 +222,6 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         installProps[@"app_version"]       = currentVersion ?: @"";
 
         if (attStatus == 3 && self.oneTimeConfiguration.adSupportBlock != nil) {
-            static NSString *const kFPInstallZeroedIDFA = @"00000000-0000-0000-0000-000000000000";
             NSString *idfa = self.oneTimeConfiguration.adSupportBlock();
             if (idfa.length > 0 && ![idfa isEqualToString:kFPInstallZeroedIDFA]) {
                 installProps[@"idfa"] = idfa;
@@ -228,10 +230,12 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
         [self track:@"app_install" properties:[installProps copy]];
 #else
-        // Non-iOS platforms: emit only app_version. Fields that require iOS APIs
-        // (idfv, att_status, idfa, os_version) are intentionally omitted.
+        // Non-iOS platforms (macOS): include the fields available without iOS APIs.
+        // idfv, att_status, and idfa require UIDevice/ATT and are intentionally omitted.
         [self track:@"app_install" properties:@{
-            @"app_version" : currentVersion ?: @"",
+            @"install_timestamp" : iso8601FormattedString([NSDate date]),
+            @"os_version"        : [NSProcessInfo processInfo].operatingSystemVersionString ?: @"",
+            @"app_version"       : currentVersion ?: @"",
         }];
 #endif
         // Guard: write the install flag immediately after enqueue so a subsequent

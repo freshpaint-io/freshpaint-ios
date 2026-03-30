@@ -19,7 +19,8 @@
 /// Exposes the private lifecycle handler and the DEBUG ATT status injectable.
 @interface FPAnalytics (FPInstallTesting)
 #ifdef DEBUG
-@property (nonatomic, copy, nullable) NSUInteger (^fp_attStatusProvider)(void);
+// Mirrors the private-extension declaration in FPAnalytics.m — keep both exactly in sync.
+@property (atomic, copy, nullable) NSUInteger (^fp_attStatusProvider)(void);
 #endif
 - (void)_applicationDidFinishLaunchingWithOptions:(nullable NSDictionary *)launchOptions;
 @end
@@ -164,6 +165,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 
     XCTAssertTrue([self capturedEventNamed:@"app_install"],
                   @"app_install must fire when FPBuildKeyV2 is absent (first install)");
+#else
+    XCTSkip(@"This test requires iOS");
 #endif
 }
 
@@ -183,6 +186,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 
     XCTAssertFalse([self capturedEventNamed:@"app_install"],
                    @"app_install must NOT fire when FPBuildKeyV2 is already set");
+#else
+    XCTSkip(@"This test requires iOS");
 #endif
 }
 
@@ -234,6 +239,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 
     // app_version — non-nil (may be empty in test bundle)
     XCTAssertNotNil(props[@"app_version"], @"app_version key must be present");
+#else
+    XCTSkip(@"This test requires iOS");
 #endif
 }
 
@@ -254,6 +261,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
     XCTAssertNotNil(payload, @"app_install payload must be captured");
     XCTAssertEqualObjects(payload.properties[@"idfa"], kFPValidIDFA,
                           @"idfa must be present and match when ATT is authorized");
+#else
+    XCTSkip(@"This test requires iOS");
 #endif
 }
 
@@ -270,6 +279,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
     XCTAssertNotNil(payload, @"app_install payload must be captured");
     XCTAssertNil(payload.properties[@"idfa"],
                  @"idfa must be absent when ATT status is not authorized");
+#else
+    XCTSkip(@"This test requires iOS");
 #endif
 }
 
@@ -286,6 +297,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
     XCTAssertNotNil(payload, @"app_install payload must be captured");
     XCTAssertNil(payload.properties[@"idfa"],
                  @"idfa must be absent when adSupportBlock is nil even if ATT is authorized");
+#else
+    XCTSkip(@"This test requires iOS");
 #endif
 }
 
@@ -302,6 +315,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
     XCTAssertNotNil(payload, @"app_install payload must be captured");
     XCTAssertNil(payload.properties[@"idfa"],
                  @"idfa must be absent when adSupportBlock returns all-zeros IDFA");
+#else
+    XCTSkip(@"This test requires iOS");
 #endif
 }
 
@@ -324,6 +339,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
     NSString *storedBuild = [[NSUserDefaults standardUserDefaults] stringForKey:kFPBuildKeyV2];
     XCTAssertNotNil(storedBuild,
                     @"FPBuildKeyV2 must be written immediately after app_install is enqueued, not deferred to flush");
+#else
+    XCTSkip(@"This test requires iOS");
 #endif
 }
 
@@ -350,6 +367,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
                   @"Application Opened must still fire on every launch");
     XCTAssertFalse([self capturedEventNamed:@"Application Installed"],
                    @"The old Application Installed event name must never fire");
+#else
+    XCTSkip(@"This test requires iOS");
 #endif
 }
 
