@@ -10,21 +10,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * Provider block for unit-test injection of ATT status.
- * Values mirror ATTrackingManager.ATTrackingAuthorizationStatus:
- *   0 = notDetermined, 1 = restricted, 2 = denied, 3 = authorized.
- */
-typedef NSUInteger (^FPATTStatusProvider)(void);
-
 @interface FPAttributionMiddleware (FPTesting)
 
 /**
- * Inject a fake ATT status for unit tests only.
+ * Inject a fake ATT status for unit tests only (DEBUG builds).
  * When nil (default), the live ATTrackingManager is queried at runtime.
  * Do NOT set this in production code.
  */
-@property (nonatomic, copy, nullable) FPATTStatusProvider attStatusProvider;
+@property (nonatomic, copy, nullable) NSUInteger (^attStatusProvider)(void);
 
 @end
 

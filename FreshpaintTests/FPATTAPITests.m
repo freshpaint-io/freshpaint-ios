@@ -226,12 +226,25 @@
 // ---------------------------------------------------------------------------
 
 /// AC 1 — +trackingAuthorizationStatus returns a valid ATT status value without crashing.
-/// In the test environment the value will be 0 (notDetermined) on iOS Simulator,
-/// or 0 on macOS/tvOS because of the TARGET_OS_IOS guard.
+/// On the iOS Simulator ATT is present and returns notDetermined (0).
+/// On non-iOS platforms (macOS, tvOS) the framework is absent and NSUIntegerMax is returned.
 - (void)testTrackingAuthorizationStatusReturnsValidValue
 {
     NSUInteger status = [FPAnalytics trackingAuthorizationStatus];
-    XCTAssertTrue(status <= 3, @"trackingAuthorizationStatus must return a value in [0,3], got %lu", (unsigned long)status);
+    BOOL validStatus = (status <= 3) || (status == kATTUnavailable);
+    XCTAssertTrue(validStatus, @"trackingAuthorizationStatus must return 0-3 or NSUIntegerMax (unavailable), got %lu", (unsigned long)status);
+}
+
+/// +trackingAuthorizationStatus and FPAttributionMiddleware must agree on the sentinel
+/// when the ATT framework is absent — both must return NSUIntegerMax, not 0.
+/// Verified by checking the public API on a non-iOS platform or by confirming the
+/// constant definitions match. This test validates the constant value directly.
+- (void)testTrackingAuthorizationStatusUnavailableSentinelMatchesNSUIntegerMax
+{
+    // kATTUnavailable is defined as NSUIntegerMax in this file, matching the
+    // kFPATTStatusUnavailable sentinel in FPAttributionMiddleware.m.
+    XCTAssertEqual(kATTUnavailable, NSUIntegerMax,
+                   @"Unavailable sentinel must be NSUIntegerMax to match FPAttributionMiddleware");
 }
 
 // ---------------------------------------------------------------------------

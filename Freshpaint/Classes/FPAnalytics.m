@@ -22,6 +22,11 @@
 
 static FPAnalytics *__sharedInstance = nil;
 
+// Sentinel value returned when the ATT framework is not linked. NSUIntegerMax is
+// outside the ATTrackingManager range (0–3), matching the same sentinel used by
+// FPAttributionMiddleware so backend consumers see a consistent signal.
+static const NSUInteger kFPATTStatusUnavailable = NSUIntegerMax;
+
 
 @interface FPAnalytics ()
 
@@ -567,12 +572,12 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 #if TARGET_OS_IOS
     Class attManagerClass = NSClassFromString(@"ATTrackingManager");
     if (!attManagerClass) {
-        if (completion) completion(0);
+        if (completion) completion(kFPATTStatusUnavailable);
         return;
     }
     SEL requestSel = NSSelectorFromString(@"requestTrackingAuthorizationWithCompletionHandler:");
     if (![attManagerClass respondsToSelector:requestSel]) {
-        if (completion) completion(0);
+        if (completion) completion(kFPATTStatusUnavailable);
         return;
     }
     void (*requestIMP)(id, SEL, void(^)(NSUInteger)) =
