@@ -41,7 +41,25 @@ struct FreshpaintDemoApp: App {
         #if DEBUG
         Freshpaint.debug(true)
         #endif
-        
+
+        // FRP-38 testing: capture raw outgoing payloads and display attribution keys in the UI.
+        config.experimental.rawFreshpaintModificationBlock = { payload in
+            if let event = payload["event"] as? String {
+                let ctx = payload["context"] as? [String: Any] ?? [:]
+                let attrKeys = ctx.keys.filter { $0.hasPrefix("$") || $0.hasPrefix("utm_") }.sorted()
+                var line = "EVENT: \(event)"
+                if attrKeys.isEmpty {
+                    line += "\n  [no click IDs / UTM in context]"
+                } else {
+                    for k in attrKeys {
+                        line += "\n  \(k) = \(ctx[k] ?? "(nil)")"
+                    }
+                }
+                AttributionEventLog.shared.append(line)
+            }
+            return payload
+        }
+
         Freshpaint.setup(with: config)
     }
     
@@ -60,6 +78,9 @@ struct FreshpaintDemoApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { url in
+                    Freshpaint.shared().open(url, options: [:])
+                }
         }
     }
 }

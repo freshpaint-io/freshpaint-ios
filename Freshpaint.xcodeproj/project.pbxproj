@@ -154,6 +154,9 @@
 		C31833C42DD7A5AD00F2EE90 /* SessionIdInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */; };
 		F0DC99BA5B544E61A2680D4E /* FPAppInstallEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5844BFBD822F464C9E0947FC /* FPAppInstallEventTests.m */; };
 		F54F79ED3362F50D0E40A8D7 /* FPStableDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = 21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */; };
+		D4E5F6A7B8C9D0E1F2A3B4C5 /* FPAdClickIds.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* FPAdClickIds.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E5F6A7B8C9D0E1F2A3B4C5D6 /* FPAdClickIds.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* FPAdClickIds.m */; };
+		F6A7B8C9D0E1F2A3B4C5D6E7 /* FPDeepLinkAttributionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F6A7B8C9D0E1F2A3B4 /* FPDeepLinkAttributionTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -309,7 +312,10 @@
 		264F73BDFE32CD69D92391CB /* FPATTRuntime.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FPATTRuntime.h; sourceTree = "<group>"; };
 		59ECC4379B2D4AEF8B1FF16D /* FPATTTestConstants.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FPATTTestConstants.h; sourceTree = "<group>"; };
 		B38969724D688583AF3FBFD8 /* FPPayload+FPAttributionEnrichment.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "FPPayload+FPAttributionEnrichment.h"; sourceTree = "<group>"; };
-		BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; includeInIndex = 1; path = FPStableDeviceIdTests.m; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* FPAdClickIds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPAdClickIds.h; sourceTree = "<group>"; };
+		B2C3D4E5F6A7B8C9D0E1F2A3 /* FPAdClickIds.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FPAdClickIds.m; sourceTree = "<group>"; };
+		C3D4E5F6A7B8C9D0E1F2A3B4 /* FPDeepLinkAttributionTests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPDeepLinkAttributionTests.m; sourceTree = "<group>"; };
+		BDD3ABE52729806D167C3AB3 /* FPStableDeviceIdTests.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = FPStableDeviceIdTests.m; sourceTree = "<group>"; };
 		C31674B18CD818C64F8F3935 /* Pods_SegmentTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SegmentTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C31833C12DD7A44900F2EE90 /* SessionTimeoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionTimeoutTests.swift; sourceTree = "<group>"; };
 		C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionIdInjectionTests.swift; sourceTree = "<group>"; };
@@ -411,6 +417,8 @@
 				64FDB3A5256EE283001884FD /* FPHTTPClient.h */,
 				FD103F0B18245918A82F733C /* FPAttributionMiddleware.h */,
 				8D5F0B5BE182A223FDBD6A25 /* FPAttributionMiddleware.m */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* FPAdClickIds.h */,
+				B2C3D4E5F6A7B8C9D0E1F2A3 /* FPAdClickIds.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -476,6 +484,7 @@
 				5844BFBD822F464C9E0947FC /* FPAppInstallEventTests.m */,
 				A1B2C3D4E5F6789012345678 /* FPAttributionMiddleware+Testing.h */,
 				59ECC4379B2D4AEF8B1FF16D /* FPATTTestConstants.h */,
+				C3D4E5F6A7B8C9D0E1F2A3B4 /* FPDeepLinkAttributionTests.m */,
 			);
 			path = FreshpaintTests;
 			sourceTree = "<group>";
@@ -577,6 +586,7 @@
 				204F34B08E432CC775EF391D /* FPAttributionMiddleware.h in Headers */,
 				3DCAF6C056067280EBDFD6E3 /* FPPayload+FPAttributionEnrichment.h in Headers */,
 				A9406C83AEB727F546DDFA8F /* FPATTRuntime.h in Headers */,
+				D4E5F6A7B8C9D0E1F2A3B4C5 /* FPAdClickIds.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -764,6 +774,7 @@
 				64FDB3F1256EE283001884FD /* FPAES256Crypto.m in Sources */,
 				F54F79ED3362F50D0E40A8D7 /* FPStableDeviceId.m in Sources */,
 				BE1F16EE4BA083E9F5E95BDB /* FPAttributionMiddleware.m in Sources */,
+				E5F6A7B8C9D0E1F2A3B4C5D6 /* FPAdClickIds.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -792,6 +803,7 @@
 				64FDB45F256F05A3001884FD /* AutoScreenReportingTest.swift in Sources */,
 				5B77FC7474E2A963C0E85390 /* FPStableDeviceIdTests.m in Sources */,
 				F0DC99BA5B544E61A2680D4E /* FPAppInstallEventTests.m in Sources */,
+				F6A7B8C9D0E1F2A3B4C5D6E7 /* FPDeepLinkAttributionTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

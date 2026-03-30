@@ -19,6 +19,7 @@
 #import "FPStableDeviceId.h"
 #import "FPATTRuntime.h"
 #import "FPAttributionMiddleware.h"
+#import "FPAdClickIds.h"
 
 static FPAnalytics *__sharedInstance = nil;
 
@@ -226,6 +227,33 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
             if (idfa.length > 0 && ![idfa isEqualToString:kFPInstallZeroedIDFA]) {
                 installProps[@"idfa"] = idfa;
             }
+        }
+
+        // If the app was launched via a URL (e.g. deferred deep link at first-open),
+        // extract attribution from it and persist before merging into install payload.
+        NSURL *launchURL = launchOptions[UIApplicationLaunchOptionsURLKey];
+        if (launchURL) {
+            NSDictionary *launchAttribution =
+                [FPAdClickIds extractFromURL:launchURL
+                              payloadFilters:self.oneTimeConfiguration.payloadFilters];
+            if ([launchAttribution[@"clickIds"] count] > 0) {
+                [[FPState sharedInstance] mergeClickIds:launchAttribution[@"clickIds"]];
+            }
+            if ([launchAttribution[@"utmParams"] count] > 0) {
+                [[FPState sharedInstance] setUTMParams:launchAttribution[@"utmParams"]];
+            }
+        }
+
+        // Merge any stored click IDs and active UTM params into the install payload.
+        // activeClickIdsFlattened uses dispatch_sync, which drains any pending barrier
+        // (from the mergeClickIds: call above) before reading — guaranteed by GCD.
+        NSDictionary *storedClickIds = [[FPState sharedInstance] activeClickIdsFlattened];
+        NSDictionary *storedUTM      = [[FPState sharedInstance] activeUTMParams];
+        if (storedClickIds.count > 0) {
+            [installProps addEntriesFromDictionary:storedClickIds];
+        }
+        if (storedUTM.count > 0) {
+            [installProps addEntriesFromDictionary:storedUTM];
         }
 
         [self track:@"app_install" properties:[installProps copy]];
@@ -510,6 +538,16 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         properties = [FPUtils traverseJSON:properties
                       andReplaceWithFilters:self.oneTimeConfiguration.payloadFilters];
         [self track:@"Deep Link Opened" properties:[properties copy]];
+
+        // Extract and store click IDs / UTM params from the universal link URL.
+        NSDictionary *attribution = [FPAdClickIds extractFromURL:activity.webpageURL
+                                                  payloadFilters:self.oneTimeConfiguration.payloadFilters];
+        if ([attribution[@"clickIds"] count] > 0) {
+            [[FPState sharedInstance] mergeClickIds:attribution[@"clickIds"]];
+        }
+        if ([attribution[@"utmParams"] count] > 0) {
+            [[FPState sharedInstance] setUTMParams:attribution[@"utmParams"]];
+        }
     }
 }
 
@@ -536,6 +574,16 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     properties = [FPUtils traverseJSON:properties
                   andReplaceWithFilters:self.oneTimeConfiguration.payloadFilters];
     [self track:@"Deep Link Opened" properties:[properties copy]];
+
+    // Extract and store click IDs / UTM params from the deep link URL.
+    NSDictionary *attribution = [FPAdClickIds extractFromURL:url
+                                              payloadFilters:self.oneTimeConfiguration.payloadFilters];
+    if ([attribution[@"clickIds"] count] > 0) {
+        [[FPState sharedInstance] mergeClickIds:attribution[@"clickIds"]];
+    }
+    if ([attribution[@"utmParams"] count] > 0) {
+        [[FPState sharedInstance] setUTMParams:attribution[@"utmParams"]];
+    }
 }
 
 - (void)reset

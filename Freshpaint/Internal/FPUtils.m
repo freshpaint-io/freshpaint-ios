@@ -8,6 +8,7 @@
 #import "FPReachability.h"
 #import "FPAnalytics.h"
 #import "FPStableDeviceId.h"
+#import "FPState.h"
 
 #include <sys/sysctl.h>
 
@@ -358,7 +359,17 @@ NSDictionary *getLiveContext(FPReachability *reachability, NSDictionary *referre
     if (referrer) {
         context[@"referrer"] = [referrer copy];
     }
-    
+
+    // Inject persisted click IDs and active UTM params into every event context.
+    NSDictionary *clickIds = [[FPState sharedInstance] activeClickIdsFlattened];
+    if (clickIds.count > 0) {
+        [context addEntriesFromDictionary:clickIds];
+    }
+    NSDictionary *utmParams = [[FPState sharedInstance] activeUTMParams];
+    if (utmParams.count > 0) {
+        [context addEntriesFromDictionary:utmParams];
+    }
+
     return [context copy];
 }
 

@@ -37,6 +37,9 @@ typedef _Nullable id (^FPStateGetBlock)(void);
     NSString *_sessionId;
     NSTimeInterval _lastSessionTimestamp;
     BOOL _isFirstEventInSession;
+    NSDictionary<NSString *, id> *_clickIds;
+    NSDictionary<NSString *, NSString *> *_utmParams;
+    NSTimeInterval _utmExpiryTimestamp;
 }
 @end
 
@@ -57,6 +60,9 @@ typedef _Nullable id (^FPStateGetBlock)(void);
 @synthesize sessionId = _sessionId;
 @synthesize lastSessionTimestamp = _lastSessionTimestamp;
 @synthesize isFirstEventInSession = _isFirstEventInSession;
+@synthesize clickIds = _clickIds;
+@synthesize utmParams = _utmParams;
+@synthesize utmExpiryTimestamp = _utmExpiryTimestamp;
 
 - (instancetype)initWithState:(FPState *)state
 {
@@ -147,6 +153,48 @@ typedef _Nullable id (^FPStateGetBlock)(void);
 {
     [state setValueWithBlock: ^{
         self->_isFirstEventInSession = isFirstEventInSession;
+    }];
+}
+
+- (NSDictionary<NSString *, id> *)clickIds
+{
+    return [state valueWithBlock:^id{
+        return self->_clickIds;
+    }];
+}
+
+- (void)setClickIds:(NSDictionary<NSString *, id> *)clickIds
+{
+    [state setValueWithBlock: ^{
+        self->_clickIds = [clickIds copy];
+    }];
+}
+
+- (NSDictionary<NSString *, NSString *> *)utmParams
+{
+    return [state valueWithBlock:^id{
+        return self->_utmParams;
+    }];
+}
+
+- (void)setUtmParams:(NSDictionary<NSString *, NSString *> *)utmParams
+{
+    [state setValueWithBlock: ^{
+        self->_utmParams = [utmParams copy];
+    }];
+}
+
+- (NSTimeInterval)utmExpiryTimestamp
+{
+    return [[state valueWithBlock:^id{
+        return @(self->_utmExpiryTimestamp);
+    }] doubleValue];
+}
+
+- (void)setUtmExpiryTimestamp:(NSTimeInterval)utmExpiryTimestamp
+{
+    [state setValueWithBlock: ^{
+        self->_utmExpiryTimestamp = utmExpiryTimestamp;
     }];
 }
 
@@ -244,6 +292,19 @@ typedef _Nullable id (^FPStateGetBlock)(void);
         self.userInfo.sessionId = GenerateUUIDString();
         self.userInfo.lastSessionTimestamp = 0;
         self.userInfo.isFirstEventInSession = NO;
+
+        // Restore persisted click IDs from NSUserDefaults.
+        NSData *clickIdsData = [[NSUserDefaults standardUserDefaults] dataForKey:@"com.freshpaint.clickIds"];
+        if (clickIdsData) {
+            NSError *error = nil;
+            id plist = [NSPropertyListSerialization propertyListWithData:clickIdsData
+                                                                 options:NSPropertyListImmutable
+                                                                  format:nil
+                                                                   error:&error];
+            if (!error && [plist isKindOfClass:[NSDictionary class]]) {
+                self.userInfo.clickIds = (NSDictionary *)plist;
+            }
+        }
     }
     return self;
 }
@@ -282,6 +343,83 @@ typedef _Nullable id (^FPStateGetBlock)(void);
             self->_userInfo->_isFirstEventInSession = NO;
         }
     }];
+}
+
+// ---------------------------------------------------------------------------
+#pragma mark - Click ID & UTM management
+// ---------------------------------------------------------------------------
+
+- (void)mergeClickIds:(NSDictionary<NSString *, id> *)extracted
+{
+    if (!extracted.count) return;
+
+    dispatch_barrier_async(_stateQueue, ^{
+        NSMutableDictionary<NSString *, id> *current =
+            [self->_userInfo->_clickIds mutableCopy] ?: [NSMutableDictionary dictionary];
+
+        for (NSString *key in extracted) {
+            // Skip _creation_time entries — they are handled alongside their value key.
+            if ([key hasSuffix:@"_creation_time"]) continue;
+
+            id newValue = extracted[key];
+            id existingValue = current[key];
+
+            if (existingValue && [existingValue isEqual:newValue]) {
+                // Same value already stored — skip to preserve original creation_time.
+                continue;
+            }
+
+            // New or changed value — store value and update creation_time.
+            current[key] = newValue;
+            NSString *creationTimeKey = [key stringByAppendingString:@"_creation_time"];
+            id creationTime = extracted[creationTimeKey];
+            if (creationTime) {
+                current[creationTimeKey] = creationTime;
+            }
+        }
+
+        self->_userInfo->_clickIds = [current copy];
+
+        // Persist to NSUserDefaults.
+        NSError *error = nil;
+        NSData *data = [NSPropertyListSerialization dataWithPropertyList:current
+                                                                  format:NSPropertyListBinaryFormat_v1_0
+                                                                 options:0
+                                                                   error:&error];
+        if (!error && data) {
+            [[NSUserDefaults standardUserDefaults] setObject:data forKey:@"com.freshpaint.clickIds"];
+        }
+    });
+}
+
+- (NSDictionary<NSString *, id> *)activeClickIdsFlattened
+{
+    __block NSDictionary<NSString *, id> *result = nil;
+    dispatch_sync(_stateQueue, ^{
+        result = self->_userInfo->_clickIds;
+    });
+    return result ?: @{};
+}
+
+- (void)setUTMParams:(NSDictionary<NSString *, NSString *> *)params
+{
+    dispatch_barrier_async(_stateQueue, ^{
+        self->_userInfo->_utmParams = [params copy];
+        self->_userInfo->_utmExpiryTimestamp = [[NSDate date] timeIntervalSince1970] + 86400.0;
+    });
+}
+
+- (NSDictionary<NSString *, NSString *> *)activeUTMParams
+{
+    __block NSDictionary<NSString *, NSString *> *result = nil;
+    dispatch_sync(_stateQueue, ^{
+        NSTimeInterval expiry = self->_userInfo->_utmExpiryTimestamp;
+        NSTimeInterval now    = [[NSDate date] timeIntervalSince1970];
+        if (expiry > 0 && now < expiry) {
+            result = self->_userInfo->_utmParams;
+        }
+    });
+    return result;
 }
 
 @end

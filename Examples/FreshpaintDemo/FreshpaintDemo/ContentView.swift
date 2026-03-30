@@ -63,7 +63,7 @@ struct ContentView: View {
                 AttributionDemoView()
             }
             .tabItem {
-                Image(systemName: "antenna.radiowaves.left.and.right")
+                Image(systemName: "link.badge.plus")
                 Text("Attribution")
             }
             .tag(3)
