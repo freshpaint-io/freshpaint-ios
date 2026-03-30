@@ -25,13 +25,13 @@
 
 - (void)setAttStatusProvider:(NSUInteger (^)(void))attStatusProvider {
     objc_setAssociatedObject(self,
-        NSSelectorFromString(@"attStatusProvider"),
+        @selector(attStatusProvider),
         attStatusProvider,
         OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 - (NSUInteger (^)(void))attStatusProvider {
-    return objc_getAssociatedObject(self, NSSelectorFromString(@"attStatusProvider"));
+    return objc_getAssociatedObject(self, @selector(attStatusProvider));
 }
 
 @end

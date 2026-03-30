@@ -3,13 +3,15 @@
 //  FreshpaintTests
 //
 //  Shared ATT status constants for unit tests. Import in test files only.
-//  Values mirror ATTrackingManager.ATTrackingAuthorizationStatus.
+//  Aliases over the canonical kFPATTStatus* constants from FPATTRuntime.h so
+//  test code remains readable without duplicating the definitions.
 //
 
 #pragma once
-#import <Foundation/Foundation.h>
+#import "FPATTRuntime.h"
 
-static const NSUInteger kATTNotDetermined = 0;
-static const NSUInteger kATTRestricted    = 1;
-static const NSUInteger kATTDenied        = 2;
-static const NSUInteger kATTAuthorized    = 3;
+// Aliases for test readability — map to canonical production constants.
+#define kATTNotDetermined kFPATTStatusNotDetermined
+#define kATTRestricted    kFPATTStatusRestricted
+#define kATTDenied        kFPATTStatusDenied
+#define kATTAuthorized    kFPATTStatusAuthorized

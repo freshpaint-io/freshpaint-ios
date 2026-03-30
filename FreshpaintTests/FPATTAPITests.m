@@ -28,24 +28,24 @@
 
 - (void)setFp_attStatusProvider:(NSUInteger (^)(void))fp_attStatusProvider {
     objc_setAssociatedObject(self,
-        NSSelectorFromString(@"fp_attStatusProvider"),
+        @selector(fp_attStatusProvider),
         fp_attStatusProvider,
         OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 - (NSUInteger (^)(void))fp_attStatusProvider {
-    return objc_getAssociatedObject(self, NSSelectorFromString(@"fp_attStatusProvider"));
+    return objc_getAssociatedObject(self, @selector(fp_attStatusProvider));
 }
 
 - (void)setFp_attRequestInterceptor:(void (^)(void(^_Nullable)(NSUInteger)))fp_attRequestInterceptor {
     objc_setAssociatedObject(self,
-        NSSelectorFromString(@"fp_attRequestInterceptor"),
+        @selector(fp_attRequestInterceptor),
         fp_attRequestInterceptor,
         OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 - (void (^)(void(^_Nullable)(NSUInteger)))fp_attRequestInterceptor {
-    return objc_getAssociatedObject(self, NSSelectorFromString(@"fp_attRequestInterceptor"));
+    return objc_getAssociatedObject(self, @selector(fp_attRequestInterceptor));
 }
 
 @end
@@ -208,7 +208,7 @@
 #if TARGET_OS_IOS
     self.configuration.autoRequestATT = YES;
     // Simulate ATT framework absent via the sentinel value.
-    self.analytics.fp_attStatusProvider = ^NSUInteger { return NSUIntegerMax; };
+    self.analytics.fp_attStatusProvider = ^NSUInteger { return kFPATTStatusUnavailable; };
 
     __block BOOL requestCalled = NO;
     self.analytics.fp_attRequestInterceptor = ^(void(^_Nullable completion)(NSUInteger)) {

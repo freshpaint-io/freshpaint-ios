@@ -34,7 +34,7 @@ static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000"
     // In tests, FPAttributionMiddleware+Testing.h injects a provider via associated
     // objects. In production, objc_getAssociatedObject returns nil here.
     NSUInteger (^provider)(void) = objc_getAssociatedObject(
-        self, NSSelectorFromString(@"attStatusProvider"));
+        self, @selector(attStatusProvider));
     if (provider) { return provider(); }
     // Shared runtime-only lookup (FPATTRuntime.h). Returns kFPATTStatusUnavailable
     // when AppTrackingTransparency is not linked.

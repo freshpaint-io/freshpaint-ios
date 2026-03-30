@@ -588,7 +588,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 + (nullable NSString *)advertisingIdentifier
 {
 #if TARGET_OS_IOS
-    if ([self trackingAuthorizationStatus] != kFPATTStatusAuthorized) {
+    if (FPATTGetCurrentStatus() != kFPATTStatusAuthorized) {
         return nil;
     }
     Class asimClass = NSClassFromString(@"ASIdentifierManager");
@@ -631,23 +631,22 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
 - (void)_handleDidBecomeActiveForATT
 {
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
     if (!self.oneTimeConfiguration.autoRequestATT) return;
 
     // In test builds, FPAnalytics+ATTTesting.h injects a provider via associated
     // objects. In production, objc_getAssociatedObject returns nil here.
     NSUInteger (^statusProvider)(void) = objc_getAssociatedObject(
-        self, NSSelectorFromString(@"fp_attStatusProvider"));
+        self, @selector(fp_attStatusProvider));
     NSUInteger status = statusProvider ? statusProvider() : FPATTGetCurrentStatus();
 
-    // Guard: ATT framework absent or status already determined — no prompt needed.
-    // Without this guard, autoRequestATT=YES would dispatch a no-op request on every
-    // didBecomeActive when ATT is unavailable (framework not linked), since
-    // +trackingAuthorizationStatus maps kFPATTStatusUnavailable to 0 (notDetermined).
-    if (status == kFPATTStatusUnavailable || status != 0) return;
+    // Guard: only prompt when status is exactly notDetermined (0).
+    // kFPATTStatusUnavailable (NSUIntegerMax) and any determined status (1–3) all
+    // satisfy status != kFPATTStatusNotDetermined, so a single check is sufficient.
+    if (status != kFPATTStatusNotDetermined) return;
 
     void (^requestInterceptor)(void(^_Nullable)(NSUInteger)) = objc_getAssociatedObject(
-        self, NSSelectorFromString(@"fp_attRequestInterceptor"));
+        self, @selector(fp_attRequestInterceptor));
     if (requestInterceptor) {
         requestInterceptor(nil);
     } else {

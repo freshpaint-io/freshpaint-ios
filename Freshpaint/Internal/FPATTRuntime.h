@@ -28,6 +28,11 @@ static const NSUInteger kFPATTStatusUnavailable = NSUIntegerMax;
 ///
 /// @return 0–3 on success (mirrors ATTrackingManager.ATTrackingAuthorizationStatus),
 ///         or kFPATTStatusUnavailable when the framework is absent.
+///
+/// @note Declared `static inline` rather than `extern` because this header is
+///       included by two separate translation units (FPAttributionMiddleware.m and
+///       FPAnalytics.m). `static inline` gives each TU its own copy, avoiding a
+///       multiply-defined symbol at link time without requiring a companion .m file.
 static inline NSUInteger FPATTGetCurrentStatus(void)
 {
 #if TARGET_OS_IPHONE
