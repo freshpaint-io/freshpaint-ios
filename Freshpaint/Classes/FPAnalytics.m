@@ -16,6 +16,9 @@
 #import "FPIntegrationsManager.h"
 #import "FPState.h"
 #import "FPUtils.h"
+#import "FPAttributionMiddleware.h"
+#import "FPStableDeviceId.h"
+#import "FPATTRuntime.h"
 
 static FPAnalytics *__sharedInstance = nil;
 
@@ -28,6 +31,9 @@ static FPAnalytics *__sharedInstance = nil;
 @property (nonatomic, strong) FPIntegrationsManager *integrationsManager;
 @property (nonatomic, strong) FPMiddlewareRunner *runner;
 @property (nonatomic, strong) FPState *state;
+
+- (void)_handleDidBecomeActiveForATT;
+
 @end
 
 
@@ -60,8 +66,9 @@ static FPAnalytics *__sharedInstance = nil;
             configuration.destinationMiddleware = @[[configuration.edgeFunctionMiddleware destinationMiddleware]];
         }
 
-        self.runner = [[FPMiddlewareRunner alloc] initWithMiddleware:
-                                                       [configuration.sourceMiddleware ?: @[] arrayByAddingObject:self.integrationsManager]];
+        FPAttributionMiddleware *attributionMiddleware = [[FPAttributionMiddleware alloc] initWithConfiguration:configuration];
+        NSArray *sourceMiddlewares = [@[attributionMiddleware] arrayByAddingObjectsFromArray:configuration.sourceMiddleware ?: @[]];
+        self.runner = [[FPMiddlewareRunner alloc] initWithMiddleware:[sourceMiddlewares arrayByAddingObject:self.integrationsManager]];
 
         // Pass through for application state change events
         id<FPApplicationProtocol> application = configuration.application;
@@ -147,6 +154,8 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         [self _applicationWillEnterForeground];
     } else if ([note.name isEqualToString:UIApplicationDidEnterBackgroundNotification]) {
       [self _applicationDidEnterBackground];
+    } else if ([note.name isEqualToString:UIApplicationDidBecomeActiveNotification]) {
+        [self _handleDidBecomeActiveForATT];
     }
 }
 #elif TARGET_OS_OSX
@@ -538,6 +547,112 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     // this has to match the actual version, NOT what's in info.plist
     // because Apple only accepts X.X.X as versions in the review process.
     return @"0.4.1";
+}
+
+#pragma mark - ATT (App Tracking Transparency)
+
++ (NSUInteger)trackingAuthorizationStatus
+{
+    // Uses the shared FPATTRuntime helper. Maps kFPATTStatusUnavailable → 0 so
+    // callers always receive a value in the documented range [0, 3].
+    // Note: 0 here means either "notDetermined" or "framework absent". Use the
+    // att_status field in event device context (set by FPAttributionMiddleware)
+    // to distinguish the two — it reports "unavailable" when the framework is absent.
+    NSUInteger status = FPATTGetCurrentStatus();
+    return (status == kFPATTStatusUnavailable) ? 0 : status;
+}
+
++ (void)requestTrackingAuthorizationWithCompletionHandler:(void (^_Nullable)(NSUInteger))completion
+{
+#if TARGET_OS_IOS
+    Class attManagerClass = NSClassFromString(@"ATTrackingManager");
+    if (!attManagerClass) {
+        if (completion) completion(0);
+        return;
+    }
+    SEL requestSel = NSSelectorFromString(@"requestTrackingAuthorizationWithCompletionHandler:");
+    if (![attManagerClass respondsToSelector:requestSel]) {
+        if (completion) completion(0);
+        return;
+    }
+    void (*requestIMP)(id, SEL, void(^)(NSUInteger)) =
+        (void (*)(id, SEL, void(^)(NSUInteger)))[attManagerClass methodForSelector:requestSel];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        requestIMP(attManagerClass, requestSel, completion ?: ^(NSUInteger __unused s){});
+    });
+#else
+    if (completion) completion(0);
+#endif
+}
+
++ (nullable NSString *)advertisingIdentifier
+{
+#if TARGET_OS_IOS
+    if (FPATTGetCurrentStatus() != kFPATTStatusAuthorized) {
+        return nil;
+    }
+    Class asimClass = NSClassFromString(@"ASIdentifierManager");
+    if (!asimClass) {
+        return nil;
+    }
+    SEL sharedSel = NSSelectorFromString(@"sharedManager");
+    if (![asimClass respondsToSelector:sharedSel]) {
+        return nil;
+    }
+    id (*sharedIMP)(id, SEL) = (id (*)(id, SEL))[asimClass methodForSelector:sharedSel];
+    id manager = sharedIMP(asimClass, sharedSel);
+    if (!manager) {
+        return nil;
+    }
+    SEL idSel = NSSelectorFromString(@"advertisingIdentifier");
+    if (![manager respondsToSelector:idSel]) {
+        return nil;
+    }
+    id (*idIMP)(id, SEL) = (id (*)(id, SEL))[manager methodForSelector:idSel];
+    id nsuuid = idIMP(manager, idSel);
+    if (!nsuuid) {
+        return nil;
+    }
+    SEL uuidStrSel = NSSelectorFromString(@"UUIDString");
+    if (![nsuuid respondsToSelector:uuidStrSel]) {
+        return nil;
+    }
+    id (*uuidStrIMP)(id, SEL) = (id (*)(id, SEL))[nsuuid methodForSelector:uuidStrSel];
+    return uuidStrIMP(nsuuid, uuidStrSel);
+#else
+    return nil;
+#endif
+}
+
++ (NSString *)stableDeviceId
+{
+    return [FPStableDeviceId deviceId];
+}
+
+- (void)_handleDidBecomeActiveForATT
+{
+#if TARGET_OS_IOS
+    if (!self.oneTimeConfiguration.autoRequestATT) return;
+
+    // In test builds, FPAnalytics+ATTTesting.h injects a provider via associated
+    // objects. In production, objc_getAssociatedObject returns nil here.
+    NSUInteger (^statusProvider)(void) = objc_getAssociatedObject(
+        self, @selector(fp_attStatusProvider));
+    NSUInteger status = statusProvider ? statusProvider() : FPATTGetCurrentStatus();
+
+    // Guard: only prompt when status is exactly notDetermined (0).
+    // kFPATTStatusUnavailable (NSUIntegerMax) and any determined status (1–3) all
+    // satisfy status != kFPATTStatusNotDetermined, so a single check is sufficient.
+    if (status != kFPATTStatusNotDetermined) return;
+
+    void (^requestInterceptor)(void(^_Nullable)(NSUInteger)) = objc_getAssociatedObject(
+        self, @selector(fp_attRequestInterceptor));
+    if (requestInterceptor) {
+        requestInterceptor(nil);
+    } else {
+        [FPAnalytics requestTrackingAuthorizationWithCompletionHandler:nil];
+    }
+#endif
 }
 
 #pragma mark - Helpers
