@@ -18,6 +18,7 @@
 #import "FPUtils.h"
 #import "FPStableDeviceId.h"
 #import "FPATTRuntime.h"
+#import "FPAttributionMiddleware.h"
 
 static FPAnalytics *__sharedInstance = nil;
 
@@ -198,13 +199,12 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
     if (!previousBuildV2) {
 #if TARGET_OS_IPHONE
-        // ATT status — runtime-only lookup, same pattern as FPAttributionMiddleware.
-        NSUInteger attStatus;
-#ifdef DEBUG
-        attStatus = self.fp_attStatusProvider ? self.fp_attStatusProvider() : [FPAnalytics trackingAuthorizationStatus];
-#else
-        attStatus = [FPAnalytics trackingAuthorizationStatus];
-#endif
+        // ATT status — same associated-objects pattern as _handleDidBecomeActiveForATT.
+        // In test builds a provider is injected via objc_setAssociatedObject; in
+        // production the getter returns nil and we fall through to the real ATT query.
+        NSUInteger (^statusProvider)(void) = objc_getAssociatedObject(
+            self, @selector(fp_attStatusProvider));
+        NSUInteger attStatus = statusProvider ? statusProvider() : [FPAnalytics trackingAuthorizationStatus];
         NSString *attStatusStr;
         switch (attStatus) {
             case 1:  attStatusStr = @"restricted";    break;

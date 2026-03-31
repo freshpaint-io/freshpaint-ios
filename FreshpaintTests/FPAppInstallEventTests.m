@@ -6,6 +6,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <objc/runtime.h>
 #import "FPAnalytics.h"
 #import "FPAnalyticsConfiguration.h"
 #import "FPMiddleware.h"
@@ -16,13 +17,25 @@
 #pragma mark - Test-only extensions
 // ---------------------------------------------------------------------------
 
-/// Exposes the private lifecycle handler and the DEBUG ATT status injectable.
+/// Exposes the private lifecycle handler and the ATT status injectable.
 @interface FPAnalytics (FPInstallTesting)
-#ifdef DEBUG
-// Mirrors the private-extension declaration in FPAnalytics.m — keep both exactly in sync.
 @property (atomic, copy, nullable) NSUInteger (^fp_attStatusProvider)(void);
-#endif
 - (void)_applicationDidFinishLaunchingWithOptions:(nullable NSDictionary *)launchOptions;
+@end
+
+@implementation FPAnalytics (FPInstallTesting)
+
+- (void)setFp_attStatusProvider:(NSUInteger (^)(void))fp_attStatusProvider {
+    objc_setAssociatedObject(self,
+        @selector(fp_attStatusProvider),
+        fp_attStatusProvider,
+        OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (NSUInteger (^)(void))fp_attStatusProvider {
+    return objc_getAssociatedObject(self, @selector(fp_attStatusProvider));
+}
+
 @end
 
 // ---------------------------------------------------------------------------
