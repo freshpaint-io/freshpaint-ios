@@ -9,10 +9,12 @@
 /* Begin PBXBuildFile section */
 		765FF74B2E05D8F100E0A999 /* Freshpaint in Frameworks */ = {isa = PBXBuildFile; productRef = 765FF74A2E05D8F100E0A999 /* Freshpaint */; };
 		76773DD52E0B842200D70EB7 /* Freshpaint in Frameworks */ = {isa = PBXBuildFile; productRef = 76773DD42E0B842200D70EB7 /* Freshpaint */; };
+		AD5E9P0R7F6A4B2C1D3E8F90 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD5E9P0R7F6A4B2C1D3E8F91 /* AdSupport.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		76CA4BE72E05BDC900AC6FAB /* FreshpaintDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FreshpaintDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD5E9P0R7F6A4B2C1D3E8F91 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -30,6 +32,7 @@
 			files = (
 				76773DD52E0B842200D70EB7 /* Freshpaint in Frameworks */,
 				765FF74B2E05D8F100E0A999 /* Freshpaint in Frameworks */,
+				AD5E9P0R7F6A4B2C1D3E8F90 /* AdSupport.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,6 +44,7 @@
 			children = (
 				76CA4BE92E05BDC900AC6FAB /* FreshpaintDemo */,
 				76CA4BE82E05BDC900AC6FAB /* Products */,
+				AD5E9P0R7F6A4B2C1D3E8F91 /* AdSupport.framework */,
 			);
 			sourceTree = "<group>";
 		};
@@ -268,6 +272,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "Freshpaint uses this identifier to measure attribution and ad campaign performance.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -293,6 +298,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "Freshpaint uses this identifier to measure attribution and ad campaign performance.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

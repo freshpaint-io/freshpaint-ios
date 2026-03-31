@@ -57,6 +57,16 @@ struct ContentView: View {
                 Text("Advanced")
             }
             .tag(2)
+
+            // Attribution Demo Tab
+            NavigationView {
+                AttributionDemoView()
+            }
+            .tabItem {
+                Image(systemName: "antenna.radiowaves.left.and.right")
+                Text("Attribution")
+            }
+            .tag(3)
         }
         .sheet(isPresented: $showingDebugView) {
             DebugLogView(logs: debugLogs)

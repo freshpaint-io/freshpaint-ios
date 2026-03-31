@@ -260,6 +260,7 @@ NS_SWIFT_NAME(Freshpaint)
  */
 + (NSString *)stableDeviceId;
 
+
 @end
 
 NS_ASSUME_NONNULL_END

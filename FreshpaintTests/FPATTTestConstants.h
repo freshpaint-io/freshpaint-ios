@@ -15,3 +15,4 @@
 #define kATTRestricted    kFPATTStatusRestricted
 #define kATTDenied        kFPATTStatusDenied
 #define kATTAuthorized    kFPATTStatusAuthorized
+#define kATTUnavailable   kFPATTStatusUnavailable

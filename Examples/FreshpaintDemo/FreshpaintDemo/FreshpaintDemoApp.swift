@@ -51,7 +51,8 @@ struct FreshpaintDemoApp: App {
               let plist = NSDictionary(contentsOfFile: path),
               let writeKey = plist["FreshpaintWriteKey"] as? String,
               writeKey != "YOUR_WRITE_KEY_HERE" else {
-            fatalError("❌ Please set your Freshpaint write key in Config.plist")
+            // No write key configured — run in demo mode (events won't be delivered)
+            return "demo-mode-no-key"
         }
         return writeKey
     }
