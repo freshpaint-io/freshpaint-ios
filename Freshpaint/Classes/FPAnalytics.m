@@ -567,12 +567,14 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 #if TARGET_OS_IOS
     Class attManagerClass = NSClassFromString(@"ATTrackingManager");
     if (!attManagerClass) {
-        if (completion) completion(kFPATTStatusUnavailable);
+        // Framework absent — return 0 (same as trackingAuthorizationStatus for unavailable).
+        if (completion) completion(0);
         return;
     }
     SEL requestSel = NSSelectorFromString(@"requestTrackingAuthorizationWithCompletionHandler:");
     if (![attManagerClass respondsToSelector:requestSel]) {
-        if (completion) completion(kFPATTStatusUnavailable);
+        // Selector absent — return 0 to stay consistent with trackingAuthorizationStatus.
+        if (completion) completion(0);
         return;
     }
     void (*requestIMP)(id, SEL, void(^)(NSUInteger)) =
@@ -581,6 +583,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         requestIMP(attManagerClass, requestSel, completion ?: ^(NSUInteger __unused s){});
     });
 #else
+    // Non-iOS platforms have no ATT framework — return 0 (unavailable), same as trackingAuthorizationStatus.
     if (completion) completion(0);
 #endif
 }
