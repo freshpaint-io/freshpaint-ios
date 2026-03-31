@@ -16,11 +16,14 @@
 #import "FPIntegrationsManager.h"
 #import "FPState.h"
 #import "FPUtils.h"
-#import "FPAttributionMiddleware.h"
 #import "FPStableDeviceId.h"
 #import "FPATTRuntime.h"
+#import "FPAttributionMiddleware.h"
 
 static FPAnalytics *__sharedInstance = nil;
+
+// All-zeros IDFA value returned when the advertising identifier is not available.
+static NSString *const kFPInstallZeroedIDFA = @"00000000-0000-0000-0000-000000000000";
 
 
 @interface FPAnalytics ()
@@ -195,17 +198,64 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     NSString *currentBuild = [[NSBundle mainBundle] infoDictionary][@"CFBundleVersion"];
 
     if (!previousBuildV2) {
-        [self track:@"Application Installed" properties:@{
-            @"version" : currentVersion ?: @"",
-            @"build" : currentBuild ?: @"",
+#if TARGET_OS_IPHONE
+        // ATT status — same associated-objects pattern as _handleDidBecomeActiveForATT.
+        // In test builds a provider is injected via objc_setAssociatedObject; in
+        // production the getter returns nil and we fall through to the real ATT query.
+        NSUInteger (^statusProvider)(void) = objc_getAssociatedObject(
+            self, @selector(fp_attStatusProvider));
+        NSUInteger attStatus = statusProvider ? statusProvider() : [FPAnalytics trackingAuthorizationStatus];
+        NSString *attStatusStr;
+        switch (attStatus) {
+            case 1:  attStatusStr = @"restricted";    break;
+            case 2:  attStatusStr = @"denied";        break;
+            case 3:  attStatusStr = @"authorized";    break;
+            default: attStatusStr = @"notDetermined"; break;
+        }
+
+        NSMutableDictionary *installProps = [NSMutableDictionary dictionary];
+        installProps[@"install_timestamp"] = iso8601FormattedString([NSDate date]);
+        installProps[@"device_id"]         = [FPStableDeviceId deviceId];
+        installProps[@"idfv"]              = [[[UIDevice currentDevice] identifierForVendor] UUIDString] ?: @"";
+        installProps[@"att_status"]        = attStatusStr;
+        installProps[@"os_version"]        = [[UIDevice currentDevice] systemVersion] ?: @"";
+        installProps[@"app_version"]       = currentVersion ?: @"";
+
+        if (attStatus == 3 && self.oneTimeConfiguration.adSupportBlock != nil) {
+            NSString *idfa = self.oneTimeConfiguration.adSupportBlock();
+            if (idfa.length > 0 && ![idfa isEqualToString:kFPInstallZeroedIDFA]) {
+                installProps[@"idfa"] = idfa;
+            }
+        }
+
+        [self track:@"app_install" properties:[installProps copy]];
+#else
+        // Non-iOS platforms (macOS): include the fields available without iOS APIs.
+        // idfv, att_status, and idfa require UIDevice/ATT and are intentionally omitted.
+        [self track:@"app_install" properties:@{
+            @"install_timestamp" : iso8601FormattedString([NSDate date]),
+            @"os_version"        : [NSProcessInfo processInfo].operatingSystemVersionString ?: @"",
+            @"app_version"       : currentVersion ?: @"",
         }];
-    } else if (![currentBuild isEqualToString:previousBuildV2]) {
-        [self track:@"Application Updated" properties:@{
-            @"previous_version" : previousVersion ?: @"",
-            @"previous_build" : previousBuildV2 ?: @"",
-            @"version" : currentVersion ?: @"",
-            @"build" : currentBuild ?: @"",
-        }];
+#endif
+        // Guard: write the install flag immediately after enqueue so a subsequent
+        // cold launch after app-kill does not re-fire the event.
+        [[NSUserDefaults standardUserDefaults] setObject:currentVersion ?: @"" forKey:FPVersionKey];
+        [[NSUserDefaults standardUserDefaults] setObject:currentBuild ?: @"" forKey:FPBuildKeyV2];
+    } else {
+        // Returning user — fire Application Updated if the build changed.
+        if (![currentBuild isEqualToString:previousBuildV2]) {
+            [self track:@"Application Updated" properties:@{
+                @"previous_version" : previousVersion ?: @"",
+                @"previous_build" : previousBuildV2 ?: @"",
+                @"version" : currentVersion ?: @"",
+                @"build" : currentBuild ?: @"",
+            }];
+        }
+        // Write version keys for returning users. Fresh install already wrote these
+        // above (guard write immediately after app_install enqueue).
+        [[NSUserDefaults standardUserDefaults] setObject:currentVersion ?: @"" forKey:FPVersionKey];
+        [[NSUserDefaults standardUserDefaults] setObject:currentBuild ?: @"" forKey:FPBuildKeyV2];
     }
 
 #if TARGET_OS_IPHONE
@@ -224,12 +274,6 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         @"default_launch" : launchOptions[NSApplicationLaunchIsDefaultLaunchKey] ?: @(YES),
     }];
 #endif
-
-
-    [[NSUserDefaults standardUserDefaults] setObject:currentVersion forKey:FPVersionKey];
-    [[NSUserDefaults standardUserDefaults] setObject:currentBuild forKey:FPBuildKeyV2];
-
-    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (void)_applicationWillEnterForeground
