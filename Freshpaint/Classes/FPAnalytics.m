@@ -228,7 +228,40 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
             }
         }
 
+        // Apple Ads attribution token (AdServices.framework — runtime-only, opt-in).
+        // attributionToken: throws ObjC exceptions when the app was not installed via
+        // Apple Search Ads — @try/@catch is required per Apple documentation.
+        @try {
+            NSString *(^tokenProvider)(void) = objc_getAssociatedObject(
+                self, @selector(fp_appleAdsTokenProvider));
+            NSString *appleAdsToken = nil;
+            if (tokenProvider) {
+                appleAdsToken = tokenProvider();
+            } else {
+                Class aaClass = NSClassFromString(@"AAAttribution");
+                SEL tokenSel = NSSelectorFromString(@"attributionToken:");
+                if (aaClass && [aaClass respondsToSelector:tokenSel]) {
+                    NSError *tokenError = nil;
+                    NSString *(*tokenIMP)(id, SEL, NSError **) =
+                        (NSString *(*)(id, SEL, NSError **))[aaClass methodForSelector:tokenSel];
+                    appleAdsToken = tokenIMP(aaClass, tokenSel, &tokenError);
+                }
+            }
+            if (appleAdsToken.length > 0) {
+                installProps[@"apple_ads_token"] = appleAdsToken;
+            }
+        } @catch (NSException *__unused e) {
+            // App was not installed via Apple Search Ads — token unavailable.
+        }
+
         [self track:@"app_install" properties:[installProps copy]];
+
+        // SKAdNetwork conversion value registration (StoreKit — runtime-only, opt-in).
+        // Only fires when skanConversionValue > 0; skipped entirely when 0 (default).
+        NSInteger skanValue = self.oneTimeConfiguration.skanConversionValue;
+        if (skanValue > 0) {
+            [self fp_registerSKANConversionValue:skanValue];
+        }
 #else
         // Non-iOS platforms (macOS): include the fields available without iOS APIs.
         // idfv, att_status, and idfa require UIDevice/ATT and are intentionally omitted.
@@ -699,6 +732,71 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     } else {
         [FPAnalytics requestTrackingAuthorizationWithCompletionHandler:nil];
     }
+#endif
+}
+
+#pragma mark - SKAdNetwork
+
+/// Registers a SKAdNetwork conversion value using the best available API.
+/// v4 (iOS 16.1+): coarseValue = "medium", lockWindow = NO.
+/// v3 (iOS 15.4+): fine conversion value only.
+/// Both APIs accessed via runtime reflection — StoreKit is never imported directly.
+/// Uses fp_skanVersionOverride (NSNumber) associated object to force a specific
+/// API version in tests; nil = auto-detect from OS version at runtime.
+- (void)fp_registerSKANConversionValue:(NSInteger)value
+{
+#if TARGET_OS_IOS
+    Class skanClass = NSClassFromString(@"SKAdNetwork");
+    if (!skanClass) return;
+
+    // Allow tests to force a specific API version (4 or 3).
+    NSNumber *versionOverride = objc_getAssociatedObject(self, @selector(fp_skanVersionOverride));
+    BOOL useV4 = NO;
+
+    if (versionOverride) {
+        useV4 = ([versionOverride integerValue] >= 4);
+    } else {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 160100
+        if (@available(ios 16.1, *)) {
+            useV4 = YES;
+        }
+#endif
+    }
+
+    if (useV4) {
+        SEL v4Sel = NSSelectorFromString(
+            @"updatePostbackConversionValue:coarseValue:lockWindow:completionHandler:");
+        if ([skanClass respondsToSelector:v4Sel]) {
+            // SKAdNetworkCoarseConversionValueMedium = @"medium" (NSString typedef)
+            NSString *coarseValue = @"medium";
+            NSInvocation *inv = [NSInvocation invocationWithMethodSignature:
+                [skanClass methodSignatureForSelector:v4Sel]];
+            [inv setSelector:v4Sel];
+            [inv setTarget:skanClass];
+            [inv setArgument:&value atIndex:2];
+            [inv setArgument:&coarseValue atIndex:3];
+            BOOL lockWindow = NO;
+            [inv setArgument:&lockWindow atIndex:4];
+            id nilBlock = nil;
+            [inv setArgument:&nilBlock atIndex:5];
+            [inv invoke];
+            return;
+        }
+    }
+
+    // SKAN v3 fallback: updatePostbackConversionValue:completionHandler: (iOS 15.4+)
+    SEL v3Sel = NSSelectorFromString(@"updatePostbackConversionValue:completionHandler:");
+    if ([skanClass respondsToSelector:v3Sel]) {
+        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:
+            [skanClass methodSignatureForSelector:v3Sel]];
+        [inv setSelector:v3Sel];
+        [inv setTarget:skanClass];
+        [inv setArgument:&value atIndex:2];
+        id nilBlock = nil;
+        [inv setArgument:&nilBlock atIndex:3];
+        [inv invoke];
+    }
+    // If neither selector is available (iOS < 15.4) — silently no-op.
 #endif
 }
 
