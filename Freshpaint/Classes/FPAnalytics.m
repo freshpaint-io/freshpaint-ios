@@ -231,22 +231,17 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
         // If the app was launched via a URL (e.g. deferred deep link at first-open),
         // extract attribution from it and persist before merging into install payload.
-        NSURL *launchURL = launchOptions[UIApplicationLaunchOptionsURLKey];
-        if (launchURL) {
-            NSDictionary *launchAttribution =
-                [FPAdClickIds extractFromURL:launchURL
-                              payloadFilters:self.oneTimeConfiguration.payloadFilters];
-            if ([launchAttribution[@"clickIds"] count] > 0) {
-                [[FPState sharedInstance] mergeClickIds:launchAttribution[@"clickIds"]];
-            }
-            if ([launchAttribution[@"utmParams"] count] > 0) {
-                [[FPState sharedInstance] setUTMParams:launchAttribution[@"utmParams"]];
-            }
-        }
+        // Must be called from the main thread: mergeClickIds: posts a barrier write to
+        // _stateQueue; activeClickIdsFlattened immediately below uses dispatch_sync on
+        // the same queue. This is safe only because we are NOT on _stateQueue itself.
+        NSAssert([NSThread isMainThread],
+                 @"_applicationDidFinishLaunchingWithOptions: must run on the main thread — "
+                 @"mergeClickIds: + activeClickIdsFlattened require a non-_stateQueue caller.");
+        [self _processAttributionFromURL:launchOptions[UIApplicationLaunchOptionsURLKey]];
 
         // Merge any stored click IDs and active UTM params into the install payload.
         // activeClickIdsFlattened uses dispatch_sync, which drains any pending barrier
-        // (from the mergeClickIds: call above) before reading — guaranteed by GCD.
+        // (from the _processAttributionFromURL: call above) before reading — GCD guarantee.
         NSDictionary *storedClickIds = [[FPState sharedInstance] activeClickIdsFlattened];
         NSDictionary *storedUTM      = [[FPState sharedInstance] activeUTMParams];
         if (storedClickIds.count > 0) {
@@ -540,14 +535,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         [self track:@"Deep Link Opened" properties:[properties copy]];
 
         // Extract and store click IDs / UTM params from the universal link URL.
-        NSDictionary *attribution = [FPAdClickIds extractFromURL:activity.webpageURL
-                                                  payloadFilters:self.oneTimeConfiguration.payloadFilters];
-        if ([attribution[@"clickIds"] count] > 0) {
-            [[FPState sharedInstance] mergeClickIds:attribution[@"clickIds"]];
-        }
-        if ([attribution[@"utmParams"] count] > 0) {
-            [[FPState sharedInstance] setUTMParams:attribution[@"utmParams"]];
-        }
+        [self _processAttributionFromURL:activity.webpageURL];
     }
 }
 
@@ -576,14 +564,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     [self track:@"Deep Link Opened" properties:[properties copy]];
 
     // Extract and store click IDs / UTM params from the deep link URL.
-    NSDictionary *attribution = [FPAdClickIds extractFromURL:url
-                                              payloadFilters:self.oneTimeConfiguration.payloadFilters];
-    if ([attribution[@"clickIds"] count] > 0) {
-        [[FPState sharedInstance] mergeClickIds:attribution[@"clickIds"]];
-    }
-    if ([attribution[@"utmParams"] count] > 0) {
-        [[FPState sharedInstance] setUTMParams:attribution[@"utmParams"]];
-    }
+    [self _processAttributionFromURL:url];
 }
 
 - (void)reset
@@ -748,6 +729,24 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         [FPAnalytics requestTrackingAuthorizationWithCompletionHandler:nil];
     }
 #endif
+}
+
+#pragma mark - Attribution helpers
+
+/// Extracts click IDs and UTM params from a URL and persists them via FPState.
+/// No-op when url is nil. Shared by openURL:options:, continueUserActivity:,
+/// and the launch-URL path in _applicationDidFinishLaunchingWithOptions:.
+- (void)_processAttributionFromURL:(nullable NSURL *)url
+{
+    if (!url) return;
+    NSDictionary *attribution = [FPAdClickIds extractFromURL:url
+                                              payloadFilters:self.oneTimeConfiguration.payloadFilters];
+    if ([attribution[@"clickIds"] count] > 0) {
+        [[FPState sharedInstance] mergeClickIds:attribution[@"clickIds"]];
+    }
+    if ([attribution[@"utmParams"] count] > 0) {
+        [[FPState sharedInstance] setUTMParams:attribution[@"utmParams"]];
+    }
 }
 
 #pragma mark - Helpers

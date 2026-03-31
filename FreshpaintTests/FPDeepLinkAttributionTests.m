@@ -55,6 +55,8 @@
 static NSString *const kFPDLBuildKeyV2  = @"FPBuildKeyV2";
 static NSString *const kFPDLVersionKey  = @"FPVersionKey";
 static NSString *const kFPClickIdsKey   = @"com.freshpaint.clickIds";
+static NSString *const kFPUTMParamsKey  = @"com.freshpaint.utmParams";
+static NSString *const kFPUTMExpiryKey  = @"com.freshpaint.utmExpiry";
 
 // ---------------------------------------------------------------------------
 #pragma mark - Test class
@@ -68,6 +70,8 @@ static NSString *const kFPClickIdsKey   = @"com.freshpaint.clickIds";
 @property (nonatomic, copy, nullable) NSString         *savedBuildV2;
 @property (nonatomic, copy, nullable) NSString         *savedVersion;
 @property (nonatomic, copy, nullable) NSData           *savedClickIds;
+@property (nonatomic, copy, nullable) NSData           *savedUTMParams;
+@property (nonatomic, assign)         double            savedUTMExpiry;
 @end
 
 @implementation FPDeepLinkAttributionTests
@@ -77,13 +81,17 @@ static NSString *const kFPClickIdsKey   = @"com.freshpaint.clickIds";
     [super setUp];
 
     // Save and clear persistent state that may affect tests.
-    self.savedBuildV2  = [[NSUserDefaults standardUserDefaults] stringForKey:kFPDLBuildKeyV2];
-    self.savedVersion  = [[NSUserDefaults standardUserDefaults] stringForKey:kFPDLVersionKey];
-    self.savedClickIds = [[NSUserDefaults standardUserDefaults] dataForKey:kFPClickIdsKey];
+    self.savedBuildV2   = [[NSUserDefaults standardUserDefaults] stringForKey:kFPDLBuildKeyV2];
+    self.savedVersion   = [[NSUserDefaults standardUserDefaults] stringForKey:kFPDLVersionKey];
+    self.savedClickIds  = [[NSUserDefaults standardUserDefaults] dataForKey:kFPClickIdsKey];
+    self.savedUTMParams = [[NSUserDefaults standardUserDefaults] dataForKey:kFPUTMParamsKey];
+    self.savedUTMExpiry = [[NSUserDefaults standardUserDefaults] doubleForKey:kFPUTMExpiryKey];
 
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPDLBuildKeyV2];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPDLVersionKey];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPClickIdsKey];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPUTMParamsKey];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPUTMExpiryKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 
     // Also clear in-memory state on the shared FPState singleton.
@@ -119,6 +127,13 @@ static NSString *const kFPClickIdsKey   = @"com.freshpaint.clickIds";
         [[NSUserDefaults standardUserDefaults] setObject:self.savedClickIds forKey:kFPClickIdsKey];
     } else {
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPClickIdsKey];
+    }
+    if (self.savedUTMParams) {
+        [[NSUserDefaults standardUserDefaults] setObject:self.savedUTMParams forKey:kFPUTMParamsKey];
+        [[NSUserDefaults standardUserDefaults] setDouble:self.savedUTMExpiry forKey:kFPUTMExpiryKey];
+    } else {
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPUTMParamsKey];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPUTMExpiryKey];
     }
     [[NSUserDefaults standardUserDefaults] synchronize];
 
@@ -220,10 +235,10 @@ static NSString *const kFPClickIdsKey   = @"com.freshpaint.clickIds";
     XCTAssertNotNil(creationTime, @"$gclid_creation_time must be present");
     XCTAssertTrue([creationTime isKindOfClass:[NSNumber class]],
                   @"$gclid_creation_time must be an NSNumber");
-    NSInteger ms = [creationTime integerValue];
-    XCTAssertGreaterThan(ms, 0, @"$gclid_creation_time must be a positive Unix timestamp in ms");
+    int64_t ms = [creationTime longLongValue];
+    XCTAssertGreaterThan(ms, (int64_t)0, @"$gclid_creation_time must be a positive Unix timestamp in ms");
     // Sanity: should be at least year-2020 epoch ms.
-    XCTAssertGreaterThan(ms, (NSInteger)1577836800000LL,
+    XCTAssertGreaterThan(ms, (int64_t)1577836800000LL,
                          @"$gclid_creation_time should be a plausible recent Unix ms timestamp");
 }
 
@@ -264,7 +279,7 @@ static NSString *const kFPClickIdsKey   = @"com.freshpaint.clickIds";
 - (void)testDeduplicationSameValue
 {
     // Seed an initial click ID with a known creation_time.
-    NSInteger oldTimeMs = 1000000000000LL; // past timestamp
+    int64_t oldTimeMs = 1000000000000LL; // past timestamp
     NSDictionary *initial = @{
         @"$gclid": @"same_value",
         @"$gclid_creation_time": @(oldTimeMs),
@@ -278,7 +293,7 @@ static NSString *const kFPClickIdsKey   = @"com.freshpaint.clickIds";
     XCTAssertEqualObjects(afterFirst[@"$gclid_creation_time"], @(oldTimeMs));
 
     // Now merge the same key with the same value but a newer creation_time.
-    NSInteger newTimeMs = oldTimeMs + 1000;
+    int64_t newTimeMs = oldTimeMs + 1000;
     NSDictionary *duplicate = @{
         @"$gclid": @"same_value",
         @"$gclid_creation_time": @(newTimeMs),
@@ -352,7 +367,7 @@ static NSString *const kFPClickIdsKey   = @"com.freshpaint.clickIds";
     // Pre-store a click ID so it is available when app_install fires.
     NSDictionary *clickId = @{
         @"$gclid": @"install_gclid",
-        @"$gclid_creation_time": @((NSInteger)([[NSDate date] timeIntervalSince1970] * 1000)),
+        @"$gclid_creation_time": @((int64_t)([[NSDate date] timeIntervalSince1970] * 1000)),
     };
     [[FPState sharedInstance] mergeClickIds:clickId];
 
@@ -442,7 +457,7 @@ static NSString *const kFPClickIdsKey   = @"com.freshpaint.clickIds";
 
 - (void)testClickIdsPersistAfterMerge
 {
-    NSInteger nowMs = (NSInteger)([[NSDate date] timeIntervalSince1970] * 1000);
+    int64_t nowMs = (int64_t)([[NSDate date] timeIntervalSince1970] * 1000);
     NSDictionary *clickId = @{
         @"$msclkid": @"bing_click_42",
         @"$msclkid_creation_time": @(nowMs),
@@ -479,6 +494,108 @@ static NSString *const kFPClickIdsKey   = @"com.freshpaint.clickIds";
 
     XCTAssertNotNil(clickIds, @"clickIds dict must be non-nil even when nothing is found");
     XCTAssertEqual(clickIds.count, 0u, @"clickIds must be empty when no recognized params are present");
+}
+
+// ---------------------------------------------------------------------------
+#pragma mark - Test 16: continueUserActivity: extracts click IDs from universal link
+// ---------------------------------------------------------------------------
+
+- (void)testContinueUserActivityExtractsAttribution
+{
+    NSURL *url = [NSURL URLWithString:@"https://example.com/promo?gclid=universal_gclid123"];
+
+    NSUserActivity *activity = [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
+    activity.webpageURL = url;
+
+    [self.analytics continueUserActivity:activity];
+
+    // Drain the barrier write by doing a sync read.
+    NSDictionary *stored = [[FPState sharedInstance] activeClickIdsFlattened];
+    XCTAssertEqualObjects(stored[@"$gclid"], @"universal_gclid123",
+        @"$gclid must be extracted and stored when received via continueUserActivity:");
+    XCTAssertTrue([self capturedEventNamed:@"Deep Link Opened"],
+        @"Deep Link Opened must fire for universal links via continueUserActivity:");
+}
+
+// ---------------------------------------------------------------------------
+#pragma mark - Test 17: _applicationDidFinishLaunchingWithOptions with launch URL
+// ---------------------------------------------------------------------------
+
+- (void)testLaunchURLExtractionInDidFinishLaunching
+{
+#if TARGET_OS_IOS
+    NSURL *launchURL = [NSURL URLWithString:@"myapp://open?ttclid=tiktok_launch_99&utm_source=tiktok"];
+    NSDictionary *launchOptions = @{ UIApplicationLaunchOptionsURLKey: launchURL };
+
+    [self.analytics _applicationDidFinishLaunchingWithOptions:launchOptions];
+
+    FPTrackPayload *install = [self firstCapturedEventNamed:@"app_install"];
+    XCTAssertNotNil(install, @"app_install must fire on fresh launch with URL");
+    XCTAssertEqualObjects(install.properties[@"$ttclid"], @"tiktok_launch_99",
+        @"$ttclid from the launch URL must be merged into app_install payload");
+    XCTAssertEqualObjects(install.properties[@"utm_source"], @"tiktok",
+        @"utm_source from the launch URL must be merged into app_install payload");
+#endif
+}
+
+// ---------------------------------------------------------------------------
+#pragma mark - Test 18: UTM params persist to NSUserDefaults across app kills
+// ---------------------------------------------------------------------------
+
+- (void)testUTMParamsPersistToUserDefaults
+{
+    NSDictionary *params = @{ @"utm_source": @"google", @"utm_medium": @"cpc" };
+    [[FPState sharedInstance] setUTMParams:params];
+
+    // Drain the barrier write.
+    (void)[[FPState sharedInstance] activeUTMParams];
+
+    NSData *stored = [[NSUserDefaults standardUserDefaults] dataForKey:kFPUTMParamsKey];
+    XCTAssertNotNil(stored, @"UTM params must be written to NSUserDefaults so they survive app kills");
+
+    double expiry = [[NSUserDefaults standardUserDefaults] doubleForKey:kFPUTMExpiryKey];
+    XCTAssertGreaterThan(expiry, [[NSDate date] timeIntervalSince1970],
+        @"UTM expiry timestamp must be in the future after setUTMParams:");
+
+    NSError *error = nil;
+    id plist = [NSPropertyListSerialization propertyListWithData:stored
+                                                         options:NSPropertyListImmutable
+                                                          format:nil
+                                                           error:&error];
+    XCTAssertNil(error, @"Persisted UTM plist must be valid");
+    XCTAssertEqualObjects(((NSDictionary *)plist)[@"utm_source"], @"google",
+        @"utm_source must be present in persisted UTM data");
+}
+
+// ---------------------------------------------------------------------------
+#pragma mark - Test 19: Nil URL and URL with no query string are safe (negative cases)
+// ---------------------------------------------------------------------------
+
+- (void)testNilURLProducesEmptyDicts
+{
+    NSDictionary *result = [FPAdClickIds extractFromURL:nil payloadFilters:@{}];
+    XCTAssertNotNil(result[@"clickIds"],  @"clickIds key must be present even for nil URL");
+    XCTAssertNotNil(result[@"utmParams"], @"utmParams key must be present even for nil URL");
+    XCTAssertEqual([result[@"clickIds"] count],  (NSUInteger)0, @"clickIds must be empty for nil URL");
+    XCTAssertEqual([result[@"utmParams"] count], (NSUInteger)0, @"utmParams must be empty for nil URL");
+}
+
+- (void)testURLWithNoQueryStringProducesEmptyDicts
+{
+    NSURL *url = [NSURL URLWithString:@"https://example.com/landing"];
+    NSDictionary *result = [FPAdClickIds extractFromURL:url payloadFilters:@{}];
+    XCTAssertEqual([result[@"clickIds"] count],  (NSUInteger)0, @"clickIds must be empty for URL with no query");
+    XCTAssertEqual([result[@"utmParams"] count], (NSUInteger)0, @"utmParams must be empty for URL with no query");
+}
+
+- (void)testPercentEncodedParamValueExtracted
+{
+    // Percent-encoded click ID value — NSURL decodes it automatically.
+    NSURL *url = [NSURL URLWithString:@"https://example.com?gclid=hello%20world%21"];
+    NSDictionary *result   = [FPAdClickIds extractFromURL:url payloadFilters:@{}];
+    NSDictionary *clickIds = result[@"clickIds"];
+    XCTAssertEqualObjects(clickIds[@"$gclid"], @"hello world!",
+        @"Percent-encoded click ID values must be decoded by NSURL before extraction");
 }
 
 @end

@@ -305,6 +305,23 @@ typedef _Nullable id (^FPStateGetBlock)(void);
                 self.userInfo.clickIds = (NSDictionary *)plist;
             }
         }
+
+        // Restore persisted UTM params from NSUserDefaults if they have not expired.
+        // UTM params carry a 24h expiry; they are persisted so they survive app kills
+        // within the same attribution window (e.g. deep link → background → foreground).
+        NSData *utmData = [[NSUserDefaults standardUserDefaults] dataForKey:@"com.freshpaint.utmParams"];
+        NSTimeInterval utmExpiry = [[NSUserDefaults standardUserDefaults] doubleForKey:@"com.freshpaint.utmExpiry"];
+        if (utmData && utmExpiry > [[NSDate date] timeIntervalSince1970]) {
+            NSError *utmError = nil;
+            id utmPlist = [NSPropertyListSerialization propertyListWithData:utmData
+                                                                    options:NSPropertyListImmutable
+                                                                     format:nil
+                                                                      error:&utmError];
+            if (!utmError && [utmPlist isKindOfClass:[NSDictionary class]]) {
+                self.userInfo.utmParams = (NSDictionary *)utmPlist;
+                self.userInfo.utmExpiryTimestamp = utmExpiry;
+            }
+        }
     }
     return self;
 }
@@ -406,6 +423,19 @@ typedef _Nullable id (^FPStateGetBlock)(void);
     dispatch_barrier_async(_stateQueue, ^{
         self->_userInfo->_utmParams = [params copy];
         self->_userInfo->_utmExpiryTimestamp = [[NSDate date] timeIntervalSince1970] + 86400.0;
+
+        // Persist to NSUserDefaults so UTM params survive app kills within the 24h window.
+        NSError *error = nil;
+        NSData *data = [NSPropertyListSerialization dataWithPropertyList:params ?: @{}
+                                                                  format:NSPropertyListBinaryFormat_v1_0
+                                                                 options:0
+                                                                   error:&error];
+        if (!error && data) {
+            [[NSUserDefaults standardUserDefaults] setObject:data
+                                                      forKey:@"com.freshpaint.utmParams"];
+            [[NSUserDefaults standardUserDefaults] setDouble:self->_userInfo->_utmExpiryTimestamp
+                                                      forKey:@"com.freshpaint.utmExpiry"];
+        }
     });
 }
 

@@ -12,32 +12,37 @@
 
 + (NSArray<NSString *> *)supportedClickIdKeys
 {
-    return @[
-        @"aleid",           // AppLovin
-        @"cntr_auctionId",  // Basis
-        @"msclkid",         // Bing
-        @"fbclid",          // Facebook
-        @"gclid",           // Google
-        @"dclid",           // Google Display
-        @"gclsrc",          // Google cross-account
-        @"wbraid",          // Google iOS web-to-app
-        @"gbraid",          // Google iOS app-to-web
-        @"irclickid",       // impact.com
-        @"li_fat_id",       // LinkedIn
-        @"ndclid",          // Nextdoor
-        @"epik",            // Pinterest
-        @"rdt_cid",         // Reddit
-        @"sccid",           // Snapchat (lowercase)
-        @"ScCid",           // Snapchat (mixed-case variant)
-        @"spclid",          // Spotify
-        @"sapid",           // StackAdapt
-        @"ttdimp",          // TheTradeDesk
-        @"ttclid",          // TikTok
-        @"twclid",          // Twitter/X
-        @"clid_src",        // Twitter/X alternate
-        @"viant_clid",      // Viant
-        @"qclid",           // Quora
-    ];
+    static NSArray<NSString *> *keys = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keys = @[
+            @"aleid",           // AppLovin
+            @"cntr_auctionId",  // Basis
+            @"msclkid",         // Bing
+            @"fbclid",          // Facebook
+            @"gclid",           // Google
+            @"dclid",           // Google Display
+            @"gclsrc",          // Google cross-account
+            @"wbraid",          // Google iOS web-to-app
+            @"gbraid",          // Google iOS app-to-web
+            @"irclickid",       // impact.com
+            @"li_fat_id",       // LinkedIn
+            @"ndclid",          // Nextdoor
+            @"epik",            // Pinterest
+            @"rdt_cid",         // Reddit
+            @"sccid",           // Snapchat (lowercase)
+            @"ScCid",           // Snapchat (mixed-case variant)
+            @"spclid",          // Spotify
+            @"sapid",           // StackAdapt
+            @"ttdimp",          // TheTradeDesk
+            @"ttclid",          // TikTok
+            @"twclid",          // Twitter/X
+            @"clid_src",        // Twitter/X alternate
+            @"viant_clid",      // Viant
+            @"qclid",           // Quora
+        ];
+    });
+    return keys;
 }
 
 + (NSDictionary<NSString *, id> *)extractFromURL:(NSURL *)url
@@ -83,8 +88,8 @@
         }
     }
 
-    // Creation timestamp (Unix ms) — computed once for all IDs found in this URL.
-    NSInteger creationTimeMs = (NSInteger)([[NSDate date] timeIntervalSince1970] * 1000);
+    // Creation timestamp (Unix ms) — int64_t to avoid 32-bit overflow (overflows Jan 2038).
+    int64_t creationTimeMs = (int64_t)([[NSDate date] timeIntervalSince1970] * 1000);
 
     // Google click ID names that trigger gacid capture.
     NSSet<NSString *> *googleClickIdKeys = [NSSet setWithArray:@[@"gclid", @"wbraid", @"gbraid"]];

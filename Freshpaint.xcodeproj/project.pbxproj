@@ -154,7 +154,7 @@
 		C31833C42DD7A5AD00F2EE90 /* SessionIdInjectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31833C32DD7A5AA00F2EE90 /* SessionIdInjectionTests.swift */; };
 		F0DC99BA5B544E61A2680D4E /* FPAppInstallEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5844BFBD822F464C9E0947FC /* FPAppInstallEventTests.m */; };
 		F54F79ED3362F50D0E40A8D7 /* FPStableDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = 21FCEFAC3C4E62D0D495CD4B /* FPStableDeviceId.m */; };
-		D4E5F6A7B8C9D0E1F2A3B4C5 /* FPAdClickIds.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* FPAdClickIds.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D4E5F6A7B8C9D0E1F2A3B4C5 /* FPAdClickIds.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* FPAdClickIds.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		E5F6A7B8C9D0E1F2A3B4C5D6 /* FPAdClickIds.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6A7B8C9D0E1F2A3 /* FPAdClickIds.m */; };
 		F6A7B8C9D0E1F2A3B4C5D6E7 /* FPDeepLinkAttributionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F6A7B8C9D0E1F2A3B4 /* FPDeepLinkAttributionTests.m */; };
 /* End PBXBuildFile section */
