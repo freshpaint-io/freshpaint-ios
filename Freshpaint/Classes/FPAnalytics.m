@@ -22,11 +22,6 @@
 
 static FPAnalytics *__sharedInstance = nil;
 
-// Sentinel value returned when the ATT framework is not linked. NSUIntegerMax is
-// outside the ATTrackingManager range (0–3), matching the same sentinel used by
-// FPAttributionMiddleware so backend consumers see a consistent signal.
-static const NSUInteger kFPATTStatusUnavailable = NSUIntegerMax;
-
 
 @interface FPAnalytics ()
 
