@@ -243,6 +243,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         [[NSUserDefaults standardUserDefaults] setObject:currentVersion ?: @"" forKey:FPVersionKey];
         [[NSUserDefaults standardUserDefaults] setObject:currentBuild ?: @"" forKey:FPBuildKeyV2];
     } else {
+        // Returning user — fire Application Updated if the build changed.
         if (![currentBuild isEqualToString:previousBuildV2]) {
             [self track:@"Application Updated" properties:@{
                 @"previous_version" : previousVersion ?: @"",
@@ -251,7 +252,8 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
                 @"build" : currentBuild ?: @"",
             }];
         }
-        // Write for returning users. Fresh install already wrote above.
+        // Write version keys for returning users. Fresh install already wrote these
+        // above (guard write immediately after app_install enqueue).
         [[NSUserDefaults standardUserDefaults] setObject:currentVersion ?: @"" forKey:FPVersionKey];
         [[NSUserDefaults standardUserDefaults] setObject:currentBuild ?: @"" forKey:FPBuildKeyV2];
     }
