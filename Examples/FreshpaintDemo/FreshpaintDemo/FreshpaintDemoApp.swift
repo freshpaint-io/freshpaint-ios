@@ -37,12 +37,11 @@ struct FreshpaintDemoApp: App {
         config.trackPushNotifications = true
         config.trackDeepLinks = true
         
-        // Enable debug logging for development
+        // Enable debug logging and FRP-38 attribution UI in development only.
         #if DEBUG
         Freshpaint.debug(true)
-        #endif
 
-        // FRP-38 testing: capture raw outgoing payloads and display attribution keys in the UI.
+        // Capture raw outgoing payloads and display attribution keys in the UI.
         config.experimental.rawFreshpaintModificationBlock = { payload in
             if let event = payload["event"] as? String {
                 let ctx = payload["context"] as? [String: Any] ?? [:]
@@ -59,6 +58,7 @@ struct FreshpaintDemoApp: App {
             }
             return payload
         }
+        #endif
 
         Freshpaint.setup(with: config)
     }

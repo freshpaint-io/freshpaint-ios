@@ -70,8 +70,9 @@
     NSArray<NSString *> *supportedKeys = [self supportedClickIdKeys];
     // Map lowercase → canonical key name for case-insensitive matching.
     // When two keys share the same lowercase form (sccid / ScCid for Snapchat),
-    // the later entry in supportedClickIdKeys wins and becomes the canonical key.
-    // ScCid is listed after sccid, so $ScCid is always the stored form for Snapchat.
+    // the later entry in supportedClickIdKeys wins the canonical slot. ScCid is
+    // listed after sccid, so the canonical key is always $ScCid. The value stored
+    // is from whichever URL query item appears first (first-URL-order wins for values).
     NSMutableDictionary<NSString *, NSString *> *lowercaseToCanonical = [NSMutableDictionary dictionary];
     for (NSString *key in supportedKeys) {
         lowercaseToCanonical[key.lowercaseString] = key;
@@ -131,10 +132,12 @@
         }
     }
 
-    // Extract UTM parameters.
-    NSArray<NSString *> *utmKeys = @[
-        @"utm_source", @"utm_medium", @"utm_campaign", @"utm_term", @"utm_content"
-    ];
+    // Extract UTM parameters. Cached with dispatch_once to avoid per-call allocation.
+    static NSArray<NSString *> *utmKeys = nil;
+    static dispatch_once_t utmOnceToken;
+    dispatch_once(&utmOnceToken, ^{
+        utmKeys = @[@"utm_source", @"utm_medium", @"utm_campaign", @"utm_term", @"utm_content"];
+    });
     for (NSURLQueryItem *item in components.queryItems) {
         if (!item.name || !item.value) continue;
         if ([utmKeys containsObject:item.name]) {

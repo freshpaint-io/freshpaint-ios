@@ -30,7 +30,9 @@ class AttributionEventLog: ObservableObject {
 
 struct AttributionDemoView: View {
 
-    @StateObject private var eventLog = AttributionEventLog.shared
+    // @ObservedObject (not @StateObject) because the singleton's lifecycle is managed
+    // externally by AttributionEventLog.shared, not by this view's lifetime.
+    @ObservedObject private var eventLog = AttributionEventLog.shared
 
     private let tests: [(id: String, label: String, url: String)] = [
         ("T1",  "T1 — Regression (no click IDs)",
@@ -124,7 +126,7 @@ struct AttributionDemoView: View {
                         Spacer()
                         Button("Refresh") { refreshStoredIds() }.font(.caption2)
                         Button("Clear All") {
-                            UserDefaults.standard.removeObject(forKey: "com.freshpaint.clickIds")
+                            UserDefaults.standard.removeObject(forKey: "com.freshpaint.clickIds") // internal SDK key
                             UserDefaults.standard.synchronize()
                             refreshStoredIds()
                         }.font(.caption2).foregroundColor(.red)
@@ -191,6 +193,7 @@ struct AttributionDemoView: View {
     }
 
     private func refreshStoredIds() {
+        // NOTE: reads an internal SDK storage key — update here if FPState's key changes.
         guard let data = UserDefaults.standard.data(forKey: "com.freshpaint.clickIds"),
               let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
               !plist.isEmpty

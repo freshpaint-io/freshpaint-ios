@@ -192,7 +192,9 @@ static NSString *const kFPUTMExpiryKey  = @"com.freshpaint.utmExpiry";
 
     // Each canonical key should appear prefixed with $ in the result.
     // Note: sccid and ScCid both map to lowercase "sccid", so only one will win (first match).
-    // We check that at least 23 unique canonical keys got extracted (sccid and ScCid de-dup to 1).
+    // sccid and ScCid share the same lowercase form; ScCid is the canonical key (it is
+    // listed last in supportedClickIdKeys so it overwrites sccid in lowercaseToCanonical).
+    // Exactly 23 distinct prefixed keys are expected: 22 non-Snapchat + $ScCid.
     NSUInteger foundCount = 0;
     for (NSString *key in supported) {
         NSString *prefixed = [NSString stringWithFormat:@"$%@", key];
@@ -200,9 +202,11 @@ static NSString *const kFPUTMExpiryKey  = @"com.freshpaint.utmExpiry";
             foundCount++;
         }
     }
-    // At minimum 23 distinct canonical entries (sccid/ScCid de-dup to one).
-    XCTAssertGreaterThanOrEqual(foundCount, 23u,
-        @"At least 23 out of 24 entries should be extracted (sccid/ScCid are case-insensitive duplicates)");
+    XCTAssertEqual(foundCount, 23u,
+        @"Exactly 23 entries should be extracted (sccid/ScCid de-dup to $ScCid)");
+    // The canonical Snapchat key must be $ScCid, not $sccid.
+    XCTAssertNotNil(clickIds[@"$ScCid"], @"$ScCid must be present as the canonical Snapchat key");
+    XCTAssertNil(clickIds[@"$sccid"], @"$sccid must not appear — $ScCid is the canonical form");
 }
 
 // ---------------------------------------------------------------------------
@@ -445,10 +449,13 @@ static NSString *const kFPUTMExpiryKey  = @"com.freshpaint.utmExpiry";
         @"Extraction with both sccid and ScCid variants must not throw");
 
     NSDictionary *clickIds = result[@"clickIds"];
-    // At least one of the two canonical forms must be present.
-    BOOL eitherFound = (clickIds[@"$sccid"] != nil || clickIds[@"$ScCid"] != nil);
-    XCTAssertTrue(eitherFound,
-        @"At least one of $sccid or $ScCid must be present in the result");
+    // $ScCid is always the canonical key: ScCid is listed after sccid in supportedClickIdKeys,
+    // so it wins the lowercaseToCanonical slot. sccid appears first in the URL, so its value
+    // (snap1) is stored under $ScCid. $sccid must not exist.
+    XCTAssertEqualObjects(clickIds[@"$ScCid"], @"snap1",
+        @"$ScCid must hold the value from the first URL match (sccid=snap1)");
+    XCTAssertNil(clickIds[@"$sccid"],
+        @"$sccid must not be present — $ScCid is the only canonical Snapchat key");
 }
 
 // ---------------------------------------------------------------------------

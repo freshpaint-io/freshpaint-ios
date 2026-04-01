@@ -231,12 +231,17 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
         // If the app was launched via a URL (e.g. deferred deep link at first-open),
         // extract attribution from it and persist before merging into install payload.
-        // Must be called from the main thread: mergeClickIds: posts a barrier write to
-        // _stateQueue; activeClickIdsFlattened immediately below uses dispatch_sync on
-        // the same queue. This is safe only because we are NOT on _stateQueue itself.
-        NSAssert([NSThread isMainThread],
-                 @"_applicationDidFinishLaunchingWithOptions: must run on the main thread — "
-                 @"mergeClickIds: + activeClickIdsFlattened require a non-_stateQueue caller.");
+        // UIKit guarantees UIApplicationDelegate callbacks on the main thread.
+        // If somehow called off-main (e.g. a unit test), dispatch to main to avoid a
+        // potential deadlock: mergeClickIds: posts a barrier write to _stateQueue and
+        // activeClickIdsFlattened below uses dispatch_sync on the same queue — both are
+        // safe from any non-_stateQueue thread, including main, but not from _stateQueue.
+        if (!NSThread.isMainThread) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self _applicationDidFinishLaunchingWithOptions:launchOptions];
+            });
+            return;
+        }
         [self _processAttributionFromURL:launchOptions[UIApplicationLaunchOptionsURLKey]];
 
         // Merge any stored click IDs and active UTM params into the install payload.

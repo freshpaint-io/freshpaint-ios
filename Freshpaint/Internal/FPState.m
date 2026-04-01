@@ -374,10 +374,17 @@ typedef _Nullable id (^FPStateGetBlock)(void);
         NSMutableDictionary<NSString *, id> *current =
             [self->_userInfo->_clickIds mutableCopy] ?: [NSMutableDictionary dictionary];
 
+        // Pre-filter to value keys only. Each value key has an optional companion
+        // "_creation_time" key that is fetched explicitly below — iterating it
+        // separately would be redundant and fragile under dict enumeration reordering.
+        NSMutableArray<NSString *> *valueKeys = [NSMutableArray arrayWithCapacity:extracted.count];
         for (NSString *key in extracted) {
-            // Skip _creation_time entries — they are handled alongside their value key.
-            if ([key hasSuffix:@"_creation_time"]) continue;
+            if (![key hasSuffix:@"_creation_time"]) {
+                [valueKeys addObject:key];
+            }
+        }
 
+        for (NSString *key in valueKeys) {
             id newValue = extracted[key];
             id existingValue = current[key];
 
@@ -395,6 +402,9 @@ typedef _Nullable id (^FPStateGetBlock)(void);
             }
         }
 
+        // Click IDs persist indefinitely — they represent the attribution source for
+        // this user/install and are bounded naturally by the number of supported
+        // platforms (max 24 value keys + 24 creation_time keys = 48 entries).
         self->_userInfo->_clickIds = [current copy];
 
         // Persist to NSUserDefaults.

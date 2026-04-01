@@ -361,6 +361,8 @@ NSDictionary *getLiveContext(FPReachability *reachability, NSDictionary *referre
     }
 
     // Inject persisted click IDs and active UTM params into every event context.
+    // Intentional: MMP attribution requires click IDs on all events so the MMP can
+    // attribute any post-install event back to the originating ad click.
     NSDictionary *clickIds = [[FPState sharedInstance] activeClickIdsFlattened];
     if (clickIds.count > 0) {
         [context addEntriesFromDictionary:clickIds];
