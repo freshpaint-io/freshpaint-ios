@@ -63,10 +63,20 @@ struct ContentView: View {
                 AttributionDemoView()
             }
             .tabItem {
-                Image(systemName: "antenna.radiowaves.left.and.right")
+                Image(systemName: "link.badge.plus")
                 Text("Attribution")
             }
             .tag(3)
+
+            // Deep Link Tests Tab
+            NavigationView {
+                DeepLinkTestView()
+            }
+            .tabItem {
+                Image(systemName: "checklist")
+                Text("Deep Links")
+            }
+            .tag(4)
         }
         .sheet(isPresented: $showingDebugView) {
             DebugLogView(logs: debugLogs)

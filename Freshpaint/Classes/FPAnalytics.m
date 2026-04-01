@@ -19,6 +19,7 @@
 #import "FPStableDeviceId.h"
 #import "FPATTRuntime.h"
 #import "FPAttributionMiddleware.h"
+#import "FPAdClickIds.h"
 
 static FPAnalytics *__sharedInstance = nil;
 
@@ -228,6 +229,33 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
             }
         }
 
+        // If the app was launched via a URL (e.g. deferred deep link at first-open),
+        // extract attribution from it and persist before merging into install payload.
+        // UIKit guarantees UIApplicationDelegate callbacks on the main thread.
+        // If somehow called off-main (e.g. a unit test), dispatch to main to avoid a
+        // potential deadlock: mergeClickIds: posts a barrier write to _stateQueue and
+        // activeClickIdsFlattened below uses dispatch_sync on the same queue — both are
+        // safe from any non-_stateQueue thread, including main, but not from _stateQueue.
+        if (!NSThread.isMainThread) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self _applicationDidFinishLaunchingWithOptions:launchOptions];
+            });
+            return;
+        }
+        [self _processAttributionFromURL:launchOptions[UIApplicationLaunchOptionsURLKey]];
+
+        // Merge any stored click IDs and active UTM params into the install payload.
+        // activeClickIdsFlattened uses dispatch_sync, which drains any pending barrier
+        // (from the _processAttributionFromURL: call above) before reading — GCD guarantee.
+        NSDictionary *storedClickIds = [[FPState sharedInstance] activeClickIdsFlattened];
+        NSDictionary *storedUTM      = [[FPState sharedInstance] activeUTMParams];
+        if (storedClickIds.count > 0) {
+            [installProps addEntriesFromDictionary:storedClickIds];
+        }
+        if (storedUTM.count > 0) {
+            [installProps addEntriesFromDictionary:storedUTM];
+        }
+
         [self track:@"app_install" properties:[installProps copy]];
 #else
         // Non-iOS platforms (macOS): include the fields available without iOS APIs.
@@ -259,12 +287,15 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     }
 
 #if TARGET_OS_IPHONE
+    // UIApplicationLaunchOptionsURLKey is an NSURL — convert to string so the payload
+    // remains JSON-serializable (NSJSONSerialization rejects raw NSURL values).
+    NSURL *launchURL = launchOptions[UIApplicationLaunchOptionsURLKey];
     [self track:@"Application Opened" properties:@{
         @"from_background" : @NO,
         @"version" : currentVersion ?: @"",
         @"build" : currentBuild ?: @"",
         @"referring_application" : launchOptions[UIApplicationLaunchOptionsSourceApplicationKey] ?: @"",
-        @"url" : launchOptions[UIApplicationLaunchOptionsURLKey] ?: @"",
+        @"url" : launchURL.absoluteString ?: @"",
     }];
 #elif TARGET_OS_OSX
     [self track:@"Application Opened" properties:@{
@@ -510,6 +541,9 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         properties = [FPUtils traverseJSON:properties
                       andReplaceWithFilters:self.oneTimeConfiguration.payloadFilters];
         [self track:@"Deep Link Opened" properties:[properties copy]];
+
+        // Extract and store click IDs / UTM params from the universal link URL.
+        [self _processAttributionFromURL:activity.webpageURL];
     }
 }
 
@@ -536,6 +570,9 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     properties = [FPUtils traverseJSON:properties
                   andReplaceWithFilters:self.oneTimeConfiguration.payloadFilters];
     [self track:@"Deep Link Opened" properties:[properties copy]];
+
+    // Extract and store click IDs / UTM params from the deep link URL.
+    [self _processAttributionFromURL:url];
 }
 
 - (void)reset
@@ -700,6 +737,24 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         [FPAnalytics requestTrackingAuthorizationWithCompletionHandler:nil];
     }
 #endif
+}
+
+#pragma mark - Attribution helpers
+
+/// Extracts click IDs and UTM params from a URL and persists them via FPState.
+/// No-op when url is nil. Shared by openURL:options:, continueUserActivity:,
+/// and the launch-URL path in _applicationDidFinishLaunchingWithOptions:.
+- (void)_processAttributionFromURL:(nullable NSURL *)url
+{
+    if (!url) return;
+    NSDictionary *attribution = [FPAdClickIds extractFromURL:url
+                                              payloadFilters:self.oneTimeConfiguration.payloadFilters];
+    if ([attribution[@"clickIds"] count] > 0) {
+        [[FPState sharedInstance] mergeClickIds:attribution[@"clickIds"]];
+    }
+    if ([attribution[@"utmParams"] count] > 0) {
+        [[FPState sharedInstance] setUTMParams:attribution[@"utmParams"]];
+    }
 }
 
 #pragma mark - Helpers
