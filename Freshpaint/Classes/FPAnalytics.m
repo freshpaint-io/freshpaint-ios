@@ -287,12 +287,15 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     }
 
 #if TARGET_OS_IPHONE
+    // UIApplicationLaunchOptionsURLKey is an NSURL — convert to string so the payload
+    // remains JSON-serializable (NSJSONSerialization rejects raw NSURL values).
+    NSURL *launchURL = launchOptions[UIApplicationLaunchOptionsURLKey];
     [self track:@"Application Opened" properties:@{
         @"from_background" : @NO,
         @"version" : currentVersion ?: @"",
         @"build" : currentBuild ?: @"",
         @"referring_application" : launchOptions[UIApplicationLaunchOptionsSourceApplicationKey] ?: @"",
-        @"url" : launchOptions[UIApplicationLaunchOptionsURLKey] ?: @"",
+        @"url" : launchURL.absoluteString ?: @"",
     }];
 #elif TARGET_OS_OSX
     [self track:@"Application Opened" properties:@{
