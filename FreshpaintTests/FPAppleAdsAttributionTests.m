@@ -23,6 +23,8 @@
 @property (atomic, copy, nullable) NSString *(^fp_appleAdsTokenProvider)(void);
 /// Override for fp_skanVersionOverride: @4 forces SKAN v4, @3 forces SKAN v3.
 @property (atomic, strong, nullable) NSNumber *fp_skanVersionOverride;
+/// Interceptor called instead of the real SKAN API. Args: (conversionValue, apiVersion).
+@property (atomic, copy, nullable) void (^fp_skanCallInterceptor)(NSInteger, NSString *);
 - (void)_applicationDidFinishLaunchingWithOptions:(nullable NSDictionary *)launchOptions;
 @end
 
@@ -48,6 +50,17 @@
 
 - (NSNumber *)fp_skanVersionOverride {
     return objc_getAssociatedObject(self, @selector(fp_skanVersionOverride));
+}
+
+- (void)setFp_skanCallInterceptor:(void (^)(NSInteger, NSString *))fp_skanCallInterceptor {
+    objc_setAssociatedObject(self,
+        @selector(fp_skanCallInterceptor),
+        fp_skanCallInterceptor,
+        OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (void (^)(NSInteger, NSString *))fp_skanCallInterceptor {
+    return objc_getAssociatedObject(self, @selector(fp_skanCallInterceptor));
 }
 
 @end
@@ -234,17 +247,18 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 - (void)testSKANSkippedWhenValueIsZero
 {
 #if TARGET_OS_IPHONE
-    // skanConversionValue defaults to 0 — no explicit set needed.
     XCTAssertEqual(self.configuration.skanConversionValue, 0,
         @"skanConversionValue default must be 0");
 
-    // Inject a version override so the call would be routed if it fired.
+    __block BOOL skanCalled = NO;
     self.analytics.fp_skanVersionOverride = @4;
-    // We can't intercept the real SKAN call directly, but if value=0 the guard
-    // prevents the call reaching fp_registerSKANConversionValue: at all.
-    // Verify no crash and that the install event still fires normally.
+    self.analytics.fp_skanCallInterceptor = ^(NSInteger value, NSString *version) {
+        skanCalled = YES;
+    };
+
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
+    XCTAssertFalse(skanCalled, @"SKAN must not be called when skanConversionValue is 0");
     FPTrackPayload *install = [self capturedInstallPayload];
     XCTAssertNotNil(install, @"app_install must still fire when SKAN is skipped");
 #endif
@@ -255,14 +269,42 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 {
 #if TARGET_OS_IPHONE
     self.configuration.skanConversionValue = -1;
-    // Re-create analytics with updated config.
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_BuildKeyV2];
     FPAppleAdsEventCapture *capture2 = [[FPAppleAdsEventCapture alloc] init];
     self.configuration.sourceMiddleware = @[ capture2 ];
     FPAnalytics *analytics2 = [[FPAnalytics alloc] initWithConfiguration:self.configuration];
 
+    __block BOOL skanCalled = NO;
+    analytics2.fp_skanCallInterceptor = ^(NSInteger value, NSString *version) {
+        skanCalled = YES;
+    };
+
     XCTAssertNoThrow([analytics2 _applicationDidFinishLaunchingWithOptions:nil],
         @"Negative skanConversionValue must not crash");
+    XCTAssertFalse(skanCalled, @"SKAN must not be called when skanConversionValue is negative");
+    analytics2 = nil;
+#endif
+}
+
+/// skanConversionValue > 63 → SKAN registration skipped (out of valid range).
+- (void)testSKANSkippedWhenValueExceedsMaximum
+{
+#if TARGET_OS_IPHONE
+    self.configuration.skanConversionValue = 64;
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_BuildKeyV2];
+    FPAppleAdsEventCapture *capture2 = [[FPAppleAdsEventCapture alloc] init];
+    self.configuration.sourceMiddleware = @[ capture2 ];
+    FPAnalytics *analytics2 = [[FPAnalytics alloc] initWithConfiguration:self.configuration];
+
+    __block BOOL skanCalled = NO;
+    analytics2.fp_skanVersionOverride = @4;
+    analytics2.fp_skanCallInterceptor = ^(NSInteger value, NSString *version) {
+        skanCalled = YES;
+    };
+
+    XCTAssertNoThrow([analytics2 _applicationDidFinishLaunchingWithOptions:nil],
+        @"skanConversionValue > 63 must not crash");
+    XCTAssertFalse(skanCalled, @"SKAN must not be called when skanConversionValue > 63");
     analytics2 = nil;
 #endif
 }
@@ -271,7 +313,7 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 #pragma mark - AC-7, AC-8: SKAN v4 on iOS 16.1+
 // ---------------------------------------------------------------------------
 
-/// skanConversionValue > 0 with v4 override → SKAdNetwork v4 selector invoked without crash.
+/// skanConversionValue > 0 with v4 override → SKAdNetwork v4 called with correct value.
 - (void)testSKANv4CalledWithConfiguredValue
 {
 #if TARGET_OS_IPHONE
@@ -282,10 +324,17 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
     FPAnalytics *analytics2 = [[FPAnalytics alloc] initWithConfiguration:self.configuration];
     analytics2.fp_skanVersionOverride = @4;
 
-    // The real SKAdNetwork v4 selector is available on iOS 16.1+; on the simulator
-    // the call should complete without crashing regardless of whether postbacks fire.
+    __block NSInteger capturedValue = -1;
+    __block NSString *capturedVersion = nil;
+    analytics2.fp_skanCallInterceptor = ^(NSInteger value, NSString *version) {
+        capturedValue = value;
+        capturedVersion = version;
+    };
+
     XCTAssertNoThrow([analytics2 _applicationDidFinishLaunchingWithOptions:nil],
         @"SKAN v4 registration must not crash when skanConversionValue > 0");
+    XCTAssertEqual(capturedValue, 7, @"SKAN must receive the configured conversion value");
+    XCTAssertEqualObjects(capturedVersion, @"v4", @"SKAN must use v4 API when override is @4");
     analytics2 = nil;
 #endif
 }
@@ -294,7 +343,7 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 #pragma mark - AC-9: SKAN v3 fallback
 // ---------------------------------------------------------------------------
 
-/// skanConversionValue > 0 with v3 override → SKAdNetwork v3 selector invoked without crash.
+/// skanConversionValue > 0 with v3 override → SKAdNetwork v3 called with correct value.
 - (void)testSKANv3FallbackCalledWithConfiguredValue
 {
 #if TARGET_OS_IPHONE
@@ -305,8 +354,17 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
     FPAnalytics *analytics2 = [[FPAnalytics alloc] initWithConfiguration:self.configuration];
     analytics2.fp_skanVersionOverride = @3;
 
+    __block NSInteger capturedValue = -1;
+    __block NSString *capturedVersion = nil;
+    analytics2.fp_skanCallInterceptor = ^(NSInteger value, NSString *version) {
+        capturedValue = value;
+        capturedVersion = version;
+    };
+
     XCTAssertNoThrow([analytics2 _applicationDidFinishLaunchingWithOptions:nil],
         @"SKAN v3 registration must not crash when skanConversionValue > 0");
+    XCTAssertEqual(capturedValue, 5, @"SKAN must receive the configured conversion value");
+    XCTAssertEqualObjects(capturedVersion, @"v3", @"SKAN must use v3 API when override is @3");
     analytics2 = nil;
 #endif
 }

@@ -281,8 +281,8 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
             if (appleAdsToken.length > 0) {
                 installProps[@"apple_ads_token"] = appleAdsToken;
             }
-        } @catch (NSException *__unused e) {
-            // App was not installed via Apple Search Ads — token unavailable.
+        } @catch (NSException *e) {
+            FPLog(@"Apple Ads token exception (non-fatal): %@", e.reason);
         }
 
         [self track:@"app_install" properties:[installProps copy]];
@@ -777,15 +777,49 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
 #pragma mark - SKAdNetwork
 
+/// Creates an NSInvocation for a SKAdNetwork class method, sets the target/selector/value,
+/// and appends an error-logging completion handler as the last argument.
+static NSInvocation *fp_skanInvocation(Class skanClass, SEL sel, NSInteger value, NSString *label)
+{
+    if (![skanClass respondsToSelector:sel]) return nil;
+    NSInvocation *inv = [NSInvocation invocationWithMethodSignature:
+        [skanClass methodSignatureForSelector:sel]];
+    [inv setSelector:sel];
+    [inv setTarget:skanClass];
+    [inv setArgument:&value atIndex:2];
+    return inv;
+}
+
+static void fp_skanSetCompletionHandler(NSInvocation *inv, NSUInteger argIndex, NSString *label)
+{
+    void (^handler)(NSError *) = ^(NSError *error) {
+        if (error) {
+            FPLog(@"SKAN %@ registration error: %@", label, error.localizedDescription);
+        }
+    };
+    [inv setArgument:&handler atIndex:argIndex];
+}
+
 /// Registers a SKAdNetwork conversion value using the best available API.
 /// v4 (iOS 16.1+): coarseValue = "medium", lockWindow = NO.
 /// v3 (iOS 15.4+): fine conversion value only.
 /// Both APIs accessed via runtime reflection — StoreKit is never imported directly.
 /// Uses fp_skanVersionOverride (NSNumber) associated object to force a specific
 /// API version in tests; nil = auto-detect from OS version at runtime.
+/// Uses fp_skanCallInterceptor associated object to capture call arguments in tests.
 - (void)fp_registerSKANConversionValue:(NSInteger)value
 {
 #if TARGET_OS_IPHONE
+    // Test seam: if an interceptor is set, call it instead of the real SKAN API.
+    void (^interceptor)(NSInteger, NSString *) = objc_getAssociatedObject(
+        self, @selector(fp_skanCallInterceptor));
+    if (interceptor) {
+        NSNumber *versionOverride = objc_getAssociatedObject(self, @selector(fp_skanVersionOverride));
+        NSString *version = (versionOverride && [versionOverride integerValue] >= 4) ? @"v4" : @"v3";
+        interceptor(value, version);
+        return;
+    }
+
     Class skanClass = NSClassFromString(@"SKAdNetwork");
     if (!skanClass) return;
 
@@ -806,23 +840,13 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     if (useV4) {
         SEL v4Sel = NSSelectorFromString(
             @"updatePostbackConversionValue:coarseValue:lockWindow:completionHandler:");
-        if ([skanClass respondsToSelector:v4Sel]) {
-            // SKAdNetworkCoarseConversionValueMedium = @"medium" (NSString typedef)
+        NSInvocation *inv = fp_skanInvocation(skanClass, v4Sel, value, @"v4");
+        if (inv) {
             NSString *coarseValue = @"medium";
-            NSInvocation *inv = [NSInvocation invocationWithMethodSignature:
-                [skanClass methodSignatureForSelector:v4Sel]];
-            [inv setSelector:v4Sel];
-            [inv setTarget:skanClass];
-            [inv setArgument:&value atIndex:2];
             [inv setArgument:&coarseValue atIndex:3];
             BOOL lockWindow = NO;
             [inv setArgument:&lockWindow atIndex:4];
-            void (^v4Handler)(NSError *) = ^(NSError *error) {
-                if (error) {
-                    FPLog(@"SKAN v4 registration error: %@", error.localizedDescription);
-                }
-            };
-            [inv setArgument:&v4Handler atIndex:5];
+            fp_skanSetCompletionHandler(inv, 5, @"v4");
             [inv invoke];
             return;
         }
@@ -830,18 +854,9 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
     // SKAN v3 fallback: updatePostbackConversionValue:completionHandler: (iOS 15.4+)
     SEL v3Sel = NSSelectorFromString(@"updatePostbackConversionValue:completionHandler:");
-    if ([skanClass respondsToSelector:v3Sel]) {
-        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:
-            [skanClass methodSignatureForSelector:v3Sel]];
-        [inv setSelector:v3Sel];
-        [inv setTarget:skanClass];
-        [inv setArgument:&value atIndex:2];
-        void (^v3Handler)(NSError *) = ^(NSError *error) {
-            if (error) {
-                FPLog(@"SKAN v3 registration error: %@", error.localizedDescription);
-            }
-        };
-        [inv setArgument:&v3Handler atIndex:3];
+    NSInvocation *inv = fp_skanInvocation(skanClass, v3Sel, value, @"v3");
+    if (inv) {
+        fp_skanSetCompletionHandler(inv, 3, @"v3");
         [inv invoke];
     }
     // If neither selector is available (iOS < 15.4) — silently no-op.
