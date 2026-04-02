@@ -66,17 +66,21 @@
         }
     }
 
-    // Build a case-insensitive lookup set for the 24 canonical parameter names.
-    NSArray<NSString *> *supportedKeys = [self supportedClickIdKeys];
-    // Map lowercase → canonical key name for case-insensitive matching.
+    // Build a case-insensitive lookup from lowercase → canonical key name.
     // When two keys share the same lowercase form (sccid / ScCid for Snapchat),
     // the later entry in supportedClickIdKeys wins the canonical slot. ScCid is
     // listed after sccid, so the canonical key is always $ScCid. The value stored
     // is from whichever URL query item appears first (first-URL-order wins for values).
-    NSMutableDictionary<NSString *, NSString *> *lowercaseToCanonical = [NSMutableDictionary dictionary];
-    for (NSString *key in supportedKeys) {
-        lowercaseToCanonical[key.lowercaseString] = key;
-    }
+    static NSDictionary<NSString *, NSString *> *lowercaseToCanonical;
+    static dispatch_once_t canonicalOnceToken;
+    dispatch_once(&canonicalOnceToken, ^{
+        NSArray<NSString *> *keys = [self supportedClickIdKeys];
+        NSMutableDictionary<NSString *, NSString *> *map = [NSMutableDictionary dictionaryWithCapacity:keys.count];
+        for (NSString *key in keys) {
+            map[key.lowercaseString] = key;
+        }
+        lowercaseToCanonical = [map copy];
+    });
 
     NSURLComponents *components = [NSURLComponents componentsWithURL:filteredURL
                                              resolvingAgainstBaseURL:NO];
