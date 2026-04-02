@@ -3,7 +3,7 @@
 [![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org)
 [![iOS](https://img.shields.io/badge/iOS-15.0+-blue.svg)](https://developer.apple.com/ios/)
 [![tvOS](https://img.shields.io/badge/tvOS-12.0+-blue.svg)](https://developer.apple.com/tvos/)
-[![Version](https://img.shields.io/badge/version-0.4.1-green.svg)](https://github.com/freshpaint-io/freshpaint-ios)
+[![Version](https://img.shields.io/badge/version-0.4.2-green.svg)](https://github.com/freshpaint-io/freshpaint-ios)
 
 The Freshpaint iOS SDK for sending data from your iOS app into Freshpaint.
 
@@ -21,7 +21,7 @@ Add the following to your `Package.swift` file:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/freshpaint-io/freshpaint-ios.git", from: "0.4.0")
+    .package(url: "https://github.com/freshpaint-io/freshpaint-ios.git", from: "0.4.2")
 ]
 ```
 
@@ -32,7 +32,7 @@ Or add it via Xcode: **File → Add Package Dependencies** and enter the reposit
 Add the following to your `Podfile`:
 
 ```ruby
-pod 'Freshpaint', '~> 0.4.0'
+pod 'Freshpaint', '~> 0.4.2'
 ```
 
 ## Getting Started

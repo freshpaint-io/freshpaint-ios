@@ -1,3 +1,7 @@
+Version 0.4.2 (1 April, 2026)
+* [Fix] Removed unused `netinet6/in6.h` private header import from `FPReachability.m` that caused App Store submission warnings.
+* [Chore] Bumped podspec version to 0.4.2.
+
 Version 0.4.1 (25 November, 2025)
 * [Fix] Fixed `$is_first_event_in_session` flag to only apply to engagement events (track, screen) and not metadata events (identify, group, alias). This ensures the session start flag is properly attributed to the first screen view for accurate GA4 attribution.
 * [Fix] Fixed race condition in session handling that caused inconsistent session start flags when multiple events fired simultaneously. This resolves issues where GA4 events would reach destinations but not appear in Realtime reporting.

@@ -65,7 +65,7 @@ target 'YourApp' do
   use_frameworks!
 
   # Add Freshpaint SDK
-  pod 'Freshpaint', '~> 0.4.0'
+  pod 'Freshpaint', '~> 0.4.2'
 
   # Your other dependencies...
 end
