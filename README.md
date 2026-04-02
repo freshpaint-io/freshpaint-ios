@@ -21,7 +21,7 @@ Add the following to your `Package.swift` file:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/freshpaint-io/freshpaint-ios.git", from: "0.4.0")
+    .package(url: "https://github.com/freshpaint-io/freshpaint-ios.git", from: "0.4.2")
 ]
 ```
 
@@ -32,7 +32,7 @@ Or add it via Xcode: **File → Add Package Dependencies** and enter the reposit
 Add the following to your `Podfile`:
 
 ```ruby
-pod 'Freshpaint', '~> 0.4.0'
+pod 'Freshpaint', '~> 0.4.2'
 ```
 
 ## Getting Started
