@@ -244,7 +244,20 @@ NS_SWIFT_NAME(FreshpaintConfiguration)
 @property (nonatomic, assign) BOOL autoRequestATT;
 
 /**
- * The SKAdNetwork conversion value to report. Valid values are 0–63. `0` by default.
+ * SKAdNetwork conversion value to register on fresh install (iOS 15.4+).
+ *
+ * Valid range: 1-63. Set to 0 (default) to skip SKAN registration.
+ * Values outside 1-63 are ignored.
+ *
+ * The SDK registers this value using the best available SKAN API:
+ * - v4 (iOS 16.1+): updatePostbackConversionValue:coarseValue:lockWindow:completionHandler:
+ *   with coarseValue = SKAdNetworkCoarseConversionValueMedium and lockWindow = NO.
+ * - v3 (iOS 15.4-16.0): updatePostbackConversionValue:completionHandler:
+ *
+ * Registration occurs once during the first app launch. StoreKit is accessed
+ * via runtime reflection -- no direct framework import is required.
+ *
+ * @see https://developer.apple.com/documentation/storekit/skadnetwork
  */
 @property (nonatomic, assign) NSInteger skanConversionValue;
 

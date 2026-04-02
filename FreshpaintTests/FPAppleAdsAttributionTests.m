@@ -169,6 +169,7 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 - (FPAnalytics *)freshAnalyticsWithCapture:(FPAppleAdsEventCapture **)outCapture
 {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_BuildKeyV2];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_VersionKey];
     FPAppleAdsEventCapture *cap = [[FPAppleAdsEventCapture alloc] init];
     self.configuration.sourceMiddleware = @[ cap ];
     if (outCapture) *outCapture = cap;

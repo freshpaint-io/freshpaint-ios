@@ -272,9 +272,18 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
                     NSString *(*tokenIMP)(id, SEL, NSError **) =
                         (NSString *(*)(id, SEL, NSError **))[aaClass methodForSelector:tokenSel];
                     NSError *tokenError = nil;
+                    CFAbsoluteTime tokenStart = CFAbsoluteTimeGetCurrent();
                     appleAdsToken = tokenIMP(aaClass, tokenSel, &tokenError);
+                    CFAbsoluteTime tokenDuration = CFAbsoluteTimeGetCurrent() - tokenStart;
+                    if (tokenDuration > 0.1) {
+                        FPLog(@"Apple Ads token retrieval took %.2f seconds", tokenDuration);
+                    }
                     if (tokenError) {
                         FPLog(@"Apple Ads token unavailable: %@", tokenError.localizedDescription);
+                        [self track:@"apple_ads_token_error" properties:@{
+                            @"error_domain": tokenError.domain ?: @"unknown",
+                            @"error_code": @(tokenError.code),
+                        }];
                     }
                 }
             }
@@ -282,7 +291,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
                 installProps[@"apple_ads_token"] = appleAdsToken;
             }
         } @catch (NSException *e) {
-            FPLog(@"Apple Ads token exception (non-fatal): %@", e.reason);
+            FPLog(@"Apple Ads token exception (non-fatal): %@", e);
         }
 
         [self track:@"app_install" properties:[installProps copy]];
@@ -800,6 +809,9 @@ static void fp_skanSetCompletionHandler(NSInvocation *inv, NSUInteger argIndex, 
         }
     };
     [inv setArgument:&handler atIndex:argIndex];
+    // retainArguments copies all arguments (including the block) to the heap.
+    // Without this the block pointer becomes dangling when this function returns,
+    // causing a crash when SKAdNetwork invokes the handler asynchronously.
     [inv retainArguments];
 }
 
