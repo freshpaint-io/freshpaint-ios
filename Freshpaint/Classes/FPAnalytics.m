@@ -241,10 +241,9 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
                 Class aaClass = NSClassFromString(@"AAAttribution");
                 SEL tokenSel = NSSelectorFromString(@"attributionToken:");
                 if (aaClass && [aaClass respondsToSelector:tokenSel]) {
-                    NSError *tokenError = nil;
                     NSString *(*tokenIMP)(id, SEL, NSError **) =
                         (NSString *(*)(id, SEL, NSError **))[aaClass methodForSelector:tokenSel];
-                    appleAdsToken = tokenIMP(aaClass, tokenSel, &tokenError);
+                    appleAdsToken = tokenIMP(aaClass, tokenSel, NULL);
                 }
             }
             if (appleAdsToken.length > 0) {
@@ -745,7 +744,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 /// API version in tests; nil = auto-detect from OS version at runtime.
 - (void)fp_registerSKANConversionValue:(NSInteger)value
 {
-#if TARGET_OS_IOS
+#if TARGET_OS_IPHONE
     Class skanClass = NSClassFromString(@"SKAdNetwork");
     if (!skanClass) return;
 
@@ -757,7 +756,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         useV4 = ([versionOverride integerValue] >= 4);
     } else {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 160100
-        if (@available(ios 16.1, *)) {
+        if (@available(iOS 16.1, *)) {
             useV4 = YES;
         }
 #endif

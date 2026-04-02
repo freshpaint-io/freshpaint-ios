@@ -238,14 +238,12 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
     XCTAssertEqual(self.configuration.skanConversionValue, 0,
         @"skanConversionValue default must be 0");
 
-    __block BOOL skanCalled = NO;
     // Inject a version override so the call would be routed if it fired.
     self.analytics.fp_skanVersionOverride = @4;
     // We can't intercept the real SKAN call directly, but if value=0 the guard
     // prevents the call reaching fp_registerSKANConversionValue: at all.
     // Verify no crash and that the install event still fires normally.
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
-    (void)skanCalled;
 
     FPTrackPayload *install = [self capturedInstallPayload];
     XCTAssertNotNil(install, @"app_install must still fire when SKAN is skipped");
@@ -321,18 +319,23 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 - (void)testSkadnetworkIdAbsentFromAllPayloads
 {
 #if TARGET_OS_IPHONE
-    self.analytics.fp_appleAdsTokenProvider = ^NSString * { return @"some_token"; };
     self.configuration.skanConversionValue = 5;
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_BuildKeyV2];
+    FPAppleAdsEventCapture *capture2 = [[FPAppleAdsEventCapture alloc] init];
+    self.configuration.sourceMiddleware = @[ capture2 ];
+    FPAnalytics *analytics2 = [[FPAnalytics alloc] initWithConfiguration:self.configuration];
+    analytics2.fp_appleAdsTokenProvider = ^NSString * { return @"some_token"; };
 
-    [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
+    [analytics2 _applicationDidFinishLaunchingWithOptions:nil];
 
-    for (FPContext *ctx in self.capture.capturedContexts) {
+    for (FPContext *ctx in capture2.capturedContexts) {
         FPTrackPayload *track = (FPTrackPayload *)ctx.payload;
         if ([track isKindOfClass:[FPTrackPayload class]]) {
             XCTAssertNil(track.properties[@"skadnetwork_id"],
                 @"skadnetwork_id must never appear in any event payload (event: %@)", track.event);
         }
     }
+    analytics2 = nil;
 #endif
 }
 
