@@ -41,17 +41,6 @@ static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000"
     return FPATTGetCurrentStatus();
 }
 
-- (NSString *)attStatusStringForStatus:(NSUInteger)status
-{
-    if (status == kFPATTStatusUnavailable) return @"unavailable";
-    switch (status) {
-        case kFPATTStatusRestricted:    return @"restricted";
-        case kFPATTStatusDenied:        return @"denied";
-        case kFPATTStatusAuthorized:    return @"authorized";
-        default:                        return @"notDetermined"; // kFPATTStatusNotDetermined (0)
-    }
-}
-
 #pragma mark - FPMiddleware
 
 - (void)context:(FPContext *)context next:(FPMiddlewareNext)next
@@ -62,7 +51,7 @@ static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000"
         NSUInteger status = [self currentATTStatus];
         NSMutableDictionary *enrichment = [NSMutableDictionary dictionary];
 
-        enrichment[@"att_status"] = [self attStatusStringForStatus:status];
+        enrichment[@"att_status"] = FPATTStatusToString(status);
 
         // Include IDFA only when fully authorized and adSupportBlock is set.
         if (status == kFPATTStatusAuthorized && self.configuration.adSupportBlock != nil) {

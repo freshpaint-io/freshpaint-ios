@@ -12,6 +12,11 @@
 #import "FPMiddleware.h"
 #import "FPContext.h"
 #import "FPTrackPayload.h"
+#import "FPATTTestConstants.h"
+
+// NSUserDefaults keys — defined in FPAnalytics.m, declared here for test access.
+extern NSString *const FPVersionKey;
+extern NSString *const FPBuildKeyV2;
 
 // ---------------------------------------------------------------------------
 #pragma mark - Test-only extensions
@@ -66,19 +71,11 @@
 @end
 
 // ---------------------------------------------------------------------------
-#pragma mark - ATT status constants
+#pragma mark - Test IDFA fixtures
 // ---------------------------------------------------------------------------
-
-static const NSUInteger kFPATTNotDetermined = 0;
-static const NSUInteger kFPATTDenied        = 2;
-static const NSUInteger kFPATTAuthorized    = 3;
 
 static NSString *const kFPValidIDFA  = @"12345678-1234-1234-1234-123456789ABC";
 static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
-
-// NSUserDefaults keys (match the constants defined in FPAnalytics.m)
-static NSString *const kFPBuildKeyV2  = @"FPBuildKeyV2";
-static NSString *const kFPVersionKey  = @"FPVersionKey";
 
 // ---------------------------------------------------------------------------
 #pragma mark - Test class
@@ -100,12 +97,12 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
     [super setUp];
 
     // Persist original NSUserDefaults state so tearDown can restore it exactly.
-    self.savedBuildV2 = [[NSUserDefaults standardUserDefaults] stringForKey:kFPBuildKeyV2];
-    self.savedVersion = [[NSUserDefaults standardUserDefaults] stringForKey:kFPVersionKey];
+    self.savedBuildV2 = [[NSUserDefaults standardUserDefaults] stringForKey:FPBuildKeyV2];
+    self.savedVersion = [[NSUserDefaults standardUserDefaults] stringForKey:FPVersionKey];
 
     // Simulate a fresh install by removing the guard flag.
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPBuildKeyV2];
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPVersionKey];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:FPBuildKeyV2];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:FPVersionKey];
 
     // Build a configuration that fires lifecycle events but does NOT hook into
     // UIApplication (no notifications registered — tests drive the method directly).
@@ -123,14 +120,14 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 {
     // Restore NSUserDefaults to the state before this test.
     if (self.savedBuildV2) {
-        [[NSUserDefaults standardUserDefaults] setObject:self.savedBuildV2 forKey:kFPBuildKeyV2];
+        [[NSUserDefaults standardUserDefaults] setObject:self.savedBuildV2 forKey:FPBuildKeyV2];
     } else {
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPBuildKeyV2];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:FPBuildKeyV2];
     }
     if (self.savedVersion) {
-        [[NSUserDefaults standardUserDefaults] setObject:self.savedVersion forKey:kFPVersionKey];
+        [[NSUserDefaults standardUserDefaults] setObject:self.savedVersion forKey:FPVersionKey];
     } else {
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPVersionKey];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:FPVersionKey];
     }
     [[NSUserDefaults standardUserDefaults] synchronize];
 
@@ -192,8 +189,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 {
 #if TARGET_OS_IOS
     // Seed the guard flag to simulate a returning user.
-    [[NSUserDefaults standardUserDefaults] setObject:@"1.0" forKey:kFPBuildKeyV2];
-    [[NSUserDefaults standardUserDefaults] setObject:@"1" forKey:kFPVersionKey];
+    [[NSUserDefaults standardUserDefaults] setObject:@"1.0" forKey:FPBuildKeyV2];
+    [[NSUserDefaults standardUserDefaults] setObject:@"1" forKey:FPVersionKey];
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
@@ -213,7 +210,7 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 - (void)testPayloadContainsRequiredFields
 {
 #if TARGET_OS_IOS
-    self.analytics.fp_attStatusProvider = ^NSUInteger { return kFPATTNotDetermined; };
+    self.analytics.fp_attStatusProvider = ^NSUInteger { return kATTNotDetermined; };
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
@@ -265,7 +262,7 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 - (void)testIDFAIncludedWhenATTAuthorized
 {
 #if TARGET_OS_IOS
-    self.analytics.fp_attStatusProvider = ^NSUInteger { return kFPATTAuthorized; };
+    self.analytics.fp_attStatusProvider = ^NSUInteger { return kATTAuthorized; };
     self.configuration.adSupportBlock   = ^NSString *{ return kFPValidIDFA; };
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
@@ -283,7 +280,7 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 - (void)testIDFAAbsentWhenATTNotAuthorized
 {
 #if TARGET_OS_IOS
-    self.analytics.fp_attStatusProvider = ^NSUInteger { return kFPATTDenied; };
+    self.analytics.fp_attStatusProvider = ^NSUInteger { return kATTDenied; };
     self.configuration.adSupportBlock   = ^NSString *{ return kFPValidIDFA; };
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
@@ -301,7 +298,7 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 - (void)testIDFAAbsentWhenAdSupportBlockNil
 {
 #if TARGET_OS_IOS
-    self.analytics.fp_attStatusProvider = ^NSUInteger { return kFPATTAuthorized; };
+    self.analytics.fp_attStatusProvider = ^NSUInteger { return kATTAuthorized; };
     // adSupportBlock intentionally not set — remains nil
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
@@ -319,7 +316,7 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 - (void)testIDFAAbsentWhenZeroedIDFA
 {
 #if TARGET_OS_IOS
-    self.analytics.fp_attStatusProvider = ^NSUInteger { return kFPATTAuthorized; };
+    self.analytics.fp_attStatusProvider = ^NSUInteger { return kATTAuthorized; };
     self.configuration.adSupportBlock   = ^NSString *{ return kFPZeroIDFA; };
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
@@ -343,13 +340,13 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 {
 #if TARGET_OS_IOS
     // Guard: key must be absent before the call.
-    XCTAssertNil([[NSUserDefaults standardUserDefaults] stringForKey:kFPBuildKeyV2],
+    XCTAssertNil([[NSUserDefaults standardUserDefaults] stringForKey:FPBuildKeyV2],
                  @"Pre-condition: FPBuildKeyV2 must be nil before first launch");
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
     // No flush called — flag must already be set.
-    NSString *storedBuild = [[NSUserDefaults standardUserDefaults] stringForKey:kFPBuildKeyV2];
+    NSString *storedBuild = [[NSUserDefaults standardUserDefaults] stringForKey:FPBuildKeyV2];
     XCTAssertNotNil(storedBuild,
                     @"FPBuildKeyV2 must be written immediately after app_install is enqueued, not deferred to flush");
 #else
@@ -366,8 +363,8 @@ static NSString *const kFPVersionKey  = @"FPVersionKey";
 {
 #if TARGET_OS_IOS
     // Seed guard flag so this looks like a returning launch with an updated build.
-    [[NSUserDefaults standardUserDefaults] setObject:@"0.9" forKey:kFPBuildKeyV2];
-    [[NSUserDefaults standardUserDefaults] setObject:@"1" forKey:kFPVersionKey];
+    [[NSUserDefaults standardUserDefaults] setObject:@"0.9" forKey:FPBuildKeyV2];
+    [[NSUserDefaults standardUserDefaults] setObject:@"1" forKey:FPVersionKey];
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 

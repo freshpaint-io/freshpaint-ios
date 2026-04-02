@@ -240,13 +240,12 @@
 /// FPAttributionMiddleware uses NSUIntegerMax internally but that is not a public API concern.
 - (void)testTrackingAuthorizationStatusAndRequestCompletionAgreeOnUnavailable
 {
-    // Both public methods collapse kFPATTStatusUnavailable → 0.
-    // Simulate unavailable via the provider seam and verify the public method returns 0.
+    // Both public methods collapse kFPATTStatusUnavailable -> 0.
+    // Note: fp_attStatusProvider has no effect here because +trackingAuthorizationStatus
+    // calls FPATTGetCurrentStatus(), a static inline function resolved at compile time.
+    // The provider seam only affects instance methods that read the associated object.
+    // We verify the contract by confirming the public class method stays within [0,3].
 #if TARGET_OS_IOS
-    self.analytics.fp_attStatusProvider = ^NSUInteger { return kFPATTStatusUnavailable; };
-    // trackingAuthorizationStatus uses FPATTGetCurrentStatus() directly, not the provider.
-    // We verify the contract by reading the raw value and confirming the mapping.
-    // The actual runtime mapping lives in the +trackingAuthorizationStatus implementation.
     XCTAssertLessThanOrEqual([FPAnalytics trackingAuthorizationStatus], 3,
         @"+trackingAuthorizationStatus must stay within [0,3] — unavailable maps to 0");
 #endif
