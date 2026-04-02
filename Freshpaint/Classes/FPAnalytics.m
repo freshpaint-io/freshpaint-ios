@@ -271,7 +271,11 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
                 if (aaClass && [aaClass respondsToSelector:tokenSel]) {
                     NSString *(*tokenIMP)(id, SEL, NSError **) =
                         (NSString *(*)(id, SEL, NSError **))[aaClass methodForSelector:tokenSel];
-                    appleAdsToken = tokenIMP(aaClass, tokenSel, NULL);
+                    NSError *tokenError = nil;
+                    appleAdsToken = tokenIMP(aaClass, tokenSel, &tokenError);
+                    if (tokenError) {
+                        FPLog(@"Apple Ads token unavailable: %@", tokenError.localizedDescription);
+                    }
                 }
             }
             if (appleAdsToken.length > 0) {
@@ -284,9 +288,9 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         [self track:@"app_install" properties:[installProps copy]];
 
         // SKAdNetwork conversion value registration (StoreKit — runtime-only, opt-in).
-        // Only fires when skanConversionValue > 0; skipped entirely when 0 (default).
+        // Only fires when skanConversionValue is in the valid range (1-63).
         NSInteger skanValue = self.oneTimeConfiguration.skanConversionValue;
-        if (skanValue > 0) {
+        if (skanValue > 0 && skanValue <= 63) {
             [self fp_registerSKANConversionValue:skanValue];
         }
 #else
@@ -813,8 +817,12 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
             [inv setArgument:&coarseValue atIndex:3];
             BOOL lockWindow = NO;
             [inv setArgument:&lockWindow atIndex:4];
-            id nilBlock = nil;
-            [inv setArgument:&nilBlock atIndex:5];
+            void (^v4Handler)(NSError *) = ^(NSError *error) {
+                if (error) {
+                    FPLog(@"SKAN v4 registration error: %@", error.localizedDescription);
+                }
+            };
+            [inv setArgument:&v4Handler atIndex:5];
             [inv invoke];
             return;
         }
@@ -828,8 +836,12 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         [inv setSelector:v3Sel];
         [inv setTarget:skanClass];
         [inv setArgument:&value atIndex:2];
-        id nilBlock = nil;
-        [inv setArgument:&nilBlock atIndex:3];
+        void (^v3Handler)(NSError *) = ^(NSError *error) {
+            if (error) {
+                FPLog(@"SKAN v3 registration error: %@", error.localizedDescription);
+            }
+        };
+        [inv setArgument:&v3Handler atIndex:3];
         [inv invoke];
     }
     // If neither selector is available (iOS < 15.4) — silently no-op.
