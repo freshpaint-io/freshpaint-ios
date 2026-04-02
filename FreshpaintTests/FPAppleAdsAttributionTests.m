@@ -164,6 +164,17 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
     return nil;
 }
 
+/// Creates a fresh FPAnalytics instance with the current configuration and a new capture middleware.
+/// Clears the install guard so the fresh-install path fires.
+- (FPAnalytics *)freshAnalyticsWithCapture:(FPAppleAdsEventCapture **)outCapture
+{
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_BuildKeyV2];
+    FPAppleAdsEventCapture *cap = [[FPAppleAdsEventCapture alloc] init];
+    self.configuration.sourceMiddleware = @[ cap ];
+    if (outCapture) *outCapture = cap;
+    return [[FPAnalytics alloc] initWithConfiguration:self.configuration];
+}
+
 // ---------------------------------------------------------------------------
 #pragma mark - AC-1, AC-2: Token capture and inclusion in payload
 // ---------------------------------------------------------------------------
@@ -269,10 +280,8 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 {
 #if TARGET_OS_IPHONE
     self.configuration.skanConversionValue = -1;
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_BuildKeyV2];
-    FPAppleAdsEventCapture *capture2 = [[FPAppleAdsEventCapture alloc] init];
-    self.configuration.sourceMiddleware = @[ capture2 ];
-    FPAnalytics *analytics2 = [[FPAnalytics alloc] initWithConfiguration:self.configuration];
+    FPAppleAdsEventCapture *cap = nil;
+    FPAnalytics *analytics2 = [self freshAnalyticsWithCapture:&cap];
 
     __block BOOL skanCalled = NO;
     analytics2.fp_skanCallInterceptor = ^(NSInteger value, NSString *version) {
@@ -291,10 +300,8 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 {
 #if TARGET_OS_IPHONE
     self.configuration.skanConversionValue = 64;
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_BuildKeyV2];
-    FPAppleAdsEventCapture *capture2 = [[FPAppleAdsEventCapture alloc] init];
-    self.configuration.sourceMiddleware = @[ capture2 ];
-    FPAnalytics *analytics2 = [[FPAnalytics alloc] initWithConfiguration:self.configuration];
+    FPAppleAdsEventCapture *cap = nil;
+    FPAnalytics *analytics2 = [self freshAnalyticsWithCapture:&cap];
 
     __block BOOL skanCalled = NO;
     analytics2.fp_skanVersionOverride = @4;
@@ -318,10 +325,8 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 {
 #if TARGET_OS_IPHONE
     self.configuration.skanConversionValue = 7;
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_BuildKeyV2];
-    FPAppleAdsEventCapture *capture2 = [[FPAppleAdsEventCapture alloc] init];
-    self.configuration.sourceMiddleware = @[ capture2 ];
-    FPAnalytics *analytics2 = [[FPAnalytics alloc] initWithConfiguration:self.configuration];
+    FPAppleAdsEventCapture *cap = nil;
+    FPAnalytics *analytics2 = [self freshAnalyticsWithCapture:&cap];
     analytics2.fp_skanVersionOverride = @4;
 
     __block NSInteger capturedValue = -1;
@@ -348,10 +353,8 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 {
 #if TARGET_OS_IPHONE
     self.configuration.skanConversionValue = 5;
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_BuildKeyV2];
-    FPAppleAdsEventCapture *capture2 = [[FPAppleAdsEventCapture alloc] init];
-    self.configuration.sourceMiddleware = @[ capture2 ];
-    FPAnalytics *analytics2 = [[FPAnalytics alloc] initWithConfiguration:self.configuration];
+    FPAppleAdsEventCapture *cap = nil;
+    FPAnalytics *analytics2 = [self freshAnalyticsWithCapture:&cap];
     analytics2.fp_skanVersionOverride = @3;
 
     __block NSInteger capturedValue = -1;
@@ -369,6 +372,25 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 #endif
 }
 
+/// Exercises the real NSInvocation code path (no interceptor) to verify retainArguments
+/// prevents dangling block pointers. SKAdNetwork may not be available in the test
+/// environment, so this only asserts no crash -- the SKAN call silently no-ops when
+/// the framework is absent.
+- (void)testSKANRealInvocationPathNoCrash
+{
+#if TARGET_OS_IPHONE
+    self.configuration.skanConversionValue = 10;
+    FPAppleAdsEventCapture *cap = nil;
+    FPAnalytics *analytics2 = [self freshAnalyticsWithCapture:&cap];
+    analytics2.fp_skanVersionOverride = @4;
+    // No interceptor -- exercises the real fp_skanInvocation + fp_skanSetCompletionHandler path.
+
+    XCTAssertNoThrow([analytics2 _applicationDidFinishLaunchingWithOptions:nil],
+        @"Real SKAN NSInvocation path must not crash");
+    analytics2 = nil;
+#endif
+}
+
 // ---------------------------------------------------------------------------
 #pragma mark - AC-11: skadnetwork_id must not appear in payload
 // ---------------------------------------------------------------------------
@@ -378,15 +400,13 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 {
 #if TARGET_OS_IPHONE
     self.configuration.skanConversionValue = 5;
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPAA_BuildKeyV2];
-    FPAppleAdsEventCapture *capture2 = [[FPAppleAdsEventCapture alloc] init];
-    self.configuration.sourceMiddleware = @[ capture2 ];
-    FPAnalytics *analytics2 = [[FPAnalytics alloc] initWithConfiguration:self.configuration];
+    FPAppleAdsEventCapture *cap = nil;
+    FPAnalytics *analytics2 = [self freshAnalyticsWithCapture:&cap];
     analytics2.fp_appleAdsTokenProvider = ^NSString * { return @"some_token"; };
 
     [analytics2 _applicationDidFinishLaunchingWithOptions:nil];
 
-    for (FPContext *ctx in capture2.capturedContexts) {
+    for (FPContext *ctx in cap.capturedContexts) {
         FPTrackPayload *track = (FPTrackPayload *)ctx.payload;
         if ([track isKindOfClass:[FPTrackPayload class]]) {
             XCTAssertNil(track.properties[@"skadnetwork_id"],

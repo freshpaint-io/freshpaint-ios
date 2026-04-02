@@ -777,9 +777,9 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
 #pragma mark - SKAdNetwork
 
-/// Creates an NSInvocation for a SKAdNetwork class method, sets the target/selector/value,
-/// and appends an error-logging completion handler as the last argument.
-static NSInvocation *fp_skanInvocation(Class skanClass, SEL sel, NSInteger value, NSString *label)
+/// Creates an NSInvocation for a SKAdNetwork class method with the conversion value
+/// set at argument index 2. Returns nil if the class does not respond to the selector.
+static NSInvocation *fp_skanInvocation(Class skanClass, SEL sel, NSInteger value)
 {
     if (![skanClass respondsToSelector:sel]) return nil;
     NSInvocation *inv = [NSInvocation invocationWithMethodSignature:
@@ -790,6 +790,8 @@ static NSInvocation *fp_skanInvocation(Class skanClass, SEL sel, NSInteger value
     return inv;
 }
 
+/// Appends an error-logging completion handler at the given argument index and calls
+/// retainArguments to ensure the block is copied to the heap before invocation.
 static void fp_skanSetCompletionHandler(NSInvocation *inv, NSUInteger argIndex, NSString *label)
 {
     void (^handler)(NSError *) = ^(NSError *error) {
@@ -798,6 +800,7 @@ static void fp_skanSetCompletionHandler(NSInvocation *inv, NSUInteger argIndex, 
         }
     };
     [inv setArgument:&handler atIndex:argIndex];
+    [inv retainArguments];
 }
 
 /// Registers a SKAdNetwork conversion value using the best available API.
@@ -840,7 +843,7 @@ static void fp_skanSetCompletionHandler(NSInvocation *inv, NSUInteger argIndex, 
     if (useV4) {
         SEL v4Sel = NSSelectorFromString(
             @"updatePostbackConversionValue:coarseValue:lockWindow:completionHandler:");
-        NSInvocation *inv = fp_skanInvocation(skanClass, v4Sel, value, @"v4");
+        NSInvocation *inv = fp_skanInvocation(skanClass, v4Sel, value);
         if (inv) {
             NSString *coarseValue = @"medium";
             [inv setArgument:&coarseValue atIndex:3];
@@ -854,7 +857,7 @@ static void fp_skanSetCompletionHandler(NSInvocation *inv, NSUInteger argIndex, 
 
     // SKAN v3 fallback: updatePostbackConversionValue:completionHandler: (iOS 15.4+)
     SEL v3Sel = NSSelectorFromString(@"updatePostbackConversionValue:completionHandler:");
-    NSInvocation *inv = fp_skanInvocation(skanClass, v3Sel, value, @"v3");
+    NSInvocation *inv = fp_skanInvocation(skanClass, v3Sel, value);
     if (inv) {
         fp_skanSetCompletionHandler(inv, 3, @"v3");
         [inv invoke];
