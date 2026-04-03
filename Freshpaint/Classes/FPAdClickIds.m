@@ -71,6 +71,7 @@
     // the later entry in supportedClickIdKeys wins the canonical slot. ScCid is
     // listed after sccid, so the canonical key is always $ScCid. The value stored
     // is from whichever URL query item appears first (first-URL-order wins for values).
+    // Cached once; dispatch_once blocks concurrent callers until init completes.
     static NSDictionary<NSString *, NSString *> *lowercaseToCanonical;
     static dispatch_once_t canonicalOnceToken;
     dispatch_once(&canonicalOnceToken, ^{
