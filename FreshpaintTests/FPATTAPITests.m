@@ -240,7 +240,7 @@
 /// FPAttributionMiddleware uses NSUIntegerMax internally but that is not a public API concern.
 - (void)testTrackingAuthorizationStatusAndRequestCompletionAgreeOnUnavailable
 {
-    // Both public methods collapse kFPATTStatusUnavailable -> 0.
+    // Both public methods collapse kFPATTStatusUnavailable → 0.
     // Note: fp_attStatusProvider has no effect here because +trackingAuthorizationStatus
     // calls FPATTGetCurrentStatus(), a static inline function resolved at compile time.
     // The provider seam only affects instance methods that read the associated object.
