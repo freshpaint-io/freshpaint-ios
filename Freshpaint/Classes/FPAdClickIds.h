@@ -17,6 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Extracts click IDs and UTM params from a URL after applying payload filters.
 ///
+/// Click IDs are stored without an expiry by design — they represent one-time
+/// attribution signals that remain valid for the lifetime of the install. A TTL
+/// may be introduced if product requirements change. UTM parameters, by contrast,
+/// expire after 24 hours.
+///
 /// @param url             The deep link URL to inspect.
 /// @param filters         Payload filter patterns (regex → replacement) — applied to the URL
 ///                        string before query parameter extraction.
