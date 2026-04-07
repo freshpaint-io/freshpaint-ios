@@ -23,6 +23,22 @@ static const NSUInteger kFPATTStatusAuthorized    = 3;
 /// (notDetermined = 0) from "platform has no ATT framework".
 static const NSUInteger kFPATTStatusUnavailable = NSUIntegerMax;
 
+/// Returns a human-readable string for the given ATT authorization status value.
+///
+/// @param status  One of the kFPATTStatus* constants (0–3) or kFPATTStatusUnavailable.
+/// @return A string suitable for analytics payloads: "notDetermined", "restricted",
+///         "denied", "authorized", or "unavailable".
+static inline NSString *FPATTStatusToString(NSUInteger status)
+{
+    switch (status) {
+        case kFPATTStatusRestricted: return @"restricted";
+        case kFPATTStatusDenied:     return @"denied";
+        case kFPATTStatusAuthorized: return @"authorized";
+        case kFPATTStatusUnavailable: return @"unavailable";
+        default:                     return @"notDetermined";
+    }
+}
+
 /// Returns the current ATT tracking authorization status via runtime-only lookup.
 /// Never imports AppTrackingTransparency directly — safe for apps that omit it.
 ///

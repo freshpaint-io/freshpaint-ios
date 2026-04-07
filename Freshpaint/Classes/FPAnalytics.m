@@ -16,11 +16,15 @@
 #import "FPIntegrationsManager.h"
 #import "FPState.h"
 #import "FPUtils.h"
-#import "FPAttributionMiddleware.h"
 #import "FPStableDeviceId.h"
 #import "FPATTRuntime.h"
+#import "FPAttributionMiddleware.h"
+#import "FPAdClickIds.h"
 
 static FPAnalytics *__sharedInstance = nil;
+
+// All-zeros IDFA value returned when the advertising identifier is not available.
+static NSString *const kFPInstallZeroedIDFA = @"00000000-0000-0000-0000-000000000000";
 
 
 @interface FPAnalytics ()
@@ -195,26 +199,142 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     NSString *currentBuild = [[NSBundle mainBundle] infoDictionary][@"CFBundleVersion"];
 
     if (!previousBuildV2) {
-        [self track:@"Application Installed" properties:@{
-            @"version" : currentVersion ?: @"",
-            @"build" : currentBuild ?: @"",
+#if TARGET_OS_IPHONE
+        // ATT status — same associated-objects pattern as _handleDidBecomeActiveForATT.
+        // In test builds a provider is injected via objc_setAssociatedObject; in
+        // production the getter returns nil and we fall through to the real ATT query.
+        NSUInteger (^statusProvider)(void) = objc_getAssociatedObject(
+            self, @selector(fp_attStatusProvider));
+        NSUInteger attStatus = statusProvider ? statusProvider() : [FPAnalytics trackingAuthorizationStatus];
+        NSString *attStatusStr = FPATTStatusToString(attStatus);
+
+        NSMutableDictionary *installProps = [NSMutableDictionary dictionary];
+        installProps[@"install_timestamp"] = iso8601FormattedString([NSDate date]);
+        installProps[@"device_id"]         = [FPStableDeviceId deviceId];
+        installProps[@"idfv"]              = [[[UIDevice currentDevice] identifierForVendor] UUIDString] ?: @"";
+        installProps[@"att_status"]        = attStatusStr;
+        installProps[@"os_version"]        = [[UIDevice currentDevice] systemVersion] ?: @"";
+        installProps[@"app_version"]       = currentVersion ?: @"";
+
+        if (attStatus == kFPATTStatusAuthorized && self.oneTimeConfiguration.adSupportBlock != nil) {
+            NSString *idfa = self.oneTimeConfiguration.adSupportBlock();
+            if (idfa.length > 0 && ![idfa isEqualToString:kFPInstallZeroedIDFA]) {
+                installProps[@"idfa"] = idfa;
+            }
+        }
+
+        // If the app was launched via a URL (e.g. deferred deep link at first-open),
+        // extract attribution from it and persist before merging into install payload.
+        // UIKit guarantees UIApplicationDelegate callbacks on the main thread.
+        // If somehow called off-main (e.g. a unit test), dispatch to main to avoid a
+        // potential deadlock: mergeClickIds: posts a barrier write to _stateQueue and
+        // activeClickIdsFlattened below uses dispatch_sync on the same queue — both are
+        // safe from any non-_stateQueue thread, including main, but not from _stateQueue.
+        if (!NSThread.isMainThread) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self _applicationDidFinishLaunchingWithOptions:launchOptions];
+            });
+            return;
+        }
+        [self _processAttributionFromURL:launchOptions[UIApplicationLaunchOptionsURLKey]];
+
+        // Merge any stored click IDs and active UTM params into the install payload.
+        // activeClickIdsFlattened uses dispatch_sync, which drains any pending barrier
+        // (from the _processAttributionFromURL: call above) before reading — GCD guarantee.
+        NSDictionary *storedClickIds = [[FPState sharedInstance] activeClickIdsFlattened];
+        NSDictionary *storedUTM      = [[FPState sharedInstance] activeUTMParams];
+        if (storedClickIds.count > 0) {
+            [installProps addEntriesFromDictionary:storedClickIds];
+        }
+        if (storedUTM.count > 0) {
+            [installProps addEntriesFromDictionary:storedUTM];
+        }
+
+        // Apple Ads attribution token (AdServices.framework — runtime-only, opt-in).
+        // attributionToken: throws ObjC exceptions when the app was not installed via
+        // Apple Search Ads — @try/@catch is required per Apple documentation.
+        @try {
+            NSString *(^tokenProvider)(void) = objc_getAssociatedObject(
+                self, @selector(fp_appleAdsTokenProvider));
+            NSString *appleAdsToken = nil;
+            if (tokenProvider) {
+                appleAdsToken = tokenProvider();
+            } else {
+                Class aaClass = NSClassFromString(@"AAAttribution");
+                SEL tokenSel = NSSelectorFromString(@"attributionToken:");
+                if (aaClass && [aaClass respondsToSelector:tokenSel]) {
+                    NSString *(*tokenIMP)(id, SEL, NSError **) =
+                        (NSString *(*)(id, SEL, NSError **))[aaClass methodForSelector:tokenSel];
+                    NSError *tokenError = nil;
+                    CFAbsoluteTime tokenStart = CFAbsoluteTimeGetCurrent();
+                    appleAdsToken = tokenIMP(aaClass, tokenSel, &tokenError);
+                    CFAbsoluteTime tokenDuration = CFAbsoluteTimeGetCurrent() - tokenStart;
+                    if (tokenDuration > 0.1) {
+                        FPLog(@"Apple Ads token retrieval took %.2f seconds", tokenDuration);
+                    }
+                    if (tokenError) {
+                        FPLog(@"Apple Ads token unavailable: %@", tokenError.localizedDescription);
+                        [self track:@"apple_ads_token_error" properties:@{
+                            @"error_domain": tokenError.domain ?: @"unknown",
+                            @"error_code": @(tokenError.code),
+                        }];
+                    }
+                }
+            }
+            if (appleAdsToken.length > 0) {
+                installProps[@"apple_ads_token"] = appleAdsToken;
+            }
+        } @catch (NSException *e) {
+            FPLog(@"Apple Ads token exception (non-fatal): %@", e);
+        }
+
+        [self track:@"app_install" properties:[installProps copy]];
+
+        // SKAdNetwork conversion value registration (StoreKit — runtime-only, opt-in).
+        // Only fires when skanConversionValue is in the valid range (1-63).
+        NSInteger skanValue = self.oneTimeConfiguration.skanConversionValue;
+        if (skanValue > 0 && skanValue <= 63) {
+            [self fp_registerSKANConversionValue:skanValue];
+        }
+#else
+        // Non-iOS platforms (macOS): include the fields available without iOS APIs.
+        // idfv, att_status, and idfa require UIDevice/ATT and are intentionally omitted.
+        [self track:@"app_install" properties:@{
+            @"install_timestamp" : iso8601FormattedString([NSDate date]),
+            @"device_id"         : [FPStableDeviceId deviceId],
+            @"os_version"        : [NSProcessInfo processInfo].operatingSystemVersionString ?: @"",
+            @"app_version"       : currentVersion ?: @"",
         }];
-    } else if (![currentBuild isEqualToString:previousBuildV2]) {
-        [self track:@"Application Updated" properties:@{
-            @"previous_version" : previousVersion ?: @"",
-            @"previous_build" : previousBuildV2 ?: @"",
-            @"version" : currentVersion ?: @"",
-            @"build" : currentBuild ?: @"",
-        }];
+#endif
+    } else {
+        // Returning user — fire Application Updated if the build changed.
+        if (![currentBuild isEqualToString:previousBuildV2]) {
+            [self track:@"Application Updated" properties:@{
+                @"previous_version" : previousVersion ?: @"",
+                @"previous_build" : previousBuildV2 ?: @"",
+                @"version" : currentVersion ?: @"",
+                @"build" : currentBuild ?: @"",
+            }];
+        }
     }
 
+    // Persist version/build for both fresh-install and returning-user paths.
+    // For fresh installs this acts as the guard flag so a subsequent cold launch
+    // after app-kill does not re-fire app_install. For returning users it keeps
+    // the stored values current for the next Application Updated comparison.
+    [[NSUserDefaults standardUserDefaults] setObject:currentVersion ?: @"" forKey:FPVersionKey];
+    [[NSUserDefaults standardUserDefaults] setObject:currentBuild ?: @"" forKey:FPBuildKeyV2];
+
 #if TARGET_OS_IPHONE
+    // UIApplicationLaunchOptionsURLKey is an NSURL — convert to string so the payload
+    // remains JSON-serializable (NSJSONSerialization rejects raw NSURL values).
+    NSURL *launchURL = launchOptions[UIApplicationLaunchOptionsURLKey];
     [self track:@"Application Opened" properties:@{
         @"from_background" : @NO,
         @"version" : currentVersion ?: @"",
         @"build" : currentBuild ?: @"",
         @"referring_application" : launchOptions[UIApplicationLaunchOptionsSourceApplicationKey] ?: @"",
-        @"url" : launchOptions[UIApplicationLaunchOptionsURLKey] ?: @"",
+        @"url" : launchURL.absoluteString ?: @"",
     }];
 #elif TARGET_OS_OSX
     [self track:@"Application Opened" properties:@{
@@ -224,12 +344,6 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         @"default_launch" : launchOptions[NSApplicationLaunchIsDefaultLaunchKey] ?: @(YES),
     }];
 #endif
-
-
-    [[NSUserDefaults standardUserDefaults] setObject:currentVersion forKey:FPVersionKey];
-    [[NSUserDefaults standardUserDefaults] setObject:currentBuild forKey:FPBuildKeyV2];
-
-    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (void)_applicationWillEnterForeground
@@ -466,6 +580,9 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         properties = [FPUtils traverseJSON:properties
                       andReplaceWithFilters:self.oneTimeConfiguration.payloadFilters];
         [self track:@"Deep Link Opened" properties:[properties copy]];
+
+        // Extract and store click IDs / UTM params from the universal link URL.
+        [self _processAttributionFromURL:activity.webpageURL];
     }
 }
 
@@ -492,6 +609,9 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     properties = [FPUtils traverseJSON:properties
                   andReplaceWithFilters:self.oneTimeConfiguration.payloadFilters];
     [self track:@"Deep Link Opened" properties:[properties copy]];
+
+    // Extract and store click IDs / UTM params from the deep link URL.
+    [self _processAttributionFromURL:url];
 }
 
 - (void)reset
@@ -656,6 +776,118 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         [FPAnalytics requestTrackingAuthorizationWithCompletionHandler:nil];
     }
 #endif
+}
+
+#pragma mark - SKAdNetwork
+
+/// Creates an NSInvocation for a SKAdNetwork class method with the conversion value
+/// set at argument index 2. Returns nil if the class does not respond to the selector.
+static NSInvocation *fp_skanInvocation(Class skanClass, SEL sel, NSInteger value)
+{
+    if (![skanClass respondsToSelector:sel]) return nil;
+    NSInvocation *inv = [NSInvocation invocationWithMethodSignature:
+        [skanClass methodSignatureForSelector:sel]];
+    [inv setSelector:sel];
+    [inv setTarget:skanClass];
+    [inv setArgument:&value atIndex:2];
+    return inv;
+}
+
+/// Appends an error-logging completion handler at the given argument index and calls
+/// retainArguments to ensure the block is copied to the heap before invocation.
+static void fp_skanSetCompletionHandler(NSInvocation *inv, NSUInteger argIndex, NSString *label)
+{
+    void (^handler)(NSError *) = ^(NSError *error) {
+        if (error) {
+            FPLog(@"SKAN %@ registration error: %@", label, error.localizedDescription);
+        }
+    };
+    [inv setArgument:&handler atIndex:argIndex];
+    // retainArguments copies all arguments (including the block) to the heap.
+    // Without this the block pointer becomes dangling when this function returns,
+    // causing a crash when SKAdNetwork invokes the handler asynchronously.
+    [inv retainArguments];
+}
+
+/// Registers a SKAdNetwork conversion value using the best available API.
+/// v4 (iOS 16.1+): coarseValue = "medium", lockWindow = NO.
+/// v3 (iOS 15.4+): fine conversion value only.
+/// Both APIs accessed via runtime reflection — StoreKit is never imported directly.
+/// Uses fp_skanVersionOverride (NSNumber) associated object to force a specific
+/// API version in tests; nil = auto-detect from OS version at runtime.
+/// Uses fp_skanCallInterceptor associated object to capture call arguments in tests.
+- (void)fp_registerSKANConversionValue:(NSInteger)value
+{
+#if TARGET_OS_IPHONE
+    // Test seam: if an interceptor is set, call it instead of the real SKAN API.
+    void (^interceptor)(NSInteger, NSString *) = objc_getAssociatedObject(
+        self, @selector(fp_skanCallInterceptor));
+    if (interceptor) {
+        NSNumber *versionOverride = objc_getAssociatedObject(self, @selector(fp_skanVersionOverride));
+        NSString *version = (versionOverride && [versionOverride integerValue] >= 4) ? @"v4" : @"v3";
+        interceptor(value, version);
+        return;
+    }
+
+    Class skanClass = NSClassFromString(@"SKAdNetwork");
+    if (!skanClass) return;
+
+    // Allow tests to force a specific API version (4 or 3).
+    NSNumber *versionOverride = objc_getAssociatedObject(self, @selector(fp_skanVersionOverride));
+    BOOL useV4 = NO;
+
+    if (versionOverride) {
+        useV4 = ([versionOverride integerValue] >= 4);
+    } else {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 160100
+        if (@available(iOS 16.1, *)) {
+            useV4 = YES;
+        }
+#endif
+    }
+
+    if (useV4) {
+        SEL v4Sel = NSSelectorFromString(
+            @"updatePostbackConversionValue:coarseValue:lockWindow:completionHandler:");
+        NSInvocation *inv = fp_skanInvocation(skanClass, v4Sel, value);
+        if (inv) {
+            NSString *coarseValue = @"medium";
+            [inv setArgument:&coarseValue atIndex:3];
+            BOOL lockWindow = NO;
+            [inv setArgument:&lockWindow atIndex:4];
+            fp_skanSetCompletionHandler(inv, 5, @"v4");
+            [inv invoke];
+            return;
+        }
+    }
+
+    // SKAN v3 fallback: updatePostbackConversionValue:completionHandler: (iOS 15.4+)
+    SEL v3Sel = NSSelectorFromString(@"updatePostbackConversionValue:completionHandler:");
+    NSInvocation *inv = fp_skanInvocation(skanClass, v3Sel, value);
+    if (inv) {
+        fp_skanSetCompletionHandler(inv, 3, @"v3");
+        [inv invoke];
+    }
+    // If neither selector is available (iOS < 15.4) — silently no-op.
+#endif
+}
+
+#pragma mark - Attribution helpers
+
+/// Extracts click IDs and UTM params from a URL and persists them via FPState.
+/// No-op when url is nil. Shared by openURL:options:, continueUserActivity:,
+/// and the launch-URL path in _applicationDidFinishLaunchingWithOptions:.
+- (void)_processAttributionFromURL:(nullable NSURL *)url
+{
+    if (!url) return;
+    NSDictionary *attribution = [FPAdClickIds extractFromURL:url
+                                              payloadFilters:self.oneTimeConfiguration.payloadFilters];
+    if ([attribution[@"clickIds"] count] > 0) {
+        [[FPState sharedInstance] mergeClickIds:attribution[@"clickIds"]];
+    }
+    if ([attribution[@"utmParams"] count] > 0) {
+        [[FPState sharedInstance] setUTMParams:attribution[@"utmParams"]];
+    }
 }
 
 #pragma mark - Helpers
