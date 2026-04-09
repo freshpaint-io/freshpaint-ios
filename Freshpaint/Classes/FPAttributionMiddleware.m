@@ -57,7 +57,7 @@ static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000"
         if (status == kFPATTStatusAuthorized && self.configuration.adSupportBlock != nil) {
             NSString *idfa = self.configuration.adSupportBlock();
             if (idfa && idfa.length > 0 && ![idfa isEqualToString:kFPAllZerosIDFA]) {
-                enrichment[@"advertisingId"] = idfa;
+                enrichment[@"idfa"] = idfa;
             }
         }
 

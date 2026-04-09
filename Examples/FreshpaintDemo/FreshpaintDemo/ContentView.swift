@@ -77,6 +77,16 @@ struct ContentView: View {
                 Text("Deep Links")
             }
             .tag(4)
+
+            // Deep Link Scenarios Tab
+            NavigationView {
+                DeepLinkScenariosView()
+            }
+            .tabItem {
+                Image(systemName: "link.badge.plus")
+                Text("Scenarios")
+            }
+            .tag(5)
         }
         .sheet(isPresented: $showingDebugView) {
             DebugLogView(logs: debugLogs)

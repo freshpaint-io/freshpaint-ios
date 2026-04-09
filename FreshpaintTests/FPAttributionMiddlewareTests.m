@@ -206,7 +206,7 @@ static NSString *const kZeroedIDFA       = @"00000000-0000-0000-0000-00000000000
 
     FPContext *result = [self runMiddleware:mw withContext:[self makeContextWithPayload:[self makeTrackPayload]]];
     NSDictionary *device = result.payload.context[@"device"];
-    XCTAssertEqualObjects(device[@"advertisingId"], kValidIDFA, @"IDFA must be present when authorized");
+    XCTAssertEqualObjects(device[@"idfa"], kValidIDFA, @"IDFA must be present when authorized");
 #endif
 }
 
@@ -219,7 +219,7 @@ static NSString *const kZeroedIDFA       = @"00000000-0000-0000-0000-00000000000
 
     FPContext *result = [self runMiddleware:mw withContext:[self makeContextWithPayload:[self makeTrackPayload]]];
     NSDictionary *device = result.payload.context[@"device"];
-    XCTAssertNil(device[@"advertisingId"], @"IDFA must not appear without adSupportBlock");
+    XCTAssertNil(device[@"idfa"], @"IDFA must not appear without adSupportBlock");
 #endif
 }
 
@@ -232,21 +232,21 @@ static NSString *const kZeroedIDFA       = @"00000000-0000-0000-0000-00000000000
 
     FPContext *result = [self runMiddleware:mw withContext:[self makeContextWithPayload:[self makeTrackPayload]]];
     NSDictionary *device = result.payload.context[@"device"];
-    XCTAssertNil(device[@"advertisingId"], @"Zeroed IDFA must not be set");
+    XCTAssertNil(device[@"idfa"], @"Zeroed IDFA must not be set");
 #endif
 }
 
 - (void)testIDFAAbsentWhenAuthorizedButAdSupportBlockReturnsNil
 {
 #if TARGET_OS_IPHONE
-    // adSupportBlock is set but returns nil — must not crash or set advertisingId
+    // adSupportBlock is set but returns nil — must not crash or set idfa
     self.configuration.adSupportBlock = ^NSString *{ return nil; };
     FPAttributionMiddleware *mw = [[FPAttributionMiddleware alloc] initWithConfiguration:self.configuration];
     mw.attStatusProvider = ^NSUInteger { return kATTAuthorized; };
 
     FPContext *result = [self runMiddleware:mw withContext:[self makeContextWithPayload:[self makeTrackPayload]]];
     NSDictionary *device = result.payload.context[@"device"];
-    XCTAssertNil(device[@"advertisingId"], @"Nil IDFA from adSupportBlock must not be set");
+    XCTAssertNil(device[@"idfa"], @"Nil IDFA from adSupportBlock must not be set");
 #endif
 }
 
@@ -307,7 +307,7 @@ static NSString *const kZeroedIDFA       = @"00000000-0000-0000-0000-00000000000
 
     FPContext *result = [self runMiddleware:mw withContext:[self makeContextWithPayload:[self makeTrackPayload]]];
     NSDictionary *device = result.payload.context[@"device"];
-    XCTAssertNil(device[@"advertisingId"], @"IDFA must be absent when denied");
+    XCTAssertNil(device[@"idfa"], @"IDFA must be absent when denied");
 #endif
 }
 
@@ -320,7 +320,7 @@ static NSString *const kZeroedIDFA       = @"00000000-0000-0000-0000-00000000000
 
     FPContext *result = [self runMiddleware:mw withContext:[self makeContextWithPayload:[self makeTrackPayload]]];
     NSDictionary *device = result.payload.context[@"device"];
-    XCTAssertNil(device[@"advertisingId"], @"IDFA must be absent when restricted");
+    XCTAssertNil(device[@"idfa"], @"IDFA must be absent when restricted");
 #endif
 }
 
@@ -333,7 +333,7 @@ static NSString *const kZeroedIDFA       = @"00000000-0000-0000-0000-00000000000
 
     FPContext *result = [self runMiddleware:mw withContext:[self makeContextWithPayload:[self makeTrackPayload]]];
     NSDictionary *device = result.payload.context[@"device"];
-    XCTAssertNil(device[@"advertisingId"], @"IDFA must be absent when notDetermined");
+    XCTAssertNil(device[@"idfa"], @"IDFA must be absent when notDetermined");
 #endif
 }
 

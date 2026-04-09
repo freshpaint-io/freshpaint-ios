@@ -2,14 +2,16 @@
 //  AttributionDemoView.swift
 //  FreshpaintDemo
 //
-//  FRP-38 manual testing harness for deep link attribution.
+//  Showcases the attribution features added in FRP-34 (stable device ID)
+//  and FRP-35/FRP-36 (ATT public API and attribution middleware).
 //
 
 import SwiftUI
+import UIKit
 import Freshpaint
 
 // ---------------------------------------------------------------------------
-// MARK: - Shared event log (populated by rawFreshpaintModificationBlock)
+// MARK: - Shared event log (used by DeepLinkTestView and DeepLinkScenariosView)
 // ---------------------------------------------------------------------------
 
 class AttributionEventLog: ObservableObject {
@@ -24,190 +26,406 @@ class AttributionEventLog: ObservableObject {
     }
 }
 
-// ---------------------------------------------------------------------------
-// MARK: - AttributionDemoView
-// ---------------------------------------------------------------------------
-
 struct AttributionDemoView: View {
+    // MARK: - State
 
-    // @ObservedObject (not @StateObject) because the singleton's lifecycle is managed
-    // externally by AttributionEventLog.shared, not by this view's lifetime.
-    @ObservedObject private var eventLog = AttributionEventLog.shared
+    @State private var attStatus: UInt = 0
+    @State private var idfa: String = "Not available"
+    @State private var idfv: String = "Not available"
+    @State private var stableDeviceId: String = "Not available"
+    @State private var appVersion: String = "Not available"
+    @State private var isFirstLaunch: Bool = false
 
-    private let tests: [(id: String, label: String, url: String)] = [
-        ("T1",  "T1 — Regression (no click IDs)",
-         "freshpaintdemo://open?ref=test"),
-        ("T2",  "T2 — Single gclid",
-         "freshpaintdemo://open?gclid=ABC123XYZ"),
-        ("T3",  "T3 — All 5 UTM params",
-         "freshpaintdemo://open?utm_source=google&utm_medium=cpc&utm_campaign=spring_sale&utm_term=analytics&utm_content=banner"),
-        ("T4",  "T4 — Google gacid → campaign_id",
-         "freshpaintdemo://open?gclid=GCLID_VALUE&gacid=CAMPAIGN_456"),
-        ("T5",  "T5 — Facebook extras",
-         "freshpaintdemo://open?fbclid=FB123&ad_id=AD99&adset_id=ADSET77&campaign_id=CAMP55"),
-        ("T7a", "T7a — Dedup: first fire (msclkid)",
-         "freshpaintdemo://open?msclkid=BING_SAME_VALUE"),
-        ("T7b", "T7b — Dedup: second fire (same value)",
-         "freshpaintdemo://open?msclkid=BING_SAME_VALUE"),
-        ("T9",  "T9 — Multiple platforms",
-         "freshpaintdemo://open?gclid=G1&fbclid=FB2&ttclid=TT3&msclkid=MS4&twclid=TW5"),
-        ("T10", "T10 — No recognized params",
-         "freshpaintdemo://open?ref=homepage&section=deals"),
-    ]
+    @State private var autoRequestSimEnabled = false
+    @State private var autoRequestLastResult: String = ""
 
-    @State private var storedClickIds: String = ""
+    @State private var testURL: String = "freshpaintdemo://test?fp_click_id=test123&utm_source=facebook&utm_campaign=summer"
+    @State private var lastDeepLinkURL: String = "None"
+    @State private var lastFpClickId: String = "null"
+    @State private var lastUtmSource: String = "null"
+    @State private var lastUtmCampaign: String = "null"
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
-
-                // Header
-                VStack(spacing: 4) {
-                    Text("FRP-38 Attribution Tests")
-                        .font(.headline)
-                    Text("Tap a test → fires deep link + track event. Check 'Stored Click IDs' and 'Event Log' below.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-
-                // Test buttons
-                VStack(spacing: 8) {
-                    ForEach(tests, id: \.id) { test in
-                        Button { runTest(test) } label: {
-                            HStack {
-                                Text(test.label).font(.caption).frame(maxWidth: .infinity, alignment: .leading)
-                                Image(systemName: "play.circle.fill").foregroundColor(.blue)
-                            }
-                            .padding(10)
-                            .background(Color(.secondarySystemBackground))
-                            .cornerRadius(8)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-
-                Divider()
-
-                // T6 — persistence (requires manual app restart)
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("T6 — Persistence Across Restart").font(.caption).fontWeight(.semibold)
-                    Text("1. Tap 'Store ttclid'  2. Stop app in Xcode  3. Re-run  4. Tap 'Refresh' — $ttclid must still be present")
-                        .font(.caption2).foregroundColor(.secondary)
-                    HStack(spacing: 10) {
-                        Button("Store ttclid") {
-                            fireDeepLink("freshpaintdemo://open?ttclid=TIKTOK_PERSIST_99")
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { refreshStoredIds() }
-                        }.buttonStyle(.bordered)
-                    }
-                }
-
-                Divider()
-
-                // T8 — first install simulation
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("T8 — First-Install Simulation").font(.caption).fontWeight(.semibold)
-                    Text("1. Tap 'Clear Install Guard'  2. Stop + re-run app  3. app_install fires  4. If click IDs were stored, they are merged in")
-                        .font(.caption2).foregroundColor(.secondary)
-                    Button("Clear Install Guard (FPBuildKeyV2)") {
-                        UserDefaults.standard.removeObject(forKey: "FPBuildKeyV2")
-                        UserDefaults.standard.removeObject(forKey: "FPVersionKey")
-                        UserDefaults.standard.synchronize()
-                        AttributionEventLog.shared.append("T8: install guard cleared — restart app to trigger app_install")
-                    }.buttonStyle(.bordered).tint(.orange)
-                }
-
-                Divider()
-
-                // Stored click IDs panel
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("Stored Click IDs (NSUserDefaults)").font(.caption).fontWeight(.semibold)
-                        Spacer()
-                        Button("Refresh") { refreshStoredIds() }.font(.caption2)
-                        Button("Clear All") {
-                            UserDefaults.standard.removeObject(forKey: "com.freshpaint.clickIds") // internal SDK key
-                            UserDefaults.standard.synchronize()
-                            refreshStoredIds()
-                        }.font(.caption2).foregroundColor(.red)
-                    }
-                    Text(storedClickIds.isEmpty ? "(none)" : storedClickIds)
-                        .font(.system(size: 10, design: .monospaced))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
-                        .background(Color(.secondarySystemBackground))
-                        .cornerRadius(8)
-                }
-
-                // Event log panel
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("Event Log").font(.caption).fontWeight(.semibold)
-                        Spacer()
-                        Button("Clear") { AttributionEventLog.shared.entries.removeAll() }.font(.caption2)
-                    }
-                    if eventLog.entries.isEmpty {
-                        Text("(no events yet — run a test)")
-                            .font(.caption2).foregroundColor(.secondary)
-                            .padding(8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color(.secondarySystemBackground))
-                            .cornerRadius(8)
-                    } else {
-                        ForEach(Array(eventLog.entries.enumerated()), id: \.offset) { _, entry in
-                            Text(entry)
-                                .font(.system(size: 10, design: .monospaced))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(8)
-                                .background(Color(.secondarySystemBackground))
-                                .cornerRadius(8)
-                        }
-                    }
-                }
+            VStack(spacing: 20) {
+                headerSection
+                deviceIdentifiersCard
+                attCard
+                autoRequestCard
+                deepLinkCard
+                attributionDataCard
             }
             .padding()
         }
-        .navigationTitle("Attribution (FRP-38)")
+        .navigationTitle("Attribution Demo")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { refreshStoredIds() }
-    }
-
-    // MARK: - Logic
-
-    private func runTest(_ test: (id: String, label: String, url: String)) {
-        // 1. Fire deep link (stores click IDs / UTM in FPState + NSUserDefaults)
-        fireDeepLink(test.url)
-
-        // 2. After the async barrier write completes, fire a track event.
-        //    The rawFreshpaintModificationBlock set in FreshpaintDemoApp will log the full payload.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            Freshpaint.shared().track("Attribution Test \(test.id)", properties: ["test_id": test.id])
-            refreshStoredIds()
+        .onAppear {
+            refresh()
         }
     }
 
-    private func fireDeepLink(_ urlString: String) {
-        guard let url = URL(string: urlString) else { return }
+    // MARK: - Header
+
+    private var headerSection: some View {
+        VStack(spacing: 4) {
+            Text("Freshpaint Attribution Demo")
+                .font(.title2)
+                .fontWeight(.bold)
+
+            Text("Platform: iOS  |  First Launch: \(isFirstLaunch ? "Yes" : "No")")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    // MARK: - Device Identifiers Card
+
+    private var deviceIdentifiersCard: some View {
+        CardView(title: "Device Identifiers") {
+            VStack(spacing: 12) {
+                AttributionRow(label: "Device ID", value: stableDeviceId)
+                AttributionRow(label: "IDFV", value: idfv)
+                AttributionRow(label: "IDFA", value: idfa)
+                AttributionRow(label: "ATT Status", value: attStatusString(attStatus))
+            }
+        }
+    }
+
+    // MARK: - ATT Card
+
+    private var attCard: some View {
+        CardView(title: "App Tracking Transparency (iOS)") {
+            Button("Request ATT Authorization") {
+                requestATT()
+            }
+            .foregroundColor(attStatus == 0 ? .blue : .secondary)
+            .disabled(attStatus != 0)
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    // MARK: - Auto-Request ATT Card
+
+    private var autoRequestCard: some View {
+        CardView(title: "Auto-Request ATT (FRP-36)") {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("When autoRequestATT = YES, the SDK calls requestTrackingAuthorization automatically on every UIApplicationDidBecomeActiveNotification — but only when status is notDetermined. Subsequent foregrounds are no-ops once the user has responded.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Divider()
+
+                Toggle("Simulate autoRequestATT = YES", isOn: $autoRequestSimEnabled)
+                    .font(.subheadline)
+
+                Button("Simulate app didBecomeActive") {
+                    simulateAutoRequest()
+                }
+                .foregroundColor(autoRequestSimEnabled ? .blue : .secondary)
+                .disabled(!autoRequestSimEnabled)
+                .frame(maxWidth: .infinity)
+
+                if !autoRequestLastResult.isEmpty {
+                    Text(autoRequestLastResult)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    // MARK: - Deep Link Card
+
+    private var deepLinkCard: some View {
+        CardView(title: "Deep Link Testing") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Test URL:")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+
+                TextField("Deep link URL", text: $testURL)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+
+                Button("Process Test Deep Link") {
+                    processDeepLink()
+                }
+                .foregroundColor(.blue)
+                .frame(maxWidth: .infinity)
+
+                if lastDeepLinkURL != "None" {
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Last Deep Link:")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+
+                        Text("URL: \(lastDeepLinkURL)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(2)
+
+                        Text("fp_click_id: \(lastFpClickId)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Attribution Data Card
+
+    private var attributionDataCard: some View {
+        CardView(title: "Attribution Data") {
+            VStack(spacing: 12) {
+                Button("Refresh Attribution Data") {
+                    refresh()
+                }
+                .foregroundColor(.blue)
+                .frame(maxWidth: .infinity)
+
+                AttributionJSONBlock(fields: attributionFields)
+            }
+        }
+    }
+
+    // MARK: - Attribution fields
+
+    private var attributionFields: [(key: String, value: AttributionValue)] {
+        [
+            ("att_status",    .string(attStatusString(attStatus))),
+            ("idfv",          .string(idfv)),
+            ("app_version",   .string(appVersion)),
+            ("idfa",          .string(idfa)),
+            ("fp_click_id",   lastFpClickId == "null"    ? .null : .string(lastFpClickId)),
+            ("utm_source",    lastUtmSource == "null"    ? .null : .string(lastUtmSource)),
+            ("utm_campaign",  lastUtmCampaign == "null"  ? .null : .string(lastUtmCampaign)),
+            ("device_id",     .string(stableDeviceId)),
+            ("first_launch",  .bool(isFirstLaunch)),
+        ]
+    }
+
+    // MARK: - Actions
+
+    private func refresh() {
+        attStatus = Freshpaint.trackingAuthorizationStatus()
+        stableDeviceId = "Auto-enriched in event context"
+        idfv = UIDevice.current.identifierForVendor?.uuidString ?? "Not available"
+        idfa = Freshpaint.advertisingIdentifier() ?? "Not available"
+        appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+
+        let sessionInfo = Freshpaint.shared().sessionInfo(forAction: "attribution_demo_view")
+        isFirstLaunch = (sessionInfo["isFirstEventInSession"] as? Bool) ?? false
+    }
+
+    private func requestATT() {
+        Freshpaint.requestTrackingAuthorization { newStatus in
+            attStatus = newStatus
+            idfa = Freshpaint.advertisingIdentifier() ?? "Not available"
+        }
+    }
+
+    /// Mirrors the logic in _handleDidBecomeActiveForATT to demonstrate
+    /// what autoRequestATT = YES does on each didBecomeActive firing.
+    private func simulateAutoRequest() {
+        let status = Freshpaint.trackingAuthorizationStatus()
+        if status == 0 {
+            autoRequestLastResult = "Status is notDetermined — requesting authorization..."
+            Freshpaint.requestTrackingAuthorization { newStatus in
+                attStatus = newStatus
+                idfa = Freshpaint.advertisingIdentifier() ?? "Not available"
+                autoRequestLastResult = "ATT prompt shown. Final status: \(attStatusString(newStatus))"
+            }
+        } else {
+            autoRequestLastResult = "Status already determined (\(attStatusString(status))) — prompt skipped. Duplicate prevention works correctly."
+        }
+    }
+
+    private func processDeepLink() {
+        guard let url = URL(string: testURL) else { return }
+
         Freshpaint.shared().open(url, options: [:])
-        AttributionEventLog.shared.append("→ openURL: \(urlString)")
+
+        lastDeepLinkURL = testURL
+        lastFpClickId    = urlQueryItem("fp_click_id",   from: url) ?? "null"
+        lastUtmSource    = urlQueryItem("utm_source",    from: url) ?? "null"
+        lastUtmCampaign  = urlQueryItem("utm_campaign",  from: url) ?? "null"
+
+        Freshpaint.shared().track("Deep Link Processed", properties: [
+            "url": testURL,
+            "fp_click_id": lastFpClickId,
+            "utm_source": lastUtmSource,
+            "utm_campaign": lastUtmCampaign,
+        ])
     }
 
-    private func refreshStoredIds() {
-        // NOTE: reads an internal SDK storage key — update here if FPState's key changes.
-        guard let data = UserDefaults.standard.data(forKey: "com.freshpaint.clickIds"),
-              let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
-              !plist.isEmpty
-        else {
-            storedClickIds = "(none)"
-            return
+    // MARK: - Helpers
+
+    private func attStatusString(_ status: UInt) -> String {
+        switch status {
+        case 0: return "notDetermined"
+        case 1: return "restricted"
+        case 2: return "denied"
+        case 3: return "authorized"
+        default: return "unavailable"
         }
-        storedClickIds = plist
-            .sorted { $0.key < $1.key }
-            .map { k, v in "\(k): \(v)" }
-            .joined(separator: "\n")
+    }
+
+    private func urlQueryItem(_ name: String, from url: URL) -> String? {
+        URLComponents(url: url, resolvingAgainstBaseURL: false)?
+            .queryItems?
+            .first(where: { $0.name == name })?
+            .value
+    }
+}
+
+// MARK: - Attribution value type
+
+enum AttributionValue {
+    case string(String)
+    case bool(Bool)
+    case null
+}
+
+// MARK: - JSON block view
+
+struct AttributionJSONBlock: View {
+    let fields: [(key: String, value: AttributionValue)]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("{")
+                .jsonBase()
+
+            ForEach(Array(fields.enumerated()), id: \.offset) { index, field in
+                HStack(alignment: .top, spacing: 0) {
+                    Text("  ")
+                        .jsonBase()
+                    Text("\"\(field.key)\"")
+                        .jsonKey()
+                    Text(": ")
+                        .jsonBase()
+                    valueText(field.value)
+                    if index < fields.count - 1 {
+                        Text(",")
+                            .jsonBase()
+                    }
+                }
+            }
+
+            Text("}")
+                .jsonBase()
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(red: 0.11, green: 0.13, blue: 0.17))
+        )
+    }
+
+    @ViewBuilder
+    private func valueText(_ value: AttributionValue) -> some View {
+        switch value {
+        case .string(let s):
+            Text("\"\(s)\"")
+                .jsonString()
+        case .bool(let b):
+            Text(b ? "true" : "false")
+                .jsonBool()
+        case .null:
+            Text("null")
+                .jsonNull()
+        }
+    }
+}
+
+// MARK: - JSON text modifiers
+
+private extension Text {
+    func jsonBase() -> some View {
+        self.font(.system(.caption, design: .monospaced))
+            .foregroundColor(Color(red: 0.75, green: 0.78, blue: 0.82))
+    }
+
+    func jsonKey() -> some View {
+        self.font(.system(.caption, design: .monospaced))
+            .foregroundColor(Color(red: 0.53, green: 0.81, blue: 0.98))
+    }
+
+    func jsonString() -> some View {
+        self.font(.system(.caption, design: .monospaced))
+            .foregroundColor(Color(red: 0.98, green: 0.73, blue: 0.44))
+            .lineLimit(2)
+            .minimumScaleFactor(0.8)
+    }
+
+    func jsonBool() -> some View {
+        self.font(.system(.caption, design: .monospaced))
+            .foregroundColor(Color(red: 0.82, green: 0.6, blue: 0.95))
+    }
+
+    func jsonNull() -> some View {
+        self.font(.system(.caption, design: .monospaced))
+            .foregroundColor(Color(red: 0.65, green: 0.65, blue: 0.65))
+    }
+}
+
+// MARK: - Reusable Card
+
+struct CardView<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.headline)
+                .fontWeight(.semibold)
+
+            content()
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
+        )
+    }
+}
+
+// MARK: - Attribution Row
+
+struct AttributionRow: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        HStack(alignment: .top) {
+            Text("\(label):")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .frame(width: 90, alignment: .leading)
+
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .lineLimit(2)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+        }
     }
 }
 
 #Preview {
-    NavigationView { AttributionDemoView() }
+    NavigationView {
+        AttributionDemoView()
+    }
 }
