@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AdSupport
 import Freshpaint
 
 @main
@@ -29,6 +30,9 @@ struct FreshpaintDemoApp: App {
         
         // Privacy and tracking settings
         config.enableAdvertisingTracking = true
+        config.adSupportBlock = {
+            ASIdentifierManager.shared().advertisingIdentifier.uuidString
+        }
         config.shouldUseLocationServices = false  // Disabled by default
         config.shouldUseBluetooth = false  // Disabled by default
         

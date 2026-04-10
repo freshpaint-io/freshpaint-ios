@@ -30,6 +30,7 @@ static NSString *const kFPInstallZeroedIDFA = @"00000000-0000-0000-0000-00000000
 @interface FPAnalytics ()
 
 @property (nonatomic, assign) BOOL enabled;
+@property (nonatomic, assign) BOOL launchHandlerFired;
 @property (nonatomic, strong) FPAnalyticsConfiguration *oneTimeConfiguration;
 @property (nonatomic, strong) FPStoreKitTracker *storeKitTracker;
 @property (nonatomic, strong) FPIntegrationsManager *integrationsManager;
@@ -87,6 +88,16 @@ static NSString *const kFPInstallZeroedIDFA = @"00000000-0000-0000-0000-00000000
                                       UIApplicationWillResignActiveNotification,
                                       UIApplicationDidBecomeActiveNotification ]) {
                 [nc addObserver:self selector:@selector(handleAppStateNotification:) name:name object:application];
+            }
+            // In SwiftUI @main apps, UIApplicationDidFinishLaunchingNotification fires before
+            // App.init() runs, so the observer above misses it. If the app is already active
+            // (not launching from background), fire the handler manually now.
+            // launchHandlerFired prevents a double-fire in AppDelegate apps where setup() is
+            // called during didFinishLaunching and the notification follows immediately after.
+            UIApplication *uiApp = (UIApplication *)application;
+            if (uiApp.applicationState != UIApplicationStateBackground) {
+                self.launchHandlerFired = YES;
+                [self _applicationDidFinishLaunchingWithOptions:configuration.launchOptions];
             }
 #elif TARGET_OS_OSX
             // Attach to application state change hooks
@@ -153,7 +164,10 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     [self run:FPEventTypeApplicationLifecycle payload:payload];
 
     if ([note.name isEqualToString:UIApplicationDidFinishLaunchingNotification]) {
-        [self _applicationDidFinishLaunchingWithOptions:note.userInfo];
+        if (!self.launchHandlerFired) {
+            self.launchHandlerFired = YES;
+            [self _applicationDidFinishLaunchingWithOptions:note.userInfo];
+        }
     } else if ([note.name isEqualToString:UIApplicationWillEnterForegroundNotification]) {
         [self _applicationWillEnterForeground];
     } else if ([note.name isEqualToString:UIApplicationDidEnterBackgroundNotification]) {
@@ -209,12 +223,22 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         NSString *attStatusStr = FPATTStatusToString(attStatus);
 
         NSMutableDictionary *installProps = [NSMutableDictionary dictionary];
-        installProps[@"install_timestamp"] = iso8601FormattedString([NSDate date]);
-        installProps[@"device_id"]         = [FPStableDeviceId deviceId];
-        installProps[@"idfv"]              = [[[UIDevice currentDevice] identifierForVendor] UUIDString] ?: @"";
-        installProps[@"att_status"]        = attStatusStr;
-        installProps[@"os_version"]        = [[UIDevice currentDevice] systemVersion] ?: @"";
-        installProps[@"app_version"]       = currentVersion ?: @"";
+        installProps[@"install_timestamp"]  = iso8601FormattedString([NSDate date]);
+        installProps[@"device_id"]          = [FPStableDeviceId deviceId];
+        installProps[@"distinct_id"]        = [self getAnonymousId] ?: @"";
+        installProps[@"idfv"]               = [[[UIDevice currentDevice] identifierForVendor] UUIDString] ?: @"";
+        installProps[@"att_status"]         = attStatusStr;
+        installProps[@"limit_ad_tracking"]  = @(attStatus != kFPATTStatusAuthorized);
+        installProps[@"os_name"]            = [[UIDevice currentDevice] systemName] ?: @"";
+        installProps[@"os_version"]         = [[UIDevice currentDevice] systemVersion] ?: @"";
+        installProps[@"device_model"]       = [[UIDevice currentDevice] model] ?: @"";
+        installProps[@"manufacturer"]       = @"Apple";
+        installProps[@"app_name"]           = [[NSBundle mainBundle] infoDictionary][@"CFBundleDisplayName"]
+                                              ?: [[NSBundle mainBundle] infoDictionary][@"CFBundleName"] ?: @"";
+        installProps[@"app_version"]        = currentVersion ?: @"";
+        installProps[@"app_build"]          = currentBuild ?: @"";
+        installProps[@"bundle_id"]          = [[NSBundle mainBundle] bundleIdentifier] ?: @"";
+        installProps[@"locale"]             = [[NSLocale currentLocale] localeIdentifier] ?: @"";
 
         if (attStatus == kFPATTStatusAuthorized && self.oneTimeConfiguration.adSupportBlock != nil) {
             NSString *idfa = self.oneTimeConfiguration.adSupportBlock();
