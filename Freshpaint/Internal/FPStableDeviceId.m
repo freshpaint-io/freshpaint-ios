@@ -45,16 +45,9 @@ static NSString *_fpCachedDeviceId = nil;
 
         // Nothing persisted — generate a new UUID and write it.
         NSString *newId = [[NSUUID UUID] UUIDString];
-        BOOL written = [self fp_writeToUserDefaults:newId];
-        if (written) {
-            if (!_fpCachedDeviceId) {
-                _fpCachedDeviceId = newId;
-            }
-            result = _fpCachedDeviceId;
-        }
-        // If write failed: result remains nil here.
-        // The caller falls back to IDFV and we do NOT cache,
-        // so the next call will retry the write.
+        [self fp_writeToUserDefaults:newId];
+        _fpCachedDeviceId = newId;
+        result = newId;
     });
 
     if (result) {
