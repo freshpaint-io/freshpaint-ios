@@ -4,13 +4,11 @@
 //
 
 #import "FPStableDeviceId.h"
-#import <Security/Security.h>
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #endif
 
-static NSString *const kFPStableDeviceIdService = @"com.freshpaint.sdk.device_id";
-static NSString *const kFPStableDeviceIdAccount = @"device_id";
+static NSString *const kFPStableDeviceIdUserDefaultsKey = @"io.freshpaint.persistentDeviceId";
 
 // Access to this variable is serialized via fp_queue (dispatch_sync).
 static NSString *_fpCachedDeviceId = nil;
@@ -37,21 +35,18 @@ static NSString *_fpCachedDeviceId = nil;
             return;
         }
 
-        // Try to read a previously persisted UUID from Keychain.
-        NSString *stored = [self fp_readFromKeychain];
+        // Try to read a previously persisted UUID from NSUserDefaults.
+        NSString *stored = [self fp_readFromUserDefaults];
         if (stored) {
             _fpCachedDeviceId = stored;
             result = stored;
             return;
         }
 
-        // Nothing persisted — generate a new UUID and try to write it.
+        // Nothing persisted — generate a new UUID and write it.
         NSString *newId = [[NSUUID UUID] UUIDString];
-        BOOL written = [self fp_writeToKeychain:newId];
+        BOOL written = [self fp_writeToUserDefaults:newId];
         if (written) {
-            // fp_writeToKeychain may have set _fpCachedDeviceId to a
-            // pre-existing Keychain value (errSecDuplicateItem path).
-            // Only assign newId if the cache wasn't already populated.
             if (!_fpCachedDeviceId) {
                 _fpCachedDeviceId = newId;
             }
@@ -59,62 +54,25 @@ static NSString *_fpCachedDeviceId = nil;
         }
         // If write failed: result remains nil here.
         // The caller falls back to IDFV and we do NOT cache,
-        // so the next call will retry the Keychain write.
+        // so the next call will retry the write.
     });
 
     if (result) {
         return result;
     }
-    // Graceful fallback when Keychain is completely unavailable.
+    // Graceful fallback when NSUserDefaults is completely unavailable.
     return [self fp_idfvFallback];
 }
 
-+ (nullable NSString *)fp_readFromKeychain
++ (nullable NSString *)fp_readFromUserDefaults
 {
-    NSDictionary *query = @{
-        (__bridge id)kSecClass:       (__bridge id)kSecClassGenericPassword,
-        (__bridge id)kSecAttrService: kFPStableDeviceIdService,
-        (__bridge id)kSecAttrAccount: kFPStableDeviceIdAccount,
-        (__bridge id)kSecReturnData:  @YES,
-        (__bridge id)kSecMatchLimit:  (__bridge id)kSecMatchLimitOne
-    };
-
-    CFTypeRef dataRef = NULL;
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &dataRef);
-
-    if (status == errSecSuccess && dataRef != NULL) {
-        NSData *data = (__bridge_transfer NSData *)dataRef;
-        return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    }
-    return nil;
+    return [[NSUserDefaults standardUserDefaults] stringForKey:kFPStableDeviceIdUserDefaultsKey];
 }
 
-+ (BOOL)fp_writeToKeychain:(NSString *)value
++ (BOOL)fp_writeToUserDefaults:(NSString *)value
 {
-    NSData *data = [value dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary *query = @{
-        (__bridge id)kSecClass:          (__bridge id)kSecClassGenericPassword,
-        (__bridge id)kSecAttrService:    kFPStableDeviceIdService,
-        (__bridge id)kSecAttrAccount:    kFPStableDeviceIdAccount,
-        (__bridge id)kSecValueData:      data,
-        (__bridge id)kSecAttrAccessible: (__bridge id)kSecAttrAccessibleAfterFirstUnlock
-    };
-
-    OSStatus status = SecItemAdd((__bridge CFDictionaryRef)query, NULL);
-    if (status == errSecSuccess) {
-        return YES;
-    }
-    if (status == errSecDuplicateItem) {
-        // An item already exists (e.g. restored backup, MDM-provisioned device,
-        // or a partial write from a previous launch). Read it back so the caller
-        // can populate the cache rather than falling back to IDFV permanently.
-        NSString *existing = [self fp_readFromKeychain];
-        if (existing) {
-            _fpCachedDeviceId = existing;
-        }
-        return (existing != nil);
-    }
-    return NO;
+    [[NSUserDefaults standardUserDefaults] setObject:value forKey:kFPStableDeviceIdUserDefaultsKey];
+    return YES;
 }
 
 + (NSString *)fp_idfvFallback
@@ -139,14 +97,12 @@ static NSString *_fpCachedDeviceId = nil;
     });
 }
 
-+ (void)fp_deleteKeychainItemForTesting
++ (void)fp_resetUserDefaultsForTesting
 {
-    NSDictionary *query = @{
-        (__bridge id)kSecClass:       (__bridge id)kSecClassGenericPassword,
-        (__bridge id)kSecAttrService: kFPStableDeviceIdService,
-        (__bridge id)kSecAttrAccount: kFPStableDeviceIdAccount
-    };
-    SecItemDelete((__bridge CFDictionaryRef)query);
+    dispatch_sync([self fp_queue], ^{
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFPStableDeviceIdUserDefaultsKey];
+        _fpCachedDeviceId = nil;
+    });
 }
 
 #endif

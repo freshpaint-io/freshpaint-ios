@@ -8,6 +8,7 @@
 #import "FPPayload.h"
 #import "FPPayload+FPAttributionEnrichment.h"
 #import "FPATTRuntime.h"
+#import "FPStableDeviceId.h"
 #import <objc/runtime.h>
 
 static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000";
@@ -51,7 +52,8 @@ static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000"
         NSUInteger status = [self currentATTStatus];
         NSMutableDictionary *enrichment = [NSMutableDictionary dictionary];
 
-        enrichment[@"att_status"] = FPATTStatusToString(status);
+        enrichment[@"att_status"]          = FPATTStatusToString(status);
+        enrichment[@"persistent_device_id"] = [FPStableDeviceId deviceId];
 
         // Include IDFA only when fully authorized and adSupportBlock is set.
         if (status == kFPATTStatusAuthorized && self.configuration.adSupportBlock != nil) {
