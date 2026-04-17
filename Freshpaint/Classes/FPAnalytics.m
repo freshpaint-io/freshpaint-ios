@@ -223,9 +223,10 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         NSString *attStatusStr = FPATTStatusToString(attStatus);
 
         NSMutableDictionary *installProps = [NSMutableDictionary dictionary];
-        installProps[@"install_timestamp"]  = iso8601FormattedString([NSDate date]);
-        installProps[@"device_id"]          = [FPStableDeviceId deviceId];
-        installProps[@"distinct_id"]        = [self getAnonymousId] ?: @"";
+        installProps[@"install_timestamp"]    = iso8601FormattedString([NSDate date]);
+        installProps[@"device_id"]            = [self getAnonymousId];
+        installProps[@"persistent_device_id"] = [FPStableDeviceId deviceId];
+        installProps[@"distinct_id"]          = [self getAnonymousId] ?: @"";
         installProps[@"idfv"]               = [[[UIDevice currentDevice] identifierForVendor] UUIDString] ?: @"";
         installProps[@"att_status"]         = attStatusStr;
         installProps[@"limit_ad_tracking"]  = @(attStatus != kFPATTStatusAuthorized);
@@ -324,10 +325,11 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
         // Non-iOS platforms (macOS): include the fields available without iOS APIs.
         // idfv, att_status, and idfa require UIDevice/ATT and are intentionally omitted.
         [self track:@"app_install" properties:@{
-            @"install_timestamp" : iso8601FormattedString([NSDate date]),
-            @"device_id"         : [FPStableDeviceId deviceId],
-            @"os_version"        : [NSProcessInfo processInfo].operatingSystemVersionString ?: @"",
-            @"app_version"       : currentVersion ?: @"",
+            @"install_timestamp"    : iso8601FormattedString([NSDate date]),
+            @"device_id"            : [self getAnonymousId],
+            @"persistent_device_id" : [FPStableDeviceId deviceId],
+            @"os_version"           : [NSProcessInfo processInfo].operatingSystemVersionString ?: @"",
+            @"app_version"          : currentVersion ?: @"",
         }];
 #endif
     } else {

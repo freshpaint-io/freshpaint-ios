@@ -8,26 +8,37 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Provides a stable device identifier that persists across app reinstalls via Keychain.
- * Falls back to IDFV if Keychain operations fail.
+ * Provides a stable device identifier backed by NSUserDefaults.
+ * The identifier is stored under the key `io.freshpaint.persistentDeviceId`.
+ * Falls back to IDFV if NSUserDefaults write fails.
+ *
+ * NOTE: Unlike Keychain storage, NSUserDefaults values do NOT survive app uninstall.
+ * The identifier is stable for the lifetime of the app installation on the device,
+ * which is the intended and accepted trade-off.
  */
 @interface FPStableDeviceId : NSObject
 
 /**
- * Returns a stable device UUID. On first call, generates a UUID and persists it to Keychain
- * (service: com.freshpaint.sdk.device_id, accessibility: kSecAttrAccessibleAfterFirstUnlock).
- * On subsequent calls, returns the cached or Keychain-persisted UUID.
- * Falls back to IDFV when Keychain write fails; retries write on the next call.
- *
- * NOTE: The Keychain item uses kSecAttrAccessibleAfterFirstUnlock, which means it is
- * unavailable until after the first device unlock following a reboot. Events fired
- * before first unlock will use the IDFV fallback.
- *
- * NOTE: Keychain items persist across app uninstall/reinstall on the same device —
- * this is intentional and is what makes device_id stable across reinstalls.
+ * Returns a stable device UUID. On first call, generates a UUID and persists it to
+ * NSUserDefaults under key `io.freshpaint.persistentDeviceId`. On subsequent calls,
+ * returns the cached or NSUserDefaults-persisted UUID.
+ * Falls back to IDFV when NSUserDefaults write fails; retries write on the next call.
  */
 + (NSString *)deviceId;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#if DEBUG
+/**
+ * Test helpers — not for production use.
+ */
+@interface FPStableDeviceId (Testing)
++ (void)fp_resetCachedIdForTesting;
++ (void)fp_resetUserDefaultsForTesting;
++ (BOOL)fp_writeToUserDefaults:(NSString *)value;
++ (nullable NSString *)fp_readFromUserDefaults;
++ (NSString *)fp_idfvFallback;
+@end
+#endif

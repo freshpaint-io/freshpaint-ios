@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var tapCount = 0
     @State private var isUserIdentified = false
     @State private var currentUserId: String? = nil
+    @State private var anonymousId: String = Freshpaint.shared().getAnonymousId()
     @State private var selectedTab = 0
     @State private var debugLogs: [String] = []
     @State private var showingDebugView = false
@@ -132,7 +133,7 @@ struct ContentView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text("Anonymous ID: \(getAnonymousId())")
+                        Text("Anonymous ID: \(anonymousId)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -296,6 +297,7 @@ struct ContentView: View {
             Freshpaint.shared().identify(userId, traits: traits)
             currentUserId = userId
             isUserIdentified = true
+            anonymousId = Freshpaint.shared().getAnonymousId()
             addDebugLog("👤 User Identified: \(userId)")
             addDebugLog("Traits: \(traits)")
         } else {
@@ -365,15 +367,16 @@ struct ContentView: View {
     
     private func resetSession() {
         Freshpaint.shared().reset()
-        
+
         // Reset local state
         isUserIdentified = false
         currentUserId = nil
         tapCount = 0
-        
+        anonymousId = Freshpaint.shared().getAnonymousId()
+
         addDebugLog("🔄 Session Reset - All user data cleared")
         addDebugLog("User is now anonymous again with new anonymous ID")
-        addDebugLog("New Anonymous ID: \(getAnonymousId())")
+        addDebugLog("New Anonymous ID: \(anonymousId)")
     }
     
     private func trackScreenView(_ screenName: String) {
@@ -388,10 +391,6 @@ struct ContentView: View {
     }
     
     // MARK: - Helper Functions
-    
-    private func getAnonymousId() -> String {
-        return Freshpaint.shared().getAnonymousId()
-    }
     
     private func addDebugLog(_ message: String) {
         let timestamp = DateFormatter().string(from: Date())

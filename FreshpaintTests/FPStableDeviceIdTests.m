@@ -11,10 +11,10 @@
 // Expose private/debug methods for testing.
 @interface FPStableDeviceId (Testing)
 + (void)fp_resetCachedIdForTesting;
-+ (void)fp_deleteKeychainItemForTesting;
++ (void)fp_resetUserDefaultsForTesting;
++ (BOOL)fp_writeToUserDefaults:(NSString *)value;
++ (nullable NSString *)fp_readFromUserDefaults;
 + (NSString *)fp_idfvFallback;
-+ (nullable NSString *)fp_readFromKeychain;
-+ (BOOL)fp_writeToKeychain:(NSString *)value;
 @end
 
 // ---------------------------------------------------------------------------
@@ -29,15 +29,13 @@
 - (void)setUp
 {
     [super setUp];
-    // Start each test with a clean slate: no cached value, no Keychain item.
-    [FPStableDeviceId fp_resetCachedIdForTesting];
-    [FPStableDeviceId fp_deleteKeychainItemForTesting];
+    // Start each test with a clean slate: no cached value, no NSUserDefaults entry.
+    [FPStableDeviceId fp_resetUserDefaultsForTesting];
 }
 
 - (void)tearDown
 {
-    [FPStableDeviceId fp_resetCachedIdForTesting];
-    [FPStableDeviceId fp_deleteKeychainItemForTesting];
+    [FPStableDeviceId fp_resetUserDefaultsForTesting];
     [super tearDown];
 }
 
@@ -101,49 +99,36 @@
                           @"deviceId should be stable across calls within the same launch");
 }
 
-- (void)testDeviceIdPersistedToKeychain
+- (void)testDeviceIdPersistedToUserDefaults
 {
-    // Verify Keychain is available in this environment before asserting.
-    NSString *probe = [[NSUUID UUID] UUIDString];
-    BOOL available  = [FPStableDeviceId fp_writeToKeychain:probe];
-    [FPStableDeviceId fp_deleteKeychainItemForTesting];
-    XCTSkipUnless(available, @"Keychain unavailable in this environment — skipping");
-
     NSString *deviceId = [FPStableDeviceId deviceId];
-    NSString *stored   = [FPStableDeviceId fp_readFromKeychain];
+    NSString *stored   = [FPStableDeviceId fp_readFromUserDefaults];
     XCTAssertEqualObjects(deviceId, stored,
-                          @"deviceId should be persisted to Keychain");
+                          @"deviceId should be persisted to NSUserDefaults");
 }
 
-- (void)testDeviceIdRestoredFromKeychainAfterCacheReset
+- (void)testDeviceIdRestoredFromUserDefaultsAfterCacheReset
 {
-    // Probe Keychain availability before asserting persistence.
-    NSString *probe = [[NSUUID UUID] UUIDString];
-    BOOL available = [FPStableDeviceId fp_writeToKeychain:probe];
-    [FPStableDeviceId fp_deleteKeychainItemForTesting];
-    XCTSkipUnless(available, @"Keychain unavailable in this environment — skipping");
-
     // Generate and persist on first call.
     NSString *first = [FPStableDeviceId deviceId];
 
     // Clear in-memory cache to simulate a new launch.
     [FPStableDeviceId fp_resetCachedIdForTesting];
 
-    // Second call should read from Keychain and return the same UUID.
+    // Second call should read from NSUserDefaults and return the same UUID.
     NSString *second = [FPStableDeviceId deviceId];
     XCTAssertEqualObjects(first, second,
-                          @"deviceId should survive a cache reset (Keychain persistence)");
+                          @"deviceId should survive a cache reset (NSUserDefaults persistence)");
 }
 
-- (void)testPreSeededKeychainValueIsReturned
+- (void)testPreSeededUserDefaultsValueIsReturned
 {
     NSString *knownId = @"DEADBEEF-0000-0000-0000-123456789ABC";
-    BOOL written = [FPStableDeviceId fp_writeToKeychain:knownId];
-    XCTSkipUnless(written, @"Keychain unavailable in this environment — skipping");
+    [FPStableDeviceId fp_writeToUserDefaults:knownId];
 
     NSString *result = [FPStableDeviceId deviceId];
     XCTAssertEqualObjects(result, knownId,
-                          @"deviceId should return a pre-seeded Keychain value");
+                          @"deviceId should return a pre-seeded NSUserDefaults value");
 }
 
 // ---------------------------------------------------------------------------
@@ -165,69 +150,56 @@
 }
 
 // ---------------------------------------------------------------------------
-#pragma mark - FPStableDeviceId — Keychain helpers
+#pragma mark - FPStableDeviceId — NSUserDefaults helpers
 // ---------------------------------------------------------------------------
 
 - (void)testWriteAndReadRoundTrip
 {
-    NSString *value   = [[NSUUID UUID] UUIDString];
-    BOOL      written = [FPStableDeviceId fp_writeToKeychain:value];
-    XCTSkipUnless(written, @"Keychain unavailable in this environment — skipping");
+    NSString *value  = [[NSUUID UUID] UUIDString];
+    BOOL      written = [FPStableDeviceId fp_writeToUserDefaults:value];
+    XCTAssertTrue(written, @"fp_writeToUserDefaults should always return YES");
 
-    NSString *read = [FPStableDeviceId fp_readFromKeychain];
+    NSString *read = [FPStableDeviceId fp_readFromUserDefaults];
     XCTAssertEqualObjects(value, read);
 }
 
-- (void)testDuplicateKeychainItemIsReadBackNotOverwritten
+- (void)testExistingUserDefaultsValueIsReturnedNotOverwritten
 {
-    // Seed an original value into Keychain.
+    // Seed an original value into NSUserDefaults.
     NSString *originalId = @"AABBCCDD-0000-0000-0000-112233445566";
-    BOOL written = [FPStableDeviceId fp_writeToKeychain:originalId];
-    XCTSkipUnless(written, @"Keychain unavailable in this environment — skipping");
+    [FPStableDeviceId fp_writeToUserDefaults:originalId];
 
-    // Simulate the errSecDuplicateItem path by calling fp_writeToKeychain with a
-    // different ID while the original is still in Keychain. The method must:
-    //   (a) detect the duplicate, (b) read back the original, (c) set the cache.
+    // Reset cache to simulate a new launch, then call deviceId.
+    // It must read and return the seeded value, not generate a new one.
     [FPStableDeviceId fp_resetCachedIdForTesting];
-    NSString *differentId = @"11111111-2222-3333-4444-555555555555";
-    BOOL result = [FPStableDeviceId fp_writeToKeychain:differentId];
-    XCTAssertTrue(result, @"fp_writeToKeychain must return YES on errSecDuplicateItem when read-back succeeds");
-
-    // The cache must now hold the original Keychain value, NOT differentId.
-    // Verify via deviceId — cache is already populated so it returns immediately.
     NSString *deviceId = [FPStableDeviceId deviceId];
     XCTAssertEqualObjects(deviceId, originalId,
-        @"On errSecDuplicateItem, cache must hold the existing Keychain value, not the new UUID");
-    XCTAssertNotEqualObjects(deviceId, differentId,
-        @"The new UUID must not overwrite the existing Keychain value");
+        @"deviceId must return the existing NSUserDefaults value, not generate a new one");
 }
 
-- (void)testReadFromEmptyKeychainReturnsNil
+- (void)testReadFromEmptyUserDefaultsReturnsNil
 {
-    NSString *result = [FPStableDeviceId fp_readFromKeychain];
-    XCTAssertNil(result, @"Reading from an empty Keychain slot should return nil");
+    NSString *result = [FPStableDeviceId fp_readFromUserDefaults];
+    XCTAssertNil(result, @"Reading from an empty NSUserDefaults slot should return nil");
 }
 
 // ---------------------------------------------------------------------------
-#pragma mark - Device context dict integration (ACs #7 and #8)
+#pragma mark - Device context dict integration
 // ---------------------------------------------------------------------------
 
-- (void)testDeviceContextContainsDeviceIdAndIdfv
+- (void)testDeviceContextContainsIdfvButNotDeviceId
 {
 #if TARGET_OS_IPHONE
-    // device_id and idfv are only populated inside mobileSpecifications(),
-    // which is itself guarded with #if TARGET_OS_IPHONE — skip on macOS.
+    // idfv and id are set in mobileSpecifications() (static context).
+    // device_id is no longer static — it is set per-event by FPAttributionMiddleware
+    // using payload.anonymousId so it reflects the current session and resets on logout.
     FPAnalyticsConfiguration *config = [FPAnalyticsConfiguration configurationWithWriteKey:@"test"];
     NSDictionary *context = getStaticContext(config, nil);
     NSDictionary *device  = context[@"device"];
 
-    XCTAssertNotNil(device[@"device_id"], @"device_id should be present in device context");
+    XCTAssertNil(device[@"device_id"],    @"device_id must not be in static context — set per-event by FPAttributionMiddleware");
     XCTAssertNotNil(device[@"idfv"],      @"idfv should be present in device context");
     XCTAssertNotNil(device[@"id"],        @"id (backward compat) should still be present");
-
-    // device_id should be a valid UUID
-    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:device[@"device_id"]];
-    XCTAssertNotNil(uuid, @"device_id should be a valid UUID, got: %@", device[@"device_id"]);
 #endif
 }
 
