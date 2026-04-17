@@ -334,14 +334,19 @@ NSDictionary *getLiveContext(FPReachability *reachability, NSDictionary *referre
         }
 
 #if TARGET_OS_IOS && TARGET_OS_MACCATALYST == 0
-        static dispatch_once_t networkInfoOnceToken;
-        dispatch_once(&networkInfoOnceToken, ^{
-            _telephonyNetworkInfo = [[CTTelephonyNetworkInfo alloc] init];
-        });
-
-        CTCarrier *carrier = [_telephonyNetworkInfo subscriberCellularProvider];
-        if (carrier.carrierName.length)
-            network[@"carrier"] = carrier.carrierName;
+        // CTCarrier deprecated in iOS 16 — always returns nil on iOS 16+.
+        // Only collect carrier info on iOS 15, which is our deployment target floor.
+        if (@available(iOS 16, *)) {
+            // Skip: Apple no longer provides carrier info for privacy reasons.
+        } else {
+            static dispatch_once_t networkInfoOnceToken;
+            dispatch_once(&networkInfoOnceToken, ^{
+                _telephonyNetworkInfo = [[CTTelephonyNetworkInfo alloc] init];
+            });
+            CTCarrier *carrier = [_telephonyNetworkInfo subscriberCellularProvider];
+            if (carrier.carrierName.length)
+                network[@"carrier"] = carrier.carrierName;
+        }
 #endif
 
         network;
