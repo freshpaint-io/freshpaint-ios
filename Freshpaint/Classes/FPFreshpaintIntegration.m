@@ -13,10 +13,6 @@
 #import <UIKit/UIKit.h>
 #endif
 
-#if TARGET_OS_IOS
-#import <CoreTelephony/CTCarrier.h>
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
-#endif
 
 NSString *const FPFreshpaintDidSendRequest = @"FreshpaintDidSendRequest";
 NSString *const FPFreshpaintRequestDidSucceedNotification = @"FreshpaintRequestDidSucceed";
