@@ -52,7 +52,8 @@ static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000"
         NSUInteger status = [self currentATTStatus];
         NSMutableDictionary *enrichment = [NSMutableDictionary dictionary];
 
-        enrichment[@"att_status"]          = FPATTStatusToString(status);
+        enrichment[@"att_status"]           = FPATTStatusToString(status);
+        enrichment[@"device_id"]            = payload.anonymousId ?: @"";
         enrichment[@"persistent_device_id"] = [FPStableDeviceId deviceId];
 
         // Include IDFA only when fully authorized and adSupportBlock is set.

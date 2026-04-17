@@ -187,22 +187,19 @@
 #pragma mark - Device context dict integration
 // ---------------------------------------------------------------------------
 
-- (void)testDeviceContextContainsDeviceIdAndIdfv
+- (void)testDeviceContextContainsIdfvButNotDeviceId
 {
 #if TARGET_OS_IPHONE
-    // device_id and idfv are only populated inside mobileSpecifications(),
-    // which is itself guarded with #if TARGET_OS_IPHONE — skip on macOS.
+    // idfv and id are set in mobileSpecifications() (static context).
+    // device_id is no longer static — it is set per-event by FPAttributionMiddleware
+    // using payload.anonymousId so it reflects the current session and resets on logout.
     FPAnalyticsConfiguration *config = [FPAnalyticsConfiguration configurationWithWriteKey:@"test"];
     NSDictionary *context = getStaticContext(config, nil);
     NSDictionary *device  = context[@"device"];
 
-    XCTAssertNotNil(device[@"device_id"], @"device_id should be present in device context");
+    XCTAssertNil(device[@"device_id"],    @"device_id must not be in static context — set per-event by FPAttributionMiddleware");
     XCTAssertNotNil(device[@"idfv"],      @"idfv should be present in device context");
     XCTAssertNotNil(device[@"id"],        @"id (backward compat) should still be present");
-
-    // device_id should be a valid UUID
-    NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:device[@"device_id"]];
-    XCTAssertNotNil(uuid, @"device_id should be a valid UUID, got: %@", device[@"device_id"]);
 #endif
 }
 
