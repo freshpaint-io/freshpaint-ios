@@ -322,6 +322,7 @@ struct ContentView: View {
         Freshpaint.shared().alias(newUserId)
         currentUserId = newUserId
         isUserIdentified = true
+        anonymousId = Freshpaint.shared().getAnonymousId()
 
         addDebugLog("🔗 User Aliased: \(oldUserId) → \(newUserId)")
         addDebugLog("This links the previous anonymous/identified activity to the new user ID")
