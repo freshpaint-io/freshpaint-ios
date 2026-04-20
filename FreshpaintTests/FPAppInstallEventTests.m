@@ -13,10 +13,16 @@
 #import "FPContext.h"
 #import "FPTrackPayload.h"
 #import "FPATTTestConstants.h"
+#import "FPStableDeviceId.h"
 
 // NSUserDefaults keys — defined in FPAnalytics.m, declared here for test access.
 extern NSString *const FPVersionKey;
 extern NSString *const FPBuildKeyV2;
+
+// Expose NSUserDefaults test helpers from FPStableDeviceId.
+@interface FPStableDeviceId (Testing)
++ (void)fp_resetUserDefaultsForTesting;
+@end
 
 // ---------------------------------------------------------------------------
 #pragma mark - Test-only extensions
@@ -104,6 +110,9 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:FPBuildKeyV2];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:FPVersionKey];
 
+    // Start with no persistent device ID so each test gets a fresh UUID.
+    [FPStableDeviceId fp_resetUserDefaultsForTesting];
+
     // Build a configuration that fires lifecycle events but does NOT hook into
     // UIApplication (no notifications registered — tests drive the method directly).
     self.configuration = [FPAnalyticsConfiguration configurationWithWriteKey:@"TEST_WRITE_KEY"];
@@ -130,6 +139,8 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:FPVersionKey];
     }
     [[NSUserDefaults standardUserDefaults] synchronize];
+
+    [FPStableDeviceId fp_resetUserDefaultsForTesting];
 
     self.analytics     = nil;
     self.capture       = nil;
@@ -229,11 +240,21 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     XCTAssertNotNil([df dateFromString:timestamp],
                     @"install_timestamp must be a valid ISO 8601 date string, got: %@", timestamp);
 
-    // device_id — non-empty UUID string
+    // device_id — must equal the analytics anonymousId
     NSString *deviceId = props[@"device_id"];
     XCTAssertNotNil(deviceId, @"device_id must be present");
-    XCTAssertNotNil([[NSUUID alloc] initWithUUIDString:deviceId],
-                    @"device_id must be a valid UUID, got: %@", deviceId);
+    XCTAssertEqualObjects(deviceId, [self.analytics getAnonymousId],
+                          @"device_id must equal the SDK anonymousId");
+
+    // persistent_device_id — must be present and a valid UUID
+    NSString *persistentDeviceId = props[@"persistent_device_id"];
+    XCTAssertNotNil(persistentDeviceId, @"persistent_device_id must be present");
+    XCTAssertNotNil([[NSUUID alloc] initWithUUIDString:persistentDeviceId],
+                    @"persistent_device_id must be a valid UUID, got: %@", persistentDeviceId);
+
+    // device_id and persistent_device_id must be independent values
+    XCTAssertNotEqualObjects(deviceId, persistentDeviceId,
+                             @"device_id and persistent_device_id must be different values");
 
     // idfv — non-empty string (or empty string on simulators without IDFV)
     XCTAssertNotNil(props[@"idfv"], @"idfv key must be present");

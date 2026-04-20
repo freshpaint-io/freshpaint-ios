@@ -215,6 +215,9 @@ NS_SWIFT_NAME(Freshpaint)
 /** Returns the anonymous ID of the current user. */
 - (NSString *)getAnonymousId;
 
+/** Returns the stable persistent device ID (backed by NSUserDefaults). */
+- (NSString *)getPersistentDeviceId;
+
 /** Returns the registered device token of this device */
 - (NSString *)getDeviceToken;
 
@@ -254,9 +257,9 @@ NS_SWIFT_NAME(Freshpaint)
 + (nullable NSString *)advertisingIdentifier;
 
 /**
- * Returns the stable device identifier that persists across app reinstalls via Keychain.
- * Falls back to IDFV when Keychain operations fail.
- * This is the value attached as `device_id` in every event's device context.
+ * Returns the stable device identifier backed by NSUserDefaults (key: io.freshpaint.persistentDeviceId).
+ * This is the value attached as `persistent_device_id` in every event's device context.
+ * Stable for the lifetime of the app installation; resets on uninstall.
  */
 + (NSString *)stableDeviceId;
 
