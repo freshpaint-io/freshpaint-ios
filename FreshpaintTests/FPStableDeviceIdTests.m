@@ -10,9 +10,8 @@
 
 // Expose private/debug methods for testing.
 @interface FPStableDeviceId (Testing)
-+ (void)fp_resetCachedIdForTesting;
 + (void)fp_resetUserDefaultsForTesting;
-+ (BOOL)fp_writeToUserDefaults:(NSString *)value;
++ (void)fp_writeToUserDefaults:(NSString *)value;
 + (nullable NSString *)fp_readFromUserDefaults;
 + (NSString *)fp_idfvFallback;
 @end
@@ -112,8 +111,10 @@
     // Generate and persist on first call.
     NSString *first = [FPStableDeviceId deviceId];
 
-    // Clear in-memory cache to simulate a new launch.
-    [FPStableDeviceId fp_resetCachedIdForTesting];
+    // Clear both cache and NSUserDefaults then re-seed only NSUserDefaults to simulate
+    // a new process launch where the in-memory cache is cold but storage has the value.
+    [FPStableDeviceId fp_resetUserDefaultsForTesting];
+    [FPStableDeviceId fp_writeToUserDefaults:first];
 
     // Second call should read from NSUserDefaults and return the same UUID.
     NSString *second = [FPStableDeviceId deviceId];
@@ -155,9 +156,8 @@
 
 - (void)testWriteAndReadRoundTrip
 {
-    NSString *value  = [[NSUUID UUID] UUIDString];
-    BOOL      written = [FPStableDeviceId fp_writeToUserDefaults:value];
-    XCTAssertTrue(written, @"fp_writeToUserDefaults should always return YES");
+    NSString *value = [[NSUUID UUID] UUIDString];
+    [FPStableDeviceId fp_writeToUserDefaults:value];
 
     NSString *read = [FPStableDeviceId fp_readFromUserDefaults];
     XCTAssertEqualObjects(value, read);
@@ -167,11 +167,9 @@
 {
     // Seed an original value into NSUserDefaults.
     NSString *originalId = @"AABBCCDD-0000-0000-0000-112233445566";
+    [FPStableDeviceId fp_resetUserDefaultsForTesting];
     [FPStableDeviceId fp_writeToUserDefaults:originalId];
 
-    // Reset cache to simulate a new launch, then call deviceId.
-    // It must read and return the seeded value, not generate a new one.
-    [FPStableDeviceId fp_resetCachedIdForTesting];
     NSString *deviceId = [FPStableDeviceId deviceId];
     XCTAssertEqualObjects(deviceId, originalId,
         @"deviceId must return the existing NSUserDefaults value, not generate a new one");
@@ -190,14 +188,14 @@
 - (void)testDeviceContextContainsIdfvButNotDeviceId
 {
 #if TARGET_OS_IPHONE
-    // idfv and id are set in mobileSpecifications() (static context).
-    // device_id is no longer static — it is set per-event by FPAttributionMiddleware
-    // using payload.anonymousId so it reflects the current session and resets on logout.
+    // idfv is populated in the static context via mobileSpecifications().
+    // device_id is NOT in the static context — it is injected per-event by
+    // FPAttributionMiddleware using the current anonymousId.
     FPAnalyticsConfiguration *config = [FPAnalyticsConfiguration configurationWithWriteKey:@"test"];
     NSDictionary *context = getStaticContext(config, nil);
     NSDictionary *device  = context[@"device"];
 
-    XCTAssertNil(device[@"device_id"],    @"device_id must not be in static context — set per-event by FPAttributionMiddleware");
+    XCTAssertNil(device[@"device_id"],    @"device_id must not be in the static context (injected per-event by middleware)");
     XCTAssertNotNil(device[@"idfv"],      @"idfv should be present in device context");
     XCTAssertNotNil(device[@"id"],        @"id (backward compat) should still be present");
 #endif

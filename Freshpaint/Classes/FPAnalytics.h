@@ -215,6 +215,9 @@ NS_SWIFT_NAME(Freshpaint)
 /** Returns the anonymous ID of the current user. */
 - (NSString *)getAnonymousId;
 
+/** Returns the stable persistent device ID (backed by NSUserDefaults). */
+- (NSString *)getPersistentDeviceId;
+
 /** Returns the registered device token of this device */
 - (NSString *)getDeviceToken;
 

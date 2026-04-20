@@ -665,6 +665,11 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     return [FPState sharedInstance].userInfo.anonymousId;
 }
 
+- (NSString *)getPersistentDeviceId
+{
+    return [FPStableDeviceId deviceId];
+}
+
 - (NSString *)getDeviceToken
 {
     return [FPState sharedInstance].context.deviceToken;

@@ -50,11 +50,7 @@ static NSString *_fpCachedDeviceId = nil;
         result = newId;
     });
 
-    if (result) {
-        return result;
-    }
-    // Graceful fallback when NSUserDefaults is completely unavailable.
-    return [self fp_idfvFallback];
+    return result;
 }
 
 + (nullable NSString *)fp_readFromUserDefaults
@@ -62,10 +58,9 @@ static NSString *_fpCachedDeviceId = nil;
     return [[NSUserDefaults standardUserDefaults] stringForKey:kFPStableDeviceIdUserDefaultsKey];
 }
 
-+ (BOOL)fp_writeToUserDefaults:(NSString *)value
++ (void)fp_writeToUserDefaults:(NSString *)value
 {
     [[NSUserDefaults standardUserDefaults] setObject:value forKey:kFPStableDeviceIdUserDefaultsKey];
-    return YES;
 }
 
 + (NSString *)fp_idfvFallback
@@ -82,13 +77,6 @@ static NSString *_fpCachedDeviceId = nil;
 
 #if DEBUG
 // Test helpers — not for production use.
-
-+ (void)fp_resetCachedIdForTesting
-{
-    dispatch_sync([self fp_queue], ^{
-        _fpCachedDeviceId = nil;
-    });
-}
 
 + (void)fp_resetUserDefaultsForTesting
 {

@@ -32,7 +32,7 @@ struct AttributionDemoView: View {
     @State private var attStatus: UInt = 0
     @State private var idfa: String = "Not available"
     @State private var idfv: String = "Not available"
-    @State private var stableDeviceId: String = "Not available"
+    @State private var deviceId: String = "Not available"
     @State private var persistentDeviceId: String = "Not available"
     @State private var appVersion: String = "Not available"
     @State private var isFirstLaunch: Bool = false
@@ -84,7 +84,7 @@ struct AttributionDemoView: View {
     private var deviceIdentifiersCard: some View {
         CardView(title: "Device Identifiers") {
             VStack(spacing: 12) {
-                AttributionRow(label: "Device ID", value: stableDeviceId)
+                AttributionRow(label: "Device ID", value: deviceId)
                 AttributionRow(label: "Persistent ID", value: persistentDeviceId)
                 AttributionRow(label: "IDFV", value: idfv)
                 AttributionRow(label: "IDFA", value: idfa)
@@ -208,9 +208,9 @@ struct AttributionDemoView: View {
             ("fp_click_id",   lastFpClickId == "null"    ? .null : .string(lastFpClickId)),
             ("utm_source",    lastUtmSource == "null"    ? .null : .string(lastUtmSource)),
             ("utm_campaign",  lastUtmCampaign == "null"  ? .null : .string(lastUtmCampaign)),
-            ("device_id",              .string(stableDeviceId)),
-            ("persistent_device_id",   .string(persistentDeviceId)),
-            ("first_launch",           .bool(isFirstLaunch)),
+            ("device_id",            .string(deviceId)),
+            ("persistent_device_id", .string(persistentDeviceId)),
+            ("first_launch",         .bool(isFirstLaunch)),
         ]
     }
 
@@ -218,8 +218,8 @@ struct AttributionDemoView: View {
 
     private func refresh() {
         attStatus = Freshpaint.trackingAuthorizationStatus()
-        stableDeviceId = "Auto-enriched in event context"
-        persistentDeviceId = Freshpaint.stableDeviceId()
+        deviceId = Freshpaint.shared().getAnonymousId()
+        persistentDeviceId = Freshpaint.shared().getPersistentDeviceId()
         idfv = UIDevice.current.identifierForVendor?.uuidString ?? "Not available"
         idfa = Freshpaint.advertisingIdentifier() ?? "Not available"
         appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"

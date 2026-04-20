@@ -317,13 +317,12 @@ struct ContentView: View {
     private func aliasUser() {
         tapCount += 1
         let newUserId = "aliased_user_\(UUID().uuidString.prefix(8))"
-        
-        Freshpaint.shared().alias(newUserId)
-        
-        // Update our local state
+
         let oldUserId = currentUserId ?? "anonymous"
+        Freshpaint.shared().alias(newUserId)
         currentUserId = newUserId
-        
+        isUserIdentified = true
+
         addDebugLog("🔗 User Aliased: \(oldUserId) → \(newUserId)")
         addDebugLog("This links the previous anonymous/identified activity to the new user ID")
     }
