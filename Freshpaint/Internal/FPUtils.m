@@ -182,6 +182,16 @@ NSDictionary *getStaticContext(FPAnalyticsConfiguration *configuration, NSString
         dict[@"screen"] = settingsDictionary[@"screen"];
     }
 
+#if TARGET_OS_IPHONE
+    {
+        NSString *appName = infoDictionary[@"CFBundleDisplayName"] ?: infoDictionary[@"CFBundleName"] ?: @"App";
+        NSString *version  = infoDictionary[@"CFBundleShortVersionString"] ?: @"1.0";
+        UIDevice *device   = [UIDevice currentDevice];
+        dict[@"userAgent"] = [NSString stringWithFormat:@"%@/%@ (%@; iOS %@)",
+                              appName, version, device.model, device.systemVersion];
+    }
+#endif
+
     return dict;
 }
 
