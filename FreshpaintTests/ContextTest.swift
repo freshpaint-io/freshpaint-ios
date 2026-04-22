@@ -99,9 +99,14 @@ class ContextTests: XCTestCase {
         // userAgent must be present in every event's context payload
         XCTAssertNotNil(capturedUserAgent, "userAgent key must be present in context payload")
         let ua = capturedUserAgent ?? ""
-        // Format: AppName/Version (DeviceModel; iOS SystemVersion)
-        XCTAssertTrue(ua.contains("iOS"), "userAgent must contain 'iOS'")
+        // Format: AppName/Version (DeviceModel; iOS SystemVersion) on iOS/tvOS
+        //         AppName/Version (Mac; macOS X.Y.Z) on macOS
         XCTAssertTrue(ua.contains("/"), "userAgent must contain '/' between app name and version")
         XCTAssertTrue(ua.contains("(") && ua.contains(")"), "userAgent must contain parenthesized device info")
+#if os(macOS)
+        XCTAssertTrue(ua.contains("macOS"), "userAgent must contain 'macOS' on Mac")
+#else
+        XCTAssertTrue(ua.contains("iOS"), "userAgent must contain 'iOS' on iPhone/iPad/TV")
+#endif
     }
 }

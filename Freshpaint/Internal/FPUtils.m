@@ -190,6 +190,14 @@ NSDictionary *getStaticContext(FPAnalyticsConfiguration *configuration, NSString
         dict[@"userAgent"] = [NSString stringWithFormat:@"%@/%@ (%@; iOS %@)",
                               appName, version, device.model, device.systemVersion];
     }
+#elif TARGET_OS_OSX
+    {
+        NSString *appName = infoDictionary[@"CFBundleDisplayName"] ?: infoDictionary[@"CFBundleName"] ?: @"App";
+        NSString *version  = infoDictionary[@"CFBundleShortVersionString"] ?: @"1.0";
+        NSOperatingSystemVersion osVer = [NSProcessInfo processInfo].operatingSystemVersion;
+        dict[@"userAgent"] = [NSString stringWithFormat:@"%@/%@ (Mac; macOS %ld.%ld.%ld)",
+                              appName, version, osVer.majorVersion, osVer.minorVersion, osVer.patchVersion];
+    }
 #endif
 
     return dict;
