@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		765FF74B2E05D8F100E0A999 /* Freshpaint in Frameworks */ = {isa = PBXBuildFile; productRef = 765FF74A2E05D8F100E0A999 /* Freshpaint */; };
 		76773DD52E0B842200D70EB7 /* Freshpaint in Frameworks */ = {isa = PBXBuildFile; productRef = 76773DD42E0B842200D70EB7 /* Freshpaint */; };
 		AD5E9P0R7F6A4B2C1D3E8F90 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD5E9P0R7F6A4B2C1D3E8F91 /* AdSupport.framework */; };
 /* End PBXBuildFile section */
@@ -18,7 +17,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		FADEBABE00001234ABCD5678 /* FreshpaintDemo */ = {
+		FADEBABE00001234ABCD5678 /* Exceptions for "FreshpaintDemo" folder in "FreshpaintDemo" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -31,7 +30,7 @@
 		76CA4BE92E05BDC900AC6FAB /* FreshpaintDemo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				FADEBABE00001234ABCD5678 /* FreshpaintDemo */,
+				FADEBABE00001234ABCD5678 /* Exceptions for "FreshpaintDemo" folder in "FreshpaintDemo" target */,
 			);
 			path = FreshpaintDemo;
 			sourceTree = "<group>";
@@ -44,7 +43,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				76773DD52E0B842200D70EB7 /* Freshpaint in Frameworks */,
-				765FF74B2E05D8F100E0A999 /* Freshpaint in Frameworks */,
 				AD5E9P0R7F6A4B2C1D3E8F90 /* AdSupport.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -276,9 +274,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = R2Z82YY566;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FreshpaintDemo/Info.plist;
@@ -301,9 +300,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = R2Z82YY566;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FreshpaintDemo/Info.plist;
@@ -351,23 +351,7 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		765FF7492E05D8F100E0A999 /* XCRemoteSwiftPackageReference "freshpaint-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/freshpaint-io/freshpaint-ios.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.2.3;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
-		765FF74A2E05D8F100E0A999 /* Freshpaint */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 765FF7492E05D8F100E0A999 /* XCRemoteSwiftPackageReference "freshpaint-ios" */;
-			productName = Freshpaint;
-		};
 		76773DD42E0B842200D70EB7 /* Freshpaint */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Freshpaint;

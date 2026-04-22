@@ -21,8 +21,13 @@ struct FreshpaintDemoApp: App {
         config.recordScreenViews = true
         
         // Performance and batching configuration
+        #if DEBUG
+        config.flushAt = 1    // Flush every event immediately in debug builds
+        config.flushInterval = 5
+        #else
         config.flushAt = 20  // Send after 20 events
         config.flushInterval = 30  // Send every 30 seconds
+        #endif
         config.maxQueueSize = 1000  // Max events in queue
         
         // Session configuration
