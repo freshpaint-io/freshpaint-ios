@@ -28,10 +28,11 @@ extern NSString *const FPBuildKeyV2;
 #pragma mark - Test-only extensions
 // ---------------------------------------------------------------------------
 
-/// Exposes the private lifecycle handler and the ATT status injectable.
+/// Exposes private lifecycle handlers and the ATT status injectable.
 @interface FPAnalytics (FPInstallTesting)
 @property (atomic, copy, nullable) NSUInteger (^fp_attStatusProvider)(void);
 - (void)_applicationDidFinishLaunchingWithOptions:(nullable NSDictionary *)launchOptions;
+- (void)fp_handleDelayedLaunch:(NSNotification *)note;
 @end
 
 @implementation FPAnalytics (FPInstallTesting)
@@ -442,6 +443,47 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
                   @"trackApplicationLifecycleEvents is NO");
     XCTAssertFalse(foundOpened,
                    @"Application Opened must NOT fire when trackApplicationLifecycleEvents is NO");
+#else
+    XCTSkip(@"This test requires iOS");
+#endif
+}
+
+// ---------------------------------------------------------------------------
+#pragma mark - iOS 26 deferred launch path (fp_handleDelayedLaunch:)
+// ---------------------------------------------------------------------------
+
+/// Simulates the iOS 26 SwiftUI cold-start path: configuration.application is nil
+/// so initWithConfiguration: cannot call _applicationDidFinishLaunchingWithOptions:
+/// directly. fp_handleDelayedLaunch: is the deferred handler that UIKit would invoke
+/// via UISceneDidActivateNotification; calling it directly here tests the full code
+/// path without relying on the xctest process scene lifecycle.
+- (void)testAppInstallFiresViaDelayedLaunchHandler
+{
+#if TARGET_OS_IOS
+    // setUp already created self.analytics with application=nil. Invoke the deferred
+    // handler as UIKit would — with a UISceneDidActivateNotification carrying nil object.
+    NSNotification *sceneNote = [NSNotification notificationWithName:UISceneDidActivateNotification
+                                                               object:nil];
+    [self.analytics fp_handleDelayedLaunch:sceneNote];
+
+    XCTAssertTrue([self capturedEventNamed:@"app_install"],
+                  @"app_install must fire when fp_handleDelayedLaunch: is called after "
+                  @"a nil-application init (iOS 26 SwiftUI path)");
+
+    // Call the handler a second time to verify launchHandlerFired prevents double-firing.
+    [self.analytics fp_handleDelayedLaunch:sceneNote];
+
+    NSUInteger installCount = 0;
+    for (FPContext *ctx in self.capture.capturedContexts) {
+        FPTrackPayload *t = (FPTrackPayload *)ctx.payload;
+        if ([t isKindOfClass:[FPTrackPayload class]] &&
+            [t.event isEqualToString:@"app_install"]) {
+            installCount++;
+        }
+    }
+    XCTAssertEqual(installCount, 1u,
+                   @"app_install must fire exactly once — launchHandlerFired must "
+                   @"prevent a second fire on repeated handler invocations");
 #else
     XCTSkip(@"This test requires iOS");
 #endif

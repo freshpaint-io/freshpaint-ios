@@ -220,10 +220,13 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
                                                   object:nil];
 
     // note.object is UIApplication for UIApplicationDidBecomeActiveNotification,
-    // or UIScene for UISceneDidActivateNotification. Use performSelector: on the class
-    // to get the shared UIApplication — avoids the "unavailable in App Extension" error
-    // that [UIApplication sharedApplication] triggers at compile time.
-    UIApplication *app = (UIApplication *)[[UIApplication class] performSelector:@selector(sharedApplication)];
+    // or UIScene for UISceneDidActivateNotification. Use the IMP-cast pattern to call
+    // sharedApplication — same approach used for AAAttribution elsewhere in this file —
+    // to avoid both the "unavailable in App Extension" compile error and ARC warnings
+    // that [UIApplication sharedApplication] or performSelector: would produce.
+    UIApplication *(*sharedAppIMP)(id, SEL) =
+        (UIApplication *(*)(id, SEL))[[UIApplication class] methodForSelector:@selector(sharedApplication)];
+    UIApplication *app = sharedAppIMP([UIApplication class], @selector(sharedApplication));
     if (app) {
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
         for (NSString *name in @[ UIApplicationDidEnterBackgroundNotification,
@@ -247,18 +250,18 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 {
     // app_install is gated on autoTrackFirstOpen (default YES), independent of
     // trackApplicationLifecycleEvents. Application Opened/Updated require the latter.
-    BOOL trackLifecycle = self.oneTimeConfiguration.trackApplicationLifecycleEvents;
-    BOOL trackFirstOpen = self.oneTimeConfiguration.autoTrackFirstOpen;
-    if (!trackLifecycle && !trackFirstOpen) {
-        return;
-    }
-
-    // Previously FPBuildKey was stored an integer. This was incorrect because the CFBundleVersion
-    // can be a string. This migrates FPBuildKey to be stored as a string.
+    // Run the V1→V2 migration unconditionally so a legacy key is never stranded,
+    // regardless of whether lifecycle or first-open tracking is enabled.
     NSInteger previousBuildV1 = [[NSUserDefaults standardUserDefaults] integerForKey:FPBuildKeyV1];
     if (previousBuildV1) {
         [[NSUserDefaults standardUserDefaults] setObject:[@(previousBuildV1) stringValue] forKey:FPBuildKeyV2];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:FPBuildKeyV1];
+    }
+
+    BOOL trackLifecycle = self.oneTimeConfiguration.trackApplicationLifecycleEvents;
+    BOOL trackFirstOpen = self.oneTimeConfiguration.autoTrackFirstOpen;
+    if (!trackLifecycle && !trackFirstOpen) {
+        return;
     }
 
     NSString *previousVersion = [[NSUserDefaults standardUserDefaults] stringForKey:FPVersionKey];
