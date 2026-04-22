@@ -28,10 +28,11 @@ extern NSString *const FPBuildKeyV2;
 #pragma mark - Test-only extensions
 // ---------------------------------------------------------------------------
 
-/// Exposes the private lifecycle handler and the ATT status injectable.
+/// Exposes private lifecycle handlers and the ATT status injectable.
 @interface FPAnalytics (FPInstallTesting)
 @property (atomic, copy, nullable) NSUInteger (^fp_attStatusProvider)(void);
 - (void)_applicationDidFinishLaunchingWithOptions:(nullable NSDictionary *)launchOptions;
+- (void)fp_handleDelayedLaunch:(NSNotification *)note;
 @end
 
 @implementation FPAnalytics (FPInstallTesting)
@@ -398,6 +399,124 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
                   @"Application Opened must still fire on every launch");
     XCTAssertFalse([self capturedEventNamed:@"Application Installed"],
                    @"The old Application Installed event name must never fire");
+#else
+    XCTSkip(@"This test requires iOS");
+#endif
+}
+
+// ---------------------------------------------------------------------------
+#pragma mark - autoTrackFirstOpen independent of trackApplicationLifecycleEvents
+// ---------------------------------------------------------------------------
+
+/// app_install must fire even when trackApplicationLifecycleEvents is NO,
+/// as long as autoTrackFirstOpen is YES (the default). This is the primary
+/// production path: clients who only want MMP attribution need not opt into
+/// the full lifecycle event suite.
+- (void)testAppInstallFiresWithoutLifecycleEventsEnabled
+{
+#if TARGET_OS_IOS
+    // Build a fresh analytics instance with lifecycle events explicitly disabled
+    // but autoTrackFirstOpen left at its default (YES).
+    FPAnalyticsConfiguration *cfg = [FPAnalyticsConfiguration configurationWithWriteKey:@"TEST_WRITE_KEY"];
+    cfg.trackApplicationLifecycleEvents = NO;
+    // autoTrackFirstOpen defaults to YES — not set here to verify the default.
+    cfg.application = nil;
+
+    FPInstallEventCapture *localCapture = [[FPInstallEventCapture alloc] init];
+    cfg.sourceMiddleware = @[ localCapture ];
+
+    FPAnalytics *analytics = [[FPAnalytics alloc] initWithConfiguration:cfg];
+
+    [analytics _applicationDidFinishLaunchingWithOptions:nil];
+
+    BOOL foundInstall = NO;
+    BOOL foundOpened  = NO;
+    for (FPContext *ctx in localCapture.capturedContexts) {
+        FPTrackPayload *t = (FPTrackPayload *)ctx.payload;
+        if (![t isKindOfClass:[FPTrackPayload class]]) continue;
+        if ([t.event isEqualToString:@"app_install"])       foundInstall = YES;
+        if ([t.event isEqualToString:@"Application Opened"]) foundOpened  = YES;
+    }
+
+    XCTAssertTrue(foundInstall,
+                  @"app_install must fire when autoTrackFirstOpen is YES even if "
+                  @"trackApplicationLifecycleEvents is NO");
+    XCTAssertFalse(foundOpened,
+                   @"Application Opened must NOT fire when trackApplicationLifecycleEvents is NO");
+#else
+    XCTSkip(@"This test requires iOS");
+#endif
+}
+
+// ---------------------------------------------------------------------------
+#pragma mark - iOS 26 deferred launch path (fp_handleDelayedLaunch:)
+// ---------------------------------------------------------------------------
+
+/// Simulates the iOS 26 SwiftUI cold-start path: configuration.application is nil
+/// so initWithConfiguration: cannot call _applicationDidFinishLaunchingWithOptions:
+/// directly. fp_handleDelayedLaunch: is the deferred handler that UIKit would invoke
+/// via UISceneDidActivateNotification; calling it directly here tests the full code
+/// path without relying on the xctest process scene lifecycle.
+- (void)testAppInstallFiresViaDelayedLaunchHandler
+{
+#if TARGET_OS_IOS
+    // setUp already created self.analytics with application=nil. Invoke the deferred
+    // handler as UIKit would — with a UISceneDidActivateNotification carrying nil object.
+    NSNotification *sceneNote = [NSNotification notificationWithName:UISceneDidActivateNotification
+                                                               object:nil];
+    [self.analytics fp_handleDelayedLaunch:sceneNote];
+
+    XCTAssertTrue([self capturedEventNamed:@"app_install"],
+                  @"app_install must fire when fp_handleDelayedLaunch: is called after "
+                  @"a nil-application init (iOS 26 SwiftUI path)");
+
+    // Call the handler a second time to verify launchHandlerFired prevents double-firing.
+    [self.analytics fp_handleDelayedLaunch:sceneNote];
+
+    NSUInteger installCount = 0;
+    for (FPContext *ctx in self.capture.capturedContexts) {
+        FPTrackPayload *t = (FPTrackPayload *)ctx.payload;
+        if ([t isKindOfClass:[FPTrackPayload class]] &&
+            [t.event isEqualToString:@"app_install"]) {
+            installCount++;
+        }
+    }
+    XCTAssertEqual(installCount, 1u,
+                   @"app_install must fire exactly once — launchHandlerFired must "
+                   @"prevent a second fire on repeated handler invocations");
+#else
+    XCTSkip(@"This test requires iOS");
+#endif
+}
+
+/// When autoTrackFirstOpen is explicitly set to NO, app_install must not fire
+/// even on a fresh install.
+- (void)testAppInstallDoesNotFireWhenAutoTrackFirstOpenDisabled
+{
+#if TARGET_OS_IOS
+    FPAnalyticsConfiguration *cfg = [FPAnalyticsConfiguration configurationWithWriteKey:@"TEST_WRITE_KEY"];
+    cfg.trackApplicationLifecycleEvents = NO;
+    cfg.autoTrackFirstOpen = NO;
+    cfg.application = nil;
+
+    FPInstallEventCapture *localCapture = [[FPInstallEventCapture alloc] init];
+    cfg.sourceMiddleware = @[ localCapture ];
+
+    FPAnalytics *analytics = [[FPAnalytics alloc] initWithConfiguration:cfg];
+
+    [analytics _applicationDidFinishLaunchingWithOptions:nil];
+
+    BOOL foundInstall = NO;
+    for (FPContext *ctx in localCapture.capturedContexts) {
+        FPTrackPayload *t = (FPTrackPayload *)ctx.payload;
+        if ([t isKindOfClass:[FPTrackPayload class]] &&
+            [t.event isEqualToString:@"app_install"]) {
+            foundInstall = YES;
+        }
+    }
+
+    XCTAssertFalse(foundInstall,
+                   @"app_install must NOT fire when autoTrackFirstOpen is explicitly NO");
 #else
     XCTSkip(@"This test requires iOS");
 #endif

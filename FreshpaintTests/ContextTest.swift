@@ -70,12 +70,43 @@ class ContextTests: XCTestCase {
             context.eventType = .track
         }
         XCTAssertFalse(context.debug)
-        
+
         let newContext = context.modify { context in
             context.eventType = .identify
         }
         XCTAssertEqual(context, newContext)
         XCTAssertEqual(newContext.eventType, .identify)
         XCTAssertEqual(context.eventType, .identify)
+    }
+
+    func testUserAgentInContextPayload() {
+        var capturedUserAgent: String?
+        let exp = expectation(description: "event queued")
+
+        let config = FreshpaintConfiguration(writeKey: "foobar")
+        config.experimental.rawFreshpaintModificationBlock = { payload in
+            if let ctx = payload["context"] as? [String: Any] {
+                capturedUserAgent = ctx["userAgent"] as? String
+            }
+            exp.fulfill()
+            return payload
+        }
+        let testAnalytics = Freshpaint(configuration: config)
+        testAnalytics.track("context userAgent test")
+
+        waitForExpectations(timeout: 2)
+
+        // userAgent must be present in every event's context payload
+        XCTAssertNotNil(capturedUserAgent, "userAgent key must be present in context payload")
+        let ua = capturedUserAgent ?? ""
+        // Format: AppName/Version (DeviceModel; iOS SystemVersion) on iOS/tvOS
+        //         AppName/Version (Mac; macOS X.Y.Z) on macOS
+        XCTAssertTrue(ua.contains("/"), "userAgent must contain '/' between app name and version")
+        XCTAssertTrue(ua.contains("(") && ua.contains(")"), "userAgent must contain parenthesized device info")
+#if os(macOS)
+        XCTAssertTrue(ua.contains("macOS"), "userAgent must contain 'macOS' on Mac")
+#else
+        XCTAssertTrue(ua.contains("iOS"), "userAgent must contain 'iOS' on iPhone/iPad/TV")
+#endif
     }
 }

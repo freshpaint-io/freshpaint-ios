@@ -21,8 +21,16 @@ struct FreshpaintDemoApp: App {
         config.recordScreenViews = true
         
         // Performance and batching configuration
+        // DEBUG: flush every event immediately so events appear in freshpaint.io
+        // during local development without waiting for the batch threshold.
+        // Production uses the values in the #else branch below.
+        #if DEBUG
+        config.flushAt = 1
+        config.flushInterval = 5
+        #else
         config.flushAt = 20  // Send after 20 events
         config.flushInterval = 30  // Send every 30 seconds
+        #endif
         config.maxQueueSize = 1000  // Max events in queue
         
         // Session configuration

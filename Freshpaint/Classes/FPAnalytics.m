@@ -111,6 +111,21 @@ static NSString *const kFPInstallZeroedIDFA = @"00000000-0000-0000-0000-00000000
                 [nc addObserver:self selector:@selector(handleAppStateNotification:) name:name object:application];
             }
 #endif
+        } else {
+#if TARGET_OS_IPHONE
+            // iOS 26+: UIApplication.sharedApplication is nil during SwiftUI App.init().
+            // SwiftUI apps use scene-based lifecycle; UIApplicationDidBecomeActiveNotification
+            // may not fire. Register for both notifications — whichever fires first will
+            // trigger fp_handleDelayedLaunch: which immediately deregisters both.
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(fp_handleDelayedLaunch:)
+                                                         name:UIApplicationDidBecomeActiveNotification
+                                                       object:nil];
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(fp_handleDelayedLaunch:)
+                                                         name:UISceneDidActivateNotification
+                                                       object:nil];
+#endif
         }
 
 #if TARGET_OS_IPHONE
@@ -193,17 +208,60 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 }
 #endif
 
+#if TARGET_OS_IPHONE
+- (void)fp_handleDelayedLaunch:(NSNotification *)note
+{
+    // Remove both one-shot observers immediately so this only fires once.
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidBecomeActiveNotification
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UISceneDidActivateNotification
+                                                  object:nil];
+
+    // note.object is UIApplication for UIApplicationDidBecomeActiveNotification,
+    // or UIScene for UISceneDidActivateNotification. Use the IMP-cast pattern to call
+    // sharedApplication — same approach used for AAAttribution elsewhere in this file —
+    // to avoid both the "unavailable in App Extension" compile error and ARC warnings
+    // that [UIApplication sharedApplication] or performSelector: would produce.
+    UIApplication *(*sharedAppIMP)(id, SEL) =
+        (UIApplication *(*)(id, SEL))[[UIApplication class] methodForSelector:@selector(sharedApplication)];
+    UIApplication *app = sharedAppIMP([UIApplication class], @selector(sharedApplication));
+    if (app) {
+        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+        for (NSString *name in @[ UIApplicationDidEnterBackgroundNotification,
+                                  UIApplicationDidFinishLaunchingNotification,
+                                  UIApplicationWillEnterForegroundNotification,
+                                  UIApplicationWillTerminateNotification,
+                                  UIApplicationWillResignActiveNotification,
+                                  UIApplicationDidBecomeActiveNotification ]) {
+            [nc addObserver:self selector:@selector(handleAppStateNotification:) name:name object:app];
+        }
+    }
+
+    if (!self.launchHandlerFired) {
+        self.launchHandlerFired = YES;
+        [self _applicationDidFinishLaunchingWithOptions:self.oneTimeConfiguration.launchOptions];
+    }
+}
+#endif
+
 - (void)_applicationDidFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    if (!self.oneTimeConfiguration.trackApplicationLifecycleEvents) {
-        return;
-    }
-    // Previously FPBuildKey was stored an integer. This was incorrect because the CFBundleVersion
-    // can be a string. This migrates FPBuildKey to be stored as a string.
+    // app_install is gated on autoTrackFirstOpen (default YES), independent of
+    // trackApplicationLifecycleEvents. Application Opened/Updated require the latter.
+    // Run the V1→V2 migration unconditionally so a legacy key is never stranded,
+    // regardless of whether lifecycle or first-open tracking is enabled.
     NSInteger previousBuildV1 = [[NSUserDefaults standardUserDefaults] integerForKey:FPBuildKeyV1];
     if (previousBuildV1) {
         [[NSUserDefaults standardUserDefaults] setObject:[@(previousBuildV1) stringValue] forKey:FPBuildKeyV2];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:FPBuildKeyV1];
+    }
+
+    BOOL trackLifecycle = self.oneTimeConfiguration.trackApplicationLifecycleEvents;
+    BOOL trackFirstOpen = self.oneTimeConfiguration.autoTrackFirstOpen;
+    if (!trackLifecycle && !trackFirstOpen) {
+        return;
     }
 
     NSString *previousVersion = [[NSUserDefaults standardUserDefaults] stringForKey:FPVersionKey];
@@ -213,128 +271,132 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     NSString *currentBuild = [[NSBundle mainBundle] infoDictionary][@"CFBundleVersion"];
 
     if (!previousBuildV2) {
+        // Fresh install — fire app_install only when autoTrackFirstOpen is enabled.
+        if (trackFirstOpen) {
 #if TARGET_OS_IPHONE
-        // ATT status — same associated-objects pattern as _handleDidBecomeActiveForATT.
-        // In test builds a provider is injected via objc_setAssociatedObject; in
-        // production the getter returns nil and we fall through to the real ATT query.
-        NSUInteger (^statusProvider)(void) = objc_getAssociatedObject(
-            self, @selector(fp_attStatusProvider));
-        NSUInteger attStatus = statusProvider ? statusProvider() : [FPAnalytics trackingAuthorizationStatus];
-        NSString *attStatusStr = FPATTStatusToString(attStatus);
+            // ATT status — same associated-objects pattern as _handleDidBecomeActiveForATT.
+            // In test builds a provider is injected via objc_setAssociatedObject; in
+            // production the getter returns nil and we fall through to the real ATT query.
+            NSUInteger (^statusProvider)(void) = objc_getAssociatedObject(
+                self, @selector(fp_attStatusProvider));
+            NSUInteger attStatus = statusProvider ? statusProvider() : [FPAnalytics trackingAuthorizationStatus];
+            NSString *attStatusStr = FPATTStatusToString(attStatus);
 
-        NSMutableDictionary *installProps = [NSMutableDictionary dictionary];
-        installProps[@"install_timestamp"]    = iso8601FormattedString([NSDate date]);
-        installProps[@"device_id"]            = [self getAnonymousId];
-        installProps[@"persistent_device_id"] = [FPStableDeviceId deviceId];
-        installProps[@"distinct_id"]          = [self getAnonymousId] ?: @"";
-        installProps[@"idfv"]               = [[[UIDevice currentDevice] identifierForVendor] UUIDString] ?: @"";
-        installProps[@"att_status"]         = attStatusStr;
-        installProps[@"limit_ad_tracking"]  = @(attStatus != kFPATTStatusAuthorized);
-        installProps[@"os_name"]            = [[UIDevice currentDevice] systemName] ?: @"";
-        installProps[@"os_version"]         = [[UIDevice currentDevice] systemVersion] ?: @"";
-        installProps[@"device_model"]       = [[UIDevice currentDevice] model] ?: @"";
-        installProps[@"manufacturer"]       = @"Apple";
-        installProps[@"app_name"]           = [[NSBundle mainBundle] infoDictionary][@"CFBundleDisplayName"]
-                                              ?: [[NSBundle mainBundle] infoDictionary][@"CFBundleName"] ?: @"";
-        installProps[@"app_version"]        = currentVersion ?: @"";
-        installProps[@"app_build"]          = currentBuild ?: @"";
-        installProps[@"bundle_id"]          = [[NSBundle mainBundle] bundleIdentifier] ?: @"";
-        installProps[@"locale"]             = [[NSLocale currentLocale] localeIdentifier] ?: @"";
+            NSMutableDictionary *installProps = [NSMutableDictionary dictionary];
+            installProps[@"install_timestamp"]    = iso8601FormattedString([NSDate date]);
+            installProps[@"device_id"]            = [self getAnonymousId];
+            installProps[@"persistent_device_id"] = [FPStableDeviceId deviceId];
+            installProps[@"distinct_id"]          = [self getAnonymousId] ?: @"";
+            installProps[@"idfv"]               = [[[UIDevice currentDevice] identifierForVendor] UUIDString] ?: @"";
+            installProps[@"att_status"]         = attStatusStr;
+            installProps[@"limit_ad_tracking"]  = @(attStatus != kFPATTStatusAuthorized);
+            installProps[@"os_name"]            = [[UIDevice currentDevice] systemName] ?: @"";
+            installProps[@"os_version"]         = [[UIDevice currentDevice] systemVersion] ?: @"";
+            installProps[@"device_model"]       = [[UIDevice currentDevice] model] ?: @"";
+            installProps[@"manufacturer"]       = @"Apple";
+            installProps[@"app_name"]           = [[NSBundle mainBundle] infoDictionary][@"CFBundleDisplayName"]
+                                                  ?: [[NSBundle mainBundle] infoDictionary][@"CFBundleName"] ?: @"";
+            installProps[@"app_version"]        = currentVersion ?: @"";
+            installProps[@"app_build"]          = currentBuild ?: @"";
+            installProps[@"bundle_id"]          = [[NSBundle mainBundle] bundleIdentifier] ?: @"";
+            installProps[@"locale"]             = [[NSLocale currentLocale] localeIdentifier] ?: @"";
 
-        if (attStatus == kFPATTStatusAuthorized && self.oneTimeConfiguration.adSupportBlock != nil) {
-            NSString *idfa = self.oneTimeConfiguration.adSupportBlock();
-            if (idfa.length > 0 && ![idfa isEqualToString:kFPInstallZeroedIDFA]) {
-                installProps[@"idfa"] = idfa;
-            }
-        }
-
-        // If the app was launched via a URL (e.g. deferred deep link at first-open),
-        // extract attribution from it and persist before merging into install payload.
-        // UIKit guarantees UIApplicationDelegate callbacks on the main thread.
-        // If somehow called off-main (e.g. a unit test), dispatch to main to avoid a
-        // potential deadlock: mergeClickIds: posts a barrier write to _stateQueue and
-        // activeClickIdsFlattened below uses dispatch_sync on the same queue — both are
-        // safe from any non-_stateQueue thread, including main, but not from _stateQueue.
-        if (!NSThread.isMainThread) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self _applicationDidFinishLaunchingWithOptions:launchOptions];
-            });
-            return;
-        }
-        [self _processAttributionFromURL:launchOptions[UIApplicationLaunchOptionsURLKey]];
-
-        // Merge any stored click IDs and active UTM params into the install payload.
-        // activeClickIdsFlattened uses dispatch_sync, which drains any pending barrier
-        // (from the _processAttributionFromURL: call above) before reading — GCD guarantee.
-        NSDictionary *storedClickIds = [[FPState sharedInstance] activeClickIdsFlattened];
-        NSDictionary *storedUTM      = [[FPState sharedInstance] activeUTMParams];
-        if (storedClickIds.count > 0) {
-            [installProps addEntriesFromDictionary:storedClickIds];
-        }
-        if (storedUTM.count > 0) {
-            [installProps addEntriesFromDictionary:storedUTM];
-        }
-
-        // Apple Ads attribution token (AdServices.framework — runtime-only, opt-in).
-        // attributionToken: throws ObjC exceptions when the app was not installed via
-        // Apple Search Ads — @try/@catch is required per Apple documentation.
-        @try {
-            NSString *(^tokenProvider)(void) = objc_getAssociatedObject(
-                self, @selector(fp_appleAdsTokenProvider));
-            NSString *appleAdsToken = nil;
-            if (tokenProvider) {
-                appleAdsToken = tokenProvider();
-            } else {
-                Class aaClass = NSClassFromString(@"AAAttribution");
-                SEL tokenSel = NSSelectorFromString(@"attributionToken:");
-                if (aaClass && [aaClass respondsToSelector:tokenSel]) {
-                    NSString *(*tokenIMP)(id, SEL, NSError **) =
-                        (NSString *(*)(id, SEL, NSError **))[aaClass methodForSelector:tokenSel];
-                    NSError *tokenError = nil;
-                    CFAbsoluteTime tokenStart = CFAbsoluteTimeGetCurrent();
-                    appleAdsToken = tokenIMP(aaClass, tokenSel, &tokenError);
-                    CFAbsoluteTime tokenDuration = CFAbsoluteTimeGetCurrent() - tokenStart;
-                    if (tokenDuration > 0.1) {
-                        FPLog(@"Apple Ads token retrieval took %.2f seconds", tokenDuration);
-                    }
-                    if (tokenError) {
-                        FPLog(@"Apple Ads token unavailable: %@", tokenError.localizedDescription);
-                        [self track:@"apple_ads_token_error" properties:@{
-                            @"error_domain": tokenError.domain ?: @"unknown",
-                            @"error_code": @(tokenError.code),
-                        }];
-                    }
+            if (attStatus == kFPATTStatusAuthorized && self.oneTimeConfiguration.adSupportBlock != nil) {
+                NSString *idfa = self.oneTimeConfiguration.adSupportBlock();
+                if (idfa.length > 0 && ![idfa isEqualToString:kFPInstallZeroedIDFA]) {
+                    installProps[@"idfa"] = idfa;
                 }
             }
-            if (appleAdsToken.length > 0) {
-                installProps[@"apple_ads_token"] = appleAdsToken;
+
+            // If the app was launched via a URL (e.g. deferred deep link at first-open),
+            // extract attribution from it and persist before merging into install payload.
+            // UIKit guarantees UIApplicationDelegate callbacks on the main thread.
+            // If somehow called off-main (e.g. a unit test), dispatch to main to avoid a
+            // potential deadlock: mergeClickIds: posts a barrier write to _stateQueue and
+            // activeClickIdsFlattened below uses dispatch_sync on the same queue — both are
+            // safe from any non-_stateQueue thread, including main, but not from _stateQueue.
+            if (!NSThread.isMainThread) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self _applicationDidFinishLaunchingWithOptions:launchOptions];
+                });
+                return;
             }
-        } @catch (NSException *e) {
-            FPLog(@"Apple Ads token exception (non-fatal): %@", e);
-        }
+            [self _processAttributionFromURL:launchOptions[UIApplicationLaunchOptionsURLKey]];
 
-        [self track:@"app_install" properties:[installProps copy]];
+            // Merge any stored click IDs and active UTM params into the install payload.
+            // activeClickIdsFlattened uses dispatch_sync, which drains any pending barrier
+            // (from the _processAttributionFromURL: call above) before reading — GCD guarantee.
+            NSDictionary *storedClickIds = [[FPState sharedInstance] activeClickIdsFlattened];
+            NSDictionary *storedUTM      = [[FPState sharedInstance] activeUTMParams];
+            if (storedClickIds.count > 0) {
+                [installProps addEntriesFromDictionary:storedClickIds];
+            }
+            if (storedUTM.count > 0) {
+                [installProps addEntriesFromDictionary:storedUTM];
+            }
 
-        // SKAdNetwork conversion value registration (StoreKit — runtime-only, opt-in).
-        // Only fires when skanConversionValue is in the valid range (1-63).
-        NSInteger skanValue = self.oneTimeConfiguration.skanConversionValue;
-        if (skanValue > 0 && skanValue <= 63) {
-            [self fp_registerSKANConversionValue:skanValue];
-        }
+            // Apple Ads attribution token (AdServices.framework — runtime-only, opt-in).
+            // attributionToken: throws ObjC exceptions when the app was not installed via
+            // Apple Search Ads — @try/@catch is required per Apple documentation.
+            @try {
+                NSString *(^tokenProvider)(void) = objc_getAssociatedObject(
+                    self, @selector(fp_appleAdsTokenProvider));
+                NSString *appleAdsToken = nil;
+                if (tokenProvider) {
+                    appleAdsToken = tokenProvider();
+                } else {
+                    Class aaClass = NSClassFromString(@"AAAttribution");
+                    SEL tokenSel = NSSelectorFromString(@"attributionToken:");
+                    if (aaClass && [aaClass respondsToSelector:tokenSel]) {
+                        NSString *(*tokenIMP)(id, SEL, NSError **) =
+                            (NSString *(*)(id, SEL, NSError **))[aaClass methodForSelector:tokenSel];
+                        NSError *tokenError = nil;
+                        CFAbsoluteTime tokenStart = CFAbsoluteTimeGetCurrent();
+                        appleAdsToken = tokenIMP(aaClass, tokenSel, &tokenError);
+                        CFAbsoluteTime tokenDuration = CFAbsoluteTimeGetCurrent() - tokenStart;
+                        if (tokenDuration > 0.1) {
+                            FPLog(@"Apple Ads token retrieval took %.2f seconds", tokenDuration);
+                        }
+                        if (tokenError) {
+                            FPLog(@"Apple Ads token unavailable: %@", tokenError.localizedDescription);
+                            [self track:@"apple_ads_token_error" properties:@{
+                                @"error_domain": tokenError.domain ?: @"unknown",
+                                @"error_code": @(tokenError.code),
+                            }];
+                        }
+                    }
+                }
+                if (appleAdsToken.length > 0) {
+                    installProps[@"apple_ads_token"] = appleAdsToken;
+                }
+            } @catch (NSException *e) {
+                FPLog(@"Apple Ads token exception (non-fatal): %@", e);
+            }
+
+            [self track:@"app_install" properties:[installProps copy]];
+
+            // SKAdNetwork conversion value registration (StoreKit — runtime-only, opt-in).
+            // Only fires when skanConversionValue is in the valid range (1-63).
+            NSInteger skanValue = self.oneTimeConfiguration.skanConversionValue;
+            if (skanValue > 0 && skanValue <= 63) {
+                [self fp_registerSKANConversionValue:skanValue];
+            }
 #else
-        // Non-iOS platforms (macOS): include the fields available without iOS APIs.
-        // idfv, att_status, and idfa require UIDevice/ATT and are intentionally omitted.
-        [self track:@"app_install" properties:@{
-            @"install_timestamp"    : iso8601FormattedString([NSDate date]),
-            @"device_id"            : [self getAnonymousId],
-            @"persistent_device_id" : [FPStableDeviceId deviceId],
-            @"os_version"           : [NSProcessInfo processInfo].operatingSystemVersionString ?: @"",
-            @"app_version"          : currentVersion ?: @"",
-        }];
+            // Non-iOS platforms (macOS): include the fields available without iOS APIs.
+            // idfv, att_status, and idfa require UIDevice/ATT and are intentionally omitted.
+            [self track:@"app_install" properties:@{
+                @"install_timestamp"    : iso8601FormattedString([NSDate date]),
+                @"device_id"            : [self getAnonymousId],
+                @"persistent_device_id" : [FPStableDeviceId deviceId],
+                @"os_version"           : [NSProcessInfo processInfo].operatingSystemVersionString ?: @"",
+                @"app_version"          : currentVersion ?: @"",
+            }];
 #endif
+        }
     } else {
-        // Returning user — fire Application Updated if the build changed.
-        if (![currentBuild isEqualToString:previousBuildV2]) {
+        // Returning user — fire Application Updated if lifecycle tracking is enabled
+        // and the build number changed since the last launch.
+        if (trackLifecycle && ![currentBuild isEqualToString:previousBuildV2]) {
             [self track:@"Application Updated" properties:@{
                 @"previous_version" : previousVersion ?: @"",
                 @"previous_build" : previousBuildV2 ?: @"",
@@ -351,25 +413,27 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     [[NSUserDefaults standardUserDefaults] setObject:currentVersion ?: @"" forKey:FPVersionKey];
     [[NSUserDefaults standardUserDefaults] setObject:currentBuild ?: @"" forKey:FPBuildKeyV2];
 
+    if (trackLifecycle) {
 #if TARGET_OS_IPHONE
-    // UIApplicationLaunchOptionsURLKey is an NSURL — convert to string so the payload
-    // remains JSON-serializable (NSJSONSerialization rejects raw NSURL values).
-    NSURL *launchURL = launchOptions[UIApplicationLaunchOptionsURLKey];
-    [self track:@"Application Opened" properties:@{
-        @"from_background" : @NO,
-        @"version" : currentVersion ?: @"",
-        @"build" : currentBuild ?: @"",
-        @"referring_application" : launchOptions[UIApplicationLaunchOptionsSourceApplicationKey] ?: @"",
-        @"url" : launchURL.absoluteString ?: @"",
-    }];
+        // UIApplicationLaunchOptionsURLKey is an NSURL — convert to string so the payload
+        // remains JSON-serializable (NSJSONSerialization rejects raw NSURL values).
+        NSURL *launchURL = launchOptions[UIApplicationLaunchOptionsURLKey];
+        [self track:@"Application Opened" properties:@{
+            @"from_background" : @NO,
+            @"version" : currentVersion ?: @"",
+            @"build" : currentBuild ?: @"",
+            @"referring_application" : launchOptions[UIApplicationLaunchOptionsSourceApplicationKey] ?: @"",
+            @"url" : launchURL.absoluteString ?: @"",
+        }];
 #elif TARGET_OS_OSX
-    [self track:@"Application Opened" properties:@{
-        @"from_background" : @NO,
-        @"version" : currentVersion ?: @"",
-        @"build" : currentBuild ?: @"",
-        @"default_launch" : launchOptions[NSApplicationLaunchIsDefaultLaunchKey] ?: @(YES),
-    }];
+        [self track:@"Application Opened" properties:@{
+            @"from_background" : @NO,
+            @"version" : currentVersion ?: @"",
+            @"build" : currentBuild ?: @"",
+            @"default_launch" : launchOptions[NSApplicationLaunchIsDefaultLaunchKey] ?: @(YES),
+        }];
 #endif
+    }
 }
 
 - (void)_applicationWillEnterForeground
