@@ -248,7 +248,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
 - (void)_applicationDidFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // app_install is gated on autoTrackFirstOpen (default YES), independent of
+    // Application Installed is gated on autoTrackFirstOpen (default YES), independent of
     // trackApplicationLifecycleEvents. Application Opened/Updated require the latter.
     // Run the V1→V2 migration unconditionally so a legacy key is never stranded,
     // regardless of whether lifecycle or first-open tracking is enabled.
@@ -271,7 +271,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
     NSString *currentBuild = [[NSBundle mainBundle] infoDictionary][@"CFBundleVersion"];
 
     if (!previousBuildV2) {
-        // Fresh install — fire app_install only when autoTrackFirstOpen is enabled.
+        // Fresh install — fire Application Installed only when autoTrackFirstOpen is enabled.
         if (trackFirstOpen) {
 #if TARGET_OS_IPHONE
             // ATT status — same associated-objects pattern as _handleDidBecomeActiveForATT.
@@ -296,8 +296,8 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
             installProps[@"manufacturer"]       = @"Apple";
             installProps[@"app_name"]           = [[NSBundle mainBundle] infoDictionary][@"CFBundleDisplayName"]
                                                   ?: [[NSBundle mainBundle] infoDictionary][@"CFBundleName"] ?: @"";
-            installProps[@"app_version"]        = currentVersion ?: @"";
-            installProps[@"app_build"]          = currentBuild ?: @"";
+            installProps[@"version"]            = currentVersion ?: @"";
+            installProps[@"build"]              = currentBuild ?: @"";
             installProps[@"bundle_id"]          = [[NSBundle mainBundle] bundleIdentifier] ?: @"";
             installProps[@"locale"]             = [[NSLocale currentLocale] localeIdentifier] ?: @"";
 
@@ -373,7 +373,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
                 FPLog(@"Apple Ads token exception (non-fatal): %@", e);
             }
 
-            [self track:@"app_install" properties:[installProps copy]];
+            [self track:@"Application Installed" properties:[installProps copy]];
 
             // SKAdNetwork conversion value registration (StoreKit — runtime-only, opt-in).
             // Only fires when skanConversionValue is in the valid range (1-63).
@@ -384,12 +384,12 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 #else
             // Non-iOS platforms (macOS): include the fields available without iOS APIs.
             // idfv, att_status, and idfa require UIDevice/ATT and are intentionally omitted.
-            [self track:@"app_install" properties:@{
+            [self track:@"Application Installed" properties:@{
                 @"install_timestamp"    : iso8601FormattedString([NSDate date]),
                 @"device_id"            : [self getAnonymousId],
                 @"persistent_device_id" : [FPStableDeviceId deviceId],
                 @"os_version"           : [NSProcessInfo processInfo].operatingSystemVersionString ?: @"",
-                @"app_version"          : currentVersion ?: @"",
+                @"version"              : currentVersion ?: @"",
             }];
 #endif
         }
@@ -408,7 +408,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
     // Persist version/build for both fresh-install and returning-user paths.
     // For fresh installs this acts as the guard flag so a subsequent cold launch
-    // after app-kill does not re-fire app_install. For returning users it keeps
+    // after app-kill does not re-fire Application Installed. For returning users it keeps
     // the stored values current for the next Application Updated comparison.
     [[NSUserDefaults standardUserDefaults] setObject:currentVersion ?: @"" forKey:FPVersionKey];
     [[NSUserDefaults standardUserDefaults] setObject:currentBuild ?: @"" forKey:FPBuildKeyV2];

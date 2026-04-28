@@ -157,7 +157,7 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
     for (FPContext *ctx in self.capture.capturedContexts) {
         FPTrackPayload *track = (FPTrackPayload *)ctx.payload;
         if ([track isKindOfClass:[FPTrackPayload class]] &&
-            [track.event isEqualToString:@"app_install"]) {
+            [track.event isEqualToString:@"Application Installed"]) {
             return track;
         }
     }
@@ -180,7 +180,7 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 #pragma mark - AC-1, AC-2: Token capture and inclusion in payload
 // ---------------------------------------------------------------------------
 
-/// Apple Ads token returned by provider → included as apple_ads_token in app_install payload.
+/// Apple Ads token returned by provider → included as apple_ads_token in Application Installed payload.
 - (void)testAppleAdsTokenIncludedInPayload
 {
 #if TARGET_OS_IPHONE
@@ -190,7 +190,7 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
     FPTrackPayload *install = [self capturedInstallPayload];
-    XCTAssertNotNil(install, @"app_install event must be tracked on fresh install");
+    XCTAssertNotNil(install, @"Application Installed event must be tracked on fresh install");
     XCTAssertEqualObjects(install.properties[@"apple_ads_token"], kTestToken,
         @"apple_ads_token must be set to the value returned by attributionToken:");
 #endif
@@ -217,7 +217,7 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
     );
 
     FPTrackPayload *install = [self capturedInstallPayload];
-    XCTAssertNotNil(install, @"app_install must still fire even when token throws");
+    XCTAssertNotNil(install, @"Application Installed must still fire even when token throws");
     XCTAssertNil(install.properties[@"apple_ads_token"],
         @"apple_ads_token must be absent when token retrieval throws");
 #endif
@@ -272,7 +272,7 @@ static NSString *const kFPAA_VersionKey  = @"FPVersionKey";
 
     XCTAssertFalse(skanCalled, @"SKAN must not be called when skanConversionValue is 0");
     FPTrackPayload *install = [self capturedInstallPayload];
-    XCTAssertNotNil(install, @"app_install must still fire when SKAN is skipped");
+    XCTAssertNotNil(install, @"Application Installed must still fire when SKAN is skipped");
 #endif
 }
 

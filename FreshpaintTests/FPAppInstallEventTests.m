@@ -149,13 +149,13 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     [super tearDown];
 }
 
-// Returns the first captured app_install track payload, or nil if absent.
+// Returns the first captured Application Installed track payload, or nil if absent.
 - (nullable FPTrackPayload *)capturedInstallPayload
 {
     for (FPContext *ctx in self.capture.capturedContexts) {
         FPTrackPayload *track = (FPTrackPayload *)ctx.payload;
         if ([track isKindOfClass:[FPTrackPayload class]] &&
-            [track.event isEqualToString:@"app_install"]) {
+            [track.event isEqualToString:@"Application Installed"]) {
             return track;
         }
     }
@@ -176,17 +176,17 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
 }
 
 // ---------------------------------------------------------------------------
-#pragma mark - AC 1: Event name is app_install (AC #8: fires once on first install)
+#pragma mark - AC 1: Event name is Application Installed (AC #8: fires once on first install)
 // ---------------------------------------------------------------------------
 
-/// On the very first launch (FPBuildKeyV2 absent), app_install must be tracked.
+/// On the very first launch (FPBuildKeyV2 absent), Application Installed must be tracked.
 - (void)testFiresAppInstallOnFirstLaunch
 {
 #if TARGET_OS_IOS
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
-    XCTAssertTrue([self capturedEventNamed:@"app_install"],
-                  @"app_install must fire when FPBuildKeyV2 is absent (first install)");
+    XCTAssertTrue([self capturedEventNamed:@"Application Installed"],
+                  @"Application Installed must fire when FPBuildKeyV2 is absent (first install)");
 #else
     XCTSkip(@"This test requires iOS");
 #endif
@@ -196,7 +196,7 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
 #pragma mark - AC 8 (returning device): fires exactly once per install
 // ---------------------------------------------------------------------------
 
-/// On a returning launch (FPBuildKeyV2 already present), app_install must NOT fire.
+/// On a returning launch (FPBuildKeyV2 already present), Application Installed must NOT fire.
 - (void)testDoesNotFireOnReturningDevice
 {
 #if TARGET_OS_IOS
@@ -206,8 +206,8 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
-    XCTAssertFalse([self capturedEventNamed:@"app_install"],
-                   @"app_install must NOT fire when FPBuildKeyV2 is already set");
+    XCTAssertFalse([self capturedEventNamed:@"Application Installed"],
+                   @"Application Installed must NOT fire when FPBuildKeyV2 is already set");
 #else
     XCTSkip(@"This test requires iOS");
 #endif
@@ -217,8 +217,8 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
 #pragma mark - AC 2/3/4/5/7: Payload field validation
 // ---------------------------------------------------------------------------
 
-/// install_timestamp, device_id, idfv, att_status, os_version, and app_version
-/// must all be present and non-empty in the app_install payload.
+/// install_timestamp, device_id, idfv, att_status, os_version, and version
+/// must all be present and non-empty in the Application Installed payload.
 - (void)testPayloadContainsRequiredFields
 {
 #if TARGET_OS_IOS
@@ -227,7 +227,7 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
     FPTrackPayload *payload = [self capturedInstallPayload];
-    XCTAssertNotNil(payload, @"app_install payload must be captured");
+    XCTAssertNotNil(payload, @"Application Installed payload must be captured");
 
     NSDictionary *props = payload.properties;
 
@@ -269,8 +269,8 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     XCTAssertNotNil(osVersion, @"os_version must be present");
     XCTAssertGreaterThan(osVersion.length, 0u);
 
-    // app_version — non-nil (may be empty in test bundle)
-    XCTAssertNotNil(props[@"app_version"], @"app_version key must be present");
+    // version — non-nil (may be empty in test bundle)
+    XCTAssertNotNil(props[@"version"], @"version key must be present");
 #else
     XCTSkip(@"This test requires iOS");
 #endif
@@ -290,7 +290,7 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
     FPTrackPayload *payload = [self capturedInstallPayload];
-    XCTAssertNotNil(payload, @"app_install payload must be captured");
+    XCTAssertNotNil(payload, @"Application Installed payload must be captured");
     XCTAssertEqualObjects(payload.properties[@"idfa"], kFPValidIDFA,
                           @"idfa must be present and match when ATT is authorized");
 #else
@@ -308,7 +308,7 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
     FPTrackPayload *payload = [self capturedInstallPayload];
-    XCTAssertNotNil(payload, @"app_install payload must be captured");
+    XCTAssertNotNil(payload, @"Application Installed payload must be captured");
     XCTAssertNil(payload.properties[@"idfa"],
                  @"idfa must be absent when ATT status is not authorized");
 #else
@@ -326,7 +326,7 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
     FPTrackPayload *payload = [self capturedInstallPayload];
-    XCTAssertNotNil(payload, @"app_install payload must be captured");
+    XCTAssertNotNil(payload, @"Application Installed payload must be captured");
     XCTAssertNil(payload.properties[@"idfa"],
                  @"idfa must be absent when adSupportBlock is nil even if ATT is authorized");
 #else
@@ -344,7 +344,7 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
     FPTrackPayload *payload = [self capturedInstallPayload];
-    XCTAssertNotNil(payload, @"app_install payload must be captured");
+    XCTAssertNotNil(payload, @"Application Installed payload must be captured");
     XCTAssertNil(payload.properties[@"idfa"],
                  @"idfa must be absent when adSupportBlock returns all-zeros IDFA");
 #else
@@ -356,7 +356,7 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
 #pragma mark - AC 9: Flag set after enqueue, not after flush
 // ---------------------------------------------------------------------------
 
-/// FPBuildKeyV2 must be written synchronously after the app_install event is
+/// FPBuildKeyV2 must be written synchronously after the Application Installed event is
 /// enqueued — without waiting for a flush call.
 - (void)testFlagSetAfterEnqueue
 {
@@ -370,7 +370,7 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     // No flush called — flag must already be set.
     NSString *storedBuild = [[NSUserDefaults standardUserDefaults] stringForKey:FPBuildKeyV2];
     XCTAssertNotNil(storedBuild,
-                    @"FPBuildKeyV2 must be written immediately after app_install is enqueued, not deferred to flush");
+                    @"FPBuildKeyV2 must be written immediately after Application Installed is enqueued, not deferred to flush");
 #else
     XCTSkip(@"This test requires iOS");
 #endif
@@ -392,13 +392,13 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
 
     // Application Updated should fire (different build stored vs. current).
     // We can't guarantee a build mismatch in the test bundle, so we just verify
-    // Application Opened always fires and app_install does NOT.
-    XCTAssertFalse([self capturedEventNamed:@"app_install"],
-                   @"app_install must not fire on a returning launch");
+    // Application Opened always fires and Application Installed does NOT on a returning launch.
+    XCTAssertFalse([self capturedEventNamed:@"Application Installed"],
+                   @"Application Installed must not fire on a returning launch");
     XCTAssertTrue([self capturedEventNamed:@"Application Opened"],
                   @"Application Opened must still fire on every launch");
-    XCTAssertFalse([self capturedEventNamed:@"Application Installed"],
-                   @"The old Application Installed event name must never fire");
+    XCTAssertFalse([self capturedEventNamed:@"app_install"],
+                   @"app_install must never fire — event name is Application Installed");
 #else
     XCTSkip(@"This test requires iOS");
 #endif
@@ -408,7 +408,7 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
 #pragma mark - autoTrackFirstOpen independent of trackApplicationLifecycleEvents
 // ---------------------------------------------------------------------------
 
-/// app_install must fire even when trackApplicationLifecycleEvents is NO,
+/// Application Installed must fire even when trackApplicationLifecycleEvents is NO,
 /// as long as autoTrackFirstOpen is YES (the default). This is the primary
 /// production path: clients who only want MMP attribution need not opt into
 /// the full lifecycle event suite.
@@ -434,15 +434,48 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     for (FPContext *ctx in localCapture.capturedContexts) {
         FPTrackPayload *t = (FPTrackPayload *)ctx.payload;
         if (![t isKindOfClass:[FPTrackPayload class]]) continue;
-        if ([t.event isEqualToString:@"app_install"])       foundInstall = YES;
-        if ([t.event isEqualToString:@"Application Opened"]) foundOpened  = YES;
+        if ([t.event isEqualToString:@"Application Installed"]) foundInstall = YES;
+        if ([t.event isEqualToString:@"Application Opened"])    foundOpened  = YES;
     }
 
     XCTAssertTrue(foundInstall,
-                  @"app_install must fire when autoTrackFirstOpen is YES even if "
+                  @"Application Installed must fire when autoTrackFirstOpen is YES even if "
                   @"trackApplicationLifecycleEvents is NO");
     XCTAssertFalse(foundOpened,
                    @"Application Opened must NOT fire when trackApplicationLifecycleEvents is NO");
+#else
+    XCTSkip(@"This test requires iOS");
+#endif
+}
+
+/// When autoTrackFirstOpen is explicitly set to NO, Application Installed must not fire
+/// even on a fresh install.
+- (void)testAppInstallDoesNotFireWhenAutoTrackFirstOpenDisabled
+{
+#if TARGET_OS_IOS
+    FPAnalyticsConfiguration *cfg = [FPAnalyticsConfiguration configurationWithWriteKey:@"TEST_WRITE_KEY"];
+    cfg.trackApplicationLifecycleEvents = NO;
+    cfg.autoTrackFirstOpen = NO;
+    cfg.application = nil;
+
+    FPInstallEventCapture *localCapture = [[FPInstallEventCapture alloc] init];
+    cfg.sourceMiddleware = @[ localCapture ];
+
+    FPAnalytics *analytics = [[FPAnalytics alloc] initWithConfiguration:cfg];
+
+    [analytics _applicationDidFinishLaunchingWithOptions:nil];
+
+    BOOL foundInstall = NO;
+    for (FPContext *ctx in localCapture.capturedContexts) {
+        FPTrackPayload *t = (FPTrackPayload *)ctx.payload;
+        if ([t isKindOfClass:[FPTrackPayload class]] &&
+            [t.event isEqualToString:@"Application Installed"]) {
+            foundInstall = YES;
+        }
+    }
+
+    XCTAssertFalse(foundInstall,
+                   @"Application Installed must NOT fire when autoTrackFirstOpen is explicitly NO");
 #else
     XCTSkip(@"This test requires iOS");
 #endif
@@ -466,8 +499,8 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
                                                                object:nil];
     [self.analytics fp_handleDelayedLaunch:sceneNote];
 
-    XCTAssertTrue([self capturedEventNamed:@"app_install"],
-                  @"app_install must fire when fp_handleDelayedLaunch: is called after "
+    XCTAssertTrue([self capturedEventNamed:@"Application Installed"],
+                  @"Application Installed must fire when fp_handleDelayedLaunch: is called after "
                   @"a nil-application init (iOS 26 SwiftUI path)");
 
     // Call the handler a second time to verify launchHandlerFired prevents double-firing.
@@ -477,46 +510,13 @@ static NSString *const kFPZeroIDFA   = @"00000000-0000-0000-0000-000000000000";
     for (FPContext *ctx in self.capture.capturedContexts) {
         FPTrackPayload *t = (FPTrackPayload *)ctx.payload;
         if ([t isKindOfClass:[FPTrackPayload class]] &&
-            [t.event isEqualToString:@"app_install"]) {
+            [t.event isEqualToString:@"Application Installed"]) {
             installCount++;
         }
     }
     XCTAssertEqual(installCount, 1u,
-                   @"app_install must fire exactly once — launchHandlerFired must "
+                   @"Application Installed must fire exactly once — launchHandlerFired must "
                    @"prevent a second fire on repeated handler invocations");
-#else
-    XCTSkip(@"This test requires iOS");
-#endif
-}
-
-/// When autoTrackFirstOpen is explicitly set to NO, app_install must not fire
-/// even on a fresh install.
-- (void)testAppInstallDoesNotFireWhenAutoTrackFirstOpenDisabled
-{
-#if TARGET_OS_IOS
-    FPAnalyticsConfiguration *cfg = [FPAnalyticsConfiguration configurationWithWriteKey:@"TEST_WRITE_KEY"];
-    cfg.trackApplicationLifecycleEvents = NO;
-    cfg.autoTrackFirstOpen = NO;
-    cfg.application = nil;
-
-    FPInstallEventCapture *localCapture = [[FPInstallEventCapture alloc] init];
-    cfg.sourceMiddleware = @[ localCapture ];
-
-    FPAnalytics *analytics = [[FPAnalytics alloc] initWithConfiguration:cfg];
-
-    [analytics _applicationDidFinishLaunchingWithOptions:nil];
-
-    BOOL foundInstall = NO;
-    for (FPContext *ctx in localCapture.capturedContexts) {
-        FPTrackPayload *t = (FPTrackPayload *)ctx.payload;
-        if ([t isKindOfClass:[FPTrackPayload class]] &&
-            [t.event isEqualToString:@"app_install"]) {
-            foundInstall = YES;
-        }
-    }
-
-    XCTAssertFalse(foundInstall,
-                   @"app_install must NOT fire when autoTrackFirstOpen is explicitly NO");
 #else
     XCTSkip(@"This test requires iOS");
 #endif
