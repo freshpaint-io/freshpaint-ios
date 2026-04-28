@@ -362,13 +362,13 @@ static NSString *const kFPUTMExpiryKey  = @"com.freshpaint.utmExpiry";
 }
 
 // ---------------------------------------------------------------------------
-#pragma mark - Test 10: app_install merges stored click IDs
+#pragma mark - Test 10: Application Installed merges stored click IDs
 // ---------------------------------------------------------------------------
 
 - (void)testAppInstallMergesStoredClickIds
 {
 #if TARGET_OS_IOS
-    // Pre-store a click ID so it is available when app_install fires.
+    // Pre-store a click ID so it is available when Application Installed fires.
     NSDictionary *clickId = @{
         @"$gclid": @"install_gclid",
         @"$gclid_creation_time": @((int64_t)([[NSDate date] timeIntervalSince1970] * 1000)),
@@ -380,10 +380,10 @@ static NSString *const kFPUTMExpiryKey  = @"com.freshpaint.utmExpiry";
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:nil];
 
-    FPTrackPayload *installPayload = [self firstCapturedEventNamed:@"app_install"];
-    XCTAssertNotNil(installPayload, @"app_install must fire on first launch");
+    FPTrackPayload *installPayload = [self firstCapturedEventNamed:@"Application Installed"];
+    XCTAssertNotNil(installPayload, @"Application Installed must fire on first launch");
     XCTAssertNotNil(installPayload.properties[@"$gclid"],
-        @"$gclid must be merged into app_install properties from stored click IDs");
+        @"$gclid must be merged into Application Installed properties from stored click IDs");
 #else
     XCTSkip(@"This test requires iOS");
 #endif
@@ -536,12 +536,12 @@ static NSString *const kFPUTMExpiryKey  = @"com.freshpaint.utmExpiry";
 
     [self.analytics _applicationDidFinishLaunchingWithOptions:launchOptions];
 
-    FPTrackPayload *install = [self firstCapturedEventNamed:@"app_install"];
-    XCTAssertNotNil(install, @"app_install must fire on fresh launch with URL");
+    FPTrackPayload *install = [self firstCapturedEventNamed:@"Application Installed"];
+    XCTAssertNotNil(install, @"Application Installed must fire on fresh launch with URL");
     XCTAssertEqualObjects(install.properties[@"$ttclid"], @"tiktok_launch_99",
-        @"$ttclid from the launch URL must be merged into app_install payload");
+        @"$ttclid from the launch URL must be merged into Application Installed payload");
     XCTAssertEqualObjects(install.properties[@"utm_source"], @"tiktok",
-        @"utm_source from the launch URL must be merged into app_install payload");
+        @"utm_source from the launch URL must be merged into Application Installed payload");
 #endif
 }
 
