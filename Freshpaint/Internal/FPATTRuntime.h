@@ -10,6 +10,11 @@
 #pragma once
 #import <Foundation/Foundation.h>
 
+/// Sentinel value for a zeroed-out advertising identifier (all zeros UUID).
+/// Used by FPAnalytics and FPAttributionMiddleware to detect unavailable IDFA.
+/// Defined static to avoid multiply-defined-symbol errors across translation units.
+static NSString * const kFPZeroedIDFA = @"00000000-0000-0000-0000-000000000000";
+
 /// ATT authorization status values — mirror ATTrackingManager.ATTrackingAuthorizationStatus.
 /// Defined here so production code never hard-codes the magic integers.
 static const NSUInteger kFPATTStatusNotDetermined = 0;

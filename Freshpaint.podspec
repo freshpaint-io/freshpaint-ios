@@ -27,6 +27,7 @@ Pod::Spec.new do |s|
   ]
 
   s.private_header_files = [
+    'Freshpaint/Classes/FPAdClickIds.h',
     'Freshpaint/Classes/FPAttributionMiddleware.h',
     'Freshpaint/Internal/**/*.h'
   ]

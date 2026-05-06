@@ -23,10 +23,6 @@
 
 static FPAnalytics *__sharedInstance = nil;
 
-// All-zeros IDFA value returned when the advertising identifier is not available.
-static NSString *const kFPInstallZeroedIDFA = @"00000000-0000-0000-0000-000000000000";
-
-
 @interface FPAnalytics ()
 
 @property (nonatomic, assign) BOOL enabled;
@@ -303,7 +299,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 
             if (attStatus == kFPATTStatusAuthorized && self.oneTimeConfiguration.adSupportBlock != nil) {
                 NSString *idfa = self.oneTimeConfiguration.adSupportBlock();
-                if (idfa.length > 0 && ![idfa isEqualToString:kFPInstallZeroedIDFA]) {
+                if (idfa.length > 0 && ![idfa isEqualToString:kFPZeroedIDFA]) {
                     installProps[@"idfa"] = idfa;
                 }
             }
@@ -761,7 +757,7 @@ NSString *const FPBuildKeyV2 = @"FPBuildKeyV2";
 {
     // this has to match the actual version, NOT what's in info.plist
     // because Apple only accepts X.X.X as versions in the review process.
-    return @"0.4.1";
+    return @"0.5.0";
 }
 
 #pragma mark - ATT (App Tracking Transparency)

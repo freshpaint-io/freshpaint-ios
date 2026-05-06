@@ -11,8 +11,6 @@
 #import "FPStableDeviceId.h"
 #import <objc/runtime.h>
 
-static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000";
-
 @interface FPAttributionMiddleware ()
 @property (nonatomic, strong) FPAnalyticsConfiguration *configuration;
 @end
@@ -59,7 +57,7 @@ static NSString *const kFPAllZerosIDFA = @"00000000-0000-0000-0000-000000000000"
         // Include IDFA only when fully authorized and adSupportBlock is set.
         if (status == kFPATTStatusAuthorized && self.configuration.adSupportBlock != nil) {
             NSString *idfa = self.configuration.adSupportBlock();
-            if (idfa && idfa.length > 0 && ![idfa isEqualToString:kFPAllZerosIDFA]) {
+            if (idfa && idfa.length > 0 && ![idfa isEqualToString:kFPZeroedIDFA]) {
                 enrichment[@"advertisingId"] = idfa;
             }
         }
