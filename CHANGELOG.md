@@ -1,3 +1,16 @@
+Version 0.5.0 (6 May, 2026)
+* [New] MMP attribution support: stable device ID (NSUserDefaults-backed UUID), ATT status and IDFA gating via `FPAttributionMiddleware`, ATT public API with auto-request, and Apple Ads attribution token with SKAdNetwork conversion value.
+* [New] Enhanced `Application Installed` lifecycle event with full MMP attribution payload (`install_timestamp`, `device_id`, `idfv`, `idfa`, `att_status`, `os_version`, `app_version`).
+* [New] Deep link attribution: ad click IDs (24 platforms) and UTM params extracted from incoming URLs and stored in event context.
+* [New] Click IDs and UTM params moved into `context` in event JSON.
+* [New] `userAgent` added to analytics context payload for parity with Android SDK.
+* [New] Event payload flattened to match React Native SDK structure.
+* [New] `FPAdClickIds.h` visibility changed from Public to Project (internal header).
+* [Fix] Replaced Keychain with NSUserDefaults for persistent device ID storage (avoids App Store flags for tracking identifiers persisting through uninstall).
+* [Fix] Reverted install event name to `Application Installed` for backward compatibility with existing client pipelines.
+* [Fix] `app_install` event now fires correctly on iOS 26 SwiftUI scene lifecycle.
+* [Fix] macOS `app_install` payload now includes `device_id`.
+
 Version 0.4.1 (25 November, 2025)
 * [Fix] Fixed `$is_first_event_in_session` flag to only apply to engagement events (track, screen) and not metadata events (identify, group, alias). This ensures the session start flag is properly attributed to the first screen view for accurate GA4 attribution.
 * [Fix] Fixed race condition in session handling that caused inconsistent session start flags when multiple events fired simultaneously. This resolves issues where GA4 events would reach destinations but not appear in Realtime reporting.
