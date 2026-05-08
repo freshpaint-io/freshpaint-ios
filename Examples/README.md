@@ -61,7 +61,7 @@ Both demo apps showcase identical functionality:
 **Important**: These examples use local SDK references for development purposes. For your production app:
 
 1. **Swift Package Manager**: Add the Freshpaint package from GitHub
-2. **CocoaPods**: Use `pod 'Freshpaint', '~> 0.4.0'` in your Podfile
+2. **CocoaPods**: Use `pod 'Freshpaint', '~> 0.4.2'` in your Podfile
 
 ### 🔐 API Key Setup
 
