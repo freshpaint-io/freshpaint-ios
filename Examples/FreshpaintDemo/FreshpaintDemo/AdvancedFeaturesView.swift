@@ -271,7 +271,7 @@ struct AdvancedFeaturesView: View {
     }
     
     private func loadSessionInfo() {
-        sessionInfo = Freshpaint.shared().sessionInfo()
+        sessionInfo = Freshpaint.shared().sessionInfo(forAction: "load")
         addDebugLog("🔄 Session info refreshed")
         addDebugLog("Session info: \(sessionInfo)")
     }

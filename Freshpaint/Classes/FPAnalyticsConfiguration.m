@@ -74,6 +74,9 @@ static const NSTimeInterval DefaultSessionTimeout = 1800;
             @"(fb\\d+://authorize#access_token=)([^ ]+)": @"$1((redacted/fb-auth-token))"
         };
         self.sessionTimeout = DefaultSessionTimeout;
+        self.autoRequestATT = NO;
+        self.skanConversionValue = 0;
+        self.autoTrackFirstOpen = YES;
         _factories = [NSMutableArray array];
 #if TARGET_OS_IPHONE
         if ([UIApplication respondsToSelector:@selector(sharedApplication)]) {

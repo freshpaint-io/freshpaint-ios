@@ -1,0 +1,70 @@
+//
+//  FPATTRuntime.h
+//  Freshpaint
+//
+//  Internal-only header. Shared runtime-only ATT status lookup used by both
+//  FPAttributionMiddleware and FPAnalytics to eliminate duplicated IMP-dispatch
+//  code. Import in .m files only; do NOT include in the public umbrella header.
+//
+
+#pragma once
+#import <Foundation/Foundation.h>
+
+/// Sentinel value for a zeroed-out advertising identifier (all zeros UUID).
+/// Used by FPAnalytics and FPAttributionMiddleware to detect unavailable IDFA.
+/// Defined static to avoid multiply-defined-symbol errors across translation units.
+static NSString * const kFPZeroedIDFA = @"00000000-0000-0000-0000-000000000000";
+
+/// ATT authorization status values — mirror ATTrackingManager.ATTrackingAuthorizationStatus.
+/// Defined here so production code never hard-codes the magic integers.
+static const NSUInteger kFPATTStatusNotDetermined = 0;
+static const NSUInteger kFPATTStatusRestricted    = 1;
+static const NSUInteger kFPATTStatusDenied        = 2;
+static const NSUInteger kFPATTStatusAuthorized    = 3;
+
+/// Sentinel returned when the ATT framework is unavailable (macOS, or an iOS/tvOS
+/// build that has not linked AppTrackingTransparency). Kept outside the
+/// ATTrackingManager range (0–3) so callers can distinguish "user not yet prompted"
+/// (notDetermined = 0) from "platform has no ATT framework".
+static const NSUInteger kFPATTStatusUnavailable = NSUIntegerMax;
+
+/// Returns a human-readable string for the given ATT authorization status value.
+///
+/// @param status  One of the kFPATTStatus* constants (0–3) or kFPATTStatusUnavailable.
+/// @return A string suitable for analytics payloads: "notDetermined", "restricted",
+///         "denied", "authorized", or "unavailable".
+static inline NSString *FPATTStatusToString(NSUInteger status)
+{
+    switch (status) {
+        case kFPATTStatusRestricted: return @"restricted";
+        case kFPATTStatusDenied:     return @"denied";
+        case kFPATTStatusAuthorized: return @"authorized";
+        case kFPATTStatusUnavailable: return @"unavailable";
+        default:                     return @"notDetermined";
+    }
+}
+
+/// Returns the current ATT tracking authorization status via runtime-only lookup.
+/// Never imports AppTrackingTransparency directly — safe for apps that omit it.
+///
+/// @return 0–3 on success (mirrors ATTrackingManager.ATTrackingAuthorizationStatus),
+///         or kFPATTStatusUnavailable when the framework is absent.
+///
+/// @note Declared `static inline` rather than `extern` because this header is
+///       included by two separate translation units (FPAttributionMiddleware.m and
+///       FPAnalytics.m). `static inline` gives each TU its own copy, avoiding a
+///       multiply-defined symbol at link time without requiring a companion .m file.
+static inline NSUInteger FPATTGetCurrentStatus(void)
+{
+#if TARGET_OS_IPHONE
+    Class cls = NSClassFromString(@"ATTrackingManager");
+    if (!cls) { return kFPATTStatusUnavailable; }
+    SEL sel = NSSelectorFromString(@"trackingAuthorizationStatus");
+    if (![cls respondsToSelector:sel]) { return kFPATTStatusUnavailable; }
+    typedef NSUInteger (*ATTStatusIMP)(id, SEL);
+    ATTStatusIMP imp = (ATTStatusIMP)[cls methodForSelector:sel];
+    return imp ? imp(cls, sel) : kFPATTStatusUnavailable;
+#else
+    return kFPATTStatusUnavailable;
+#endif
+}

@@ -9,7 +9,7 @@ bootstrap:
 	.buildscript/bootstrap.sh
 
 lint:
-	pod lib lint --allow-warnings
+	pod lib lint --allow-warnings --platforms=ios
 
 carthage:
 	carthage build --platform ios --no-skip-current

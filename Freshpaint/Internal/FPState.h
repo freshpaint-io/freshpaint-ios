@@ -19,6 +19,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSString *sessionId;
 @property (nonatomic, assign) NSTimeInterval lastSessionTimestamp;
 @property (nonatomic, assign) BOOL isFirstEventInSession;
+/// Persisted flat map of @"$clickIdKey" → value and @"$clickIdKey_creation_time" → NSNumber.
+@property (nonatomic, strong, nullable) NSDictionary<NSString *, id> *clickIds;
+/// In-memory map of active UTM parameters (utm_source, utm_medium, etc.).
+@property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *utmParams;
+/// Unix timestamp (seconds) when the stored UTM params expire (now + 86400 s).
+@property (nonatomic, assign) NSTimeInterval utmExpiryTimestamp;
 @end
 
 @interface FPPayloadContext: NSObject
@@ -44,6 +50,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setUserInfo:(FPUserInfo *)userInfo;
 - (void)validateOrRenewSessionWithTimeout:(NSTimeInterval)timeout;
+
+/// Merges extracted click IDs into stored state, deduplicating by value.
+- (void)mergeClickIds:(NSDictionary<NSString *, id> *)extracted;
+
+/// Returns the stored click IDs as a flat dict suitable for event properties.
+/// Returns an empty dict (never nil) when no IDs are stored.
+- (NSDictionary<NSString *, id> *)activeClickIdsFlattened;
+
+/// Stores UTM parameters with a 24-hour expiry.
+- (void)setUTMParams:(NSDictionary<NSString *, NSString *> *)params;
+
+/// Returns the stored UTM params if not yet expired; nil if expired or absent.
+- (NSDictionary<NSString *, NSString *> * _Nullable)activeUTMParams;
 
 @end
 

@@ -1,0 +1,72 @@
+//
+//  FPAttributionMiddleware.m
+//  Freshpaint
+//
+
+#import "FPAttributionMiddleware.h"
+#import "FPContext.h"
+#import "FPPayload.h"
+#import "FPPayload+FPAttributionEnrichment.h"
+#import "FPATTRuntime.h"
+#import "FPStableDeviceId.h"
+#import <objc/runtime.h>
+
+@interface FPAttributionMiddleware ()
+@property (nonatomic, strong) FPAnalyticsConfiguration *configuration;
+@end
+
+
+@implementation FPAttributionMiddleware
+
+- (instancetype)initWithConfiguration:(FPAnalyticsConfiguration *)configuration
+{
+    if (self = [super init]) {
+        _configuration = configuration;
+    }
+    return self;
+}
+
+#pragma mark - ATT status
+
+- (NSUInteger)currentATTStatus
+{
+    // In tests, FPAttributionMiddleware+Testing.h injects a provider via associated
+    // objects. In production, objc_getAssociatedObject returns nil here.
+    NSUInteger (^provider)(void) = objc_getAssociatedObject(
+        self, @selector(attStatusProvider));
+    if (provider) { return provider(); }
+    // Shared runtime-only lookup (FPATTRuntime.h). Returns kFPATTStatusUnavailable
+    // when AppTrackingTransparency is not linked.
+    return FPATTGetCurrentStatus();
+}
+
+#pragma mark - FPMiddleware
+
+- (void)context:(FPContext *)context next:(FPMiddlewareNext)next
+{
+#if TARGET_OS_IPHONE
+    FPPayload *payload = context.payload;
+    if (payload) {
+        NSUInteger status = [self currentATTStatus];
+        NSMutableDictionary *enrichment = [NSMutableDictionary dictionary];
+
+        enrichment[@"att_status"]           = FPATTStatusToString(status);
+        enrichment[@"device_id"]            = payload.anonymousId ?: @"";
+        enrichment[@"persistent_device_id"] = [FPStableDeviceId deviceId];
+
+        // Include IDFA only when fully authorized and adSupportBlock is set.
+        if (status == kFPATTStatusAuthorized && self.configuration.adSupportBlock != nil) {
+            NSString *idfa = self.configuration.adSupportBlock();
+            if (idfa && idfa.length > 0 && ![idfa isEqualToString:kFPZeroedIDFA]) {
+                enrichment[@"advertisingId"] = idfa;
+            }
+        }
+
+        [payload fp_mergeDeviceContextValues:[enrichment copy]];
+    }
+#endif
+
+    next(context);
+}
+
+@end

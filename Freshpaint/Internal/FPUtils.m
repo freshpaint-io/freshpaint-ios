@@ -7,6 +7,7 @@
 #import "FPAnalyticsConfiguration.h"
 #import "FPReachability.h"
 #import "FPAnalytics.h"
+#import "FPState.h"
 
 #include <sys/sysctl.h>
 
@@ -181,6 +182,24 @@ NSDictionary *getStaticContext(FPAnalyticsConfiguration *configuration, NSString
         dict[@"screen"] = settingsDictionary[@"screen"];
     }
 
+#if TARGET_OS_IPHONE
+    {
+        NSString *appName = infoDictionary[@"CFBundleDisplayName"] ?: infoDictionary[@"CFBundleName"] ?: @"App";
+        NSString *version  = infoDictionary[@"CFBundleShortVersionString"] ?: @"1.0";
+        UIDevice *device   = [UIDevice currentDevice];
+        dict[@"userAgent"] = [NSString stringWithFormat:@"%@/%@ (%@; iOS %@)",
+                              appName, version, device.model, device.systemVersion];
+    }
+#elif TARGET_OS_OSX
+    {
+        NSString *appName = infoDictionary[@"CFBundleDisplayName"] ?: infoDictionary[@"CFBundleName"] ?: @"App";
+        NSString *version  = infoDictionary[@"CFBundleShortVersionString"] ?: @"1.0";
+        NSOperatingSystemVersion osVer = [NSProcessInfo processInfo].operatingSystemVersion;
+        dict[@"userAgent"] = [NSString stringWithFormat:@"%@/%@ (Mac; macOS %ld.%ld.%ld)",
+                              appName, version, osVer.majorVersion, osVer.minorVersion, osVer.patchVersion];
+    }
+#endif
+
     return dict;
 }
 
@@ -200,7 +219,11 @@ NSDictionary *mobileSpecifications(FPAnalyticsConfiguration *configuration, NSSt
         dict[@"name"] = [device model];
 #endif
         dict[@"model"] = getDeviceModel();
-        dict[@"id"] = [[device identifierForVendor] UUIDString];
+        NSString *vendorId = [[device identifierForVendor] UUIDString];
+        if (vendorId) {
+            dict[@"id"] = vendorId;
+            dict[@"idfv"] = vendorId;
+        }
         if (getAdTrackingEnabled(configuration)) {
             NSString *idfa = configuration.adSupportBlock();
             // This isn't ideal.  We're doing this because we can't actually check if IDFA is enabled on
@@ -352,7 +375,19 @@ NSDictionary *getLiveContext(FPReachability *reachability, NSDictionary *referre
     if (referrer) {
         context[@"referrer"] = [referrer copy];
     }
-    
+
+    // Inject persisted click IDs and active UTM params into every event context.
+    // Intentional: MMP attribution requires click IDs on all events so the MMP can
+    // attribute any post-install event back to the originating ad click.
+    NSDictionary *clickIds = [[FPState sharedInstance] activeClickIdsFlattened];
+    if (clickIds.count > 0) {
+        [context addEntriesFromDictionary:clickIds];
+    }
+    NSDictionary *utmParams = [[FPState sharedInstance] activeUTMParams];
+    if (utmParams.count > 0) {
+        [context addEntriesFromDictionary:utmParams];
+    }
+
     return [context copy];
 }
 

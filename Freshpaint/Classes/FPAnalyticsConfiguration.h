@@ -237,6 +237,35 @@ NS_SWIFT_NAME(FreshpaintConfiguration)
  */
 @property (nonatomic, assign) NSTimeInterval sessionTimeout;
 
+/**
+ * Whether the analytics client should automatically request App Tracking Transparency permission.
+ * `NO` by default.
+ */
+@property (nonatomic, assign) BOOL autoRequestATT;
+
+/**
+ * SKAdNetwork conversion value to register on fresh install (iOS 15.4+).
+ *
+ * Valid range: 1-63. Set to 0 (default) to skip SKAN registration.
+ * Values outside 1-63 are ignored.
+ *
+ * The SDK registers this value using the best available SKAN API:
+ * - v4 (iOS 16.1+): updatePostbackConversionValue:coarseValue:lockWindow:completionHandler:
+ *   with coarseValue = SKAdNetworkCoarseConversionValueMedium and lockWindow = NO.
+ * - v3 (iOS 15.4-16.0): updatePostbackConversionValue:completionHandler:
+ *
+ * Registration occurs once during the first app launch. StoreKit is accessed
+ * via runtime reflection -- no direct framework import is required.
+ *
+ * @see https://developer.apple.com/documentation/storekit/skadnetwork
+ */
+@property (nonatomic, assign) NSInteger skanConversionValue;
+
+/**
+ * Whether the analytics client should automatically track the first app open event. `YES` by default.
+ */
+@property (nonatomic, assign) BOOL autoTrackFirstOpen;
+
 @end
 
 #pragma mark - Experimental

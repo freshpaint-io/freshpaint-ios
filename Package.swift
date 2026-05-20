@@ -32,7 +32,11 @@ let package = Package(
                 .headerSearchPath("Classes")
             ],
             linkerSettings: [
-                .linkedFramework("CoreTelephony", .when(platforms: [.iOS, .macOS]))
+                .linkedFramework("CoreTelephony", .when(platforms: [.iOS, .macOS])),
+                // NOTE: .unsafeFlags is the only SPM mechanism for weak-linking frameworks.
+                // Trade-off: disables SPM binary artifact caching and prevents this package
+                // from being consumed by packages that use binary targets.
+                .unsafeFlags(["-weak_framework", "AppTrackingTransparency", "-weak_framework", "AdServices"], .when(platforms: [.iOS]))
             ]
         ),
     ]
