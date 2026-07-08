@@ -11,12 +11,7 @@
 
 #include <sys/sysctl.h>
 
-#if TARGET_OS_IOS && TARGET_OS_MACCATALYST == 0
-#import <CoreTelephony/CTCarrier.h>
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
-
-static CTTelephonyNetworkInfo *_telephonyNetworkInfo;
-#elif TARGET_OS_OSX
+#if TARGET_OS_OSX
 #import <Cocoa/Cocoa.h>
 #endif
 
@@ -355,23 +350,6 @@ NSDictionary *getLiveContext(FPReachability *reachability, NSDictionary *referre
             network[@"wifi"] = @(reachability.isReachableViaWiFi);
             network[@"cellular"] = @(reachability.isReachableViaWWAN);
         }
-
-#if TARGET_OS_IOS && TARGET_OS_MACCATALYST == 0
-        // CTCarrier and subscriberCellularProvider are deprecated in iOS 16+, where the API
-        // returns a stub carrier rather than real data. We keep reading it unconditionally to
-        // preserve the existing event-payload behavior across all iOS versions; the pragma only
-        // silences the build-time deprecation warning and changes nothing at runtime.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        static dispatch_once_t networkInfoOnceToken;
-        dispatch_once(&networkInfoOnceToken, ^{
-            _telephonyNetworkInfo = [[CTTelephonyNetworkInfo alloc] init];
-        });
-        CTCarrier *carrier = [_telephonyNetworkInfo subscriberCellularProvider];
-        if (carrier.carrierName.length)
-            network[@"carrier"] = carrier.carrierName;
-#pragma clang diagnostic pop
-#endif
 
         network;
     });

@@ -17,7 +17,6 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '15.1'
   s.tvos.deployment_target = '12.0'
 
-  s.ios.frameworks = 'CoreTelephony'
   s.ios.weak_frameworks = 'AppTrackingTransparency', 'AdServices'
   s.frameworks = 'Security', 'StoreKit', 'SystemConfiguration', 'UIKit'
 
