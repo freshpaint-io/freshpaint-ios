@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '12.0'
 
   s.ios.weak_frameworks = 'AppTrackingTransparency', 'AdServices'
-  s.frameworks = 'Security', 'StoreKit', 'SystemConfiguration', 'UIKit'
+  s.frameworks = 'Network', 'Security', 'StoreKit', 'UIKit'
 
   s.source_files = [
     'Freshpaint/Classes/**/*',

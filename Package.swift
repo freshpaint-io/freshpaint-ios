@@ -32,6 +32,7 @@ let package = Package(
                 .headerSearchPath("Classes")
             ],
             linkerSettings: [
+                .linkedFramework("Network"),
                 // NOTE: .unsafeFlags is the only SPM mechanism for weak-linking frameworks.
                 // Trade-off: disables SPM binary artifact caching and prevents this package
                 // from being consumed by packages that use binary targets.
