@@ -35,7 +35,7 @@
 		64FDB3D1256EE283001884FD /* FPAnalyticsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB393256EE283001884FD /* FPAnalyticsUtils.m */; };
 		64FDB3D2256EE283001884FD /* FPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB394256EE283001884FD /* FPAnalytics.m */; };
 		64FDB3D3256EE283001884FD /* FPFreshpaintIntegrationFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB395256EE283001884FD /* FPFreshpaintIntegrationFactory.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		64FDB3D4256EE283001884FD /* FPReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB396256EE283001884FD /* FPReachability.h */; };
+		64FDB3D4256EE283001884FD /* FPReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB396256EE283001884FD /* FPReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		64FDB3D5256EE283001884FD /* FPIntegration.h in Headers */ = {isa = PBXBuildFile; fileRef = 64FDB397256EE283001884FD /* FPIntegration.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		64FDB3D6256EE283001884FD /* FPFreshpaintIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB398256EE283001884FD /* FPFreshpaintIntegration.m */; };
 		64FDB3D7256EE283001884FD /* FPAliasPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 64FDB399256EE283001884FD /* FPAliasPayload.m */; };
